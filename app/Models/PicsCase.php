@@ -101,6 +101,21 @@ class PicsCase extends Model
         return $this->hasMany(PicsReferral::class);
     }
 
+    public function diaryEntries(): HasMany
+    {
+        return $this->hasMany(DiaryEntry::class);
+    }
+
+    public function recoveryGoals(): HasMany
+    {
+        return $this->hasMany(RecoveryGoal::class);
+    }
+
+    public function caregiverAuthorizations(): HasMany
+    {
+        return $this->hasMany(CaregiverAuthorization::class);
+    }
+
     /**
      * Completitud de los campos clave. Los campos marcados "no aplica" se excluyen del
      * denominador; no usa ni afecta los indicadores institucionales — es calidad del dato.

@@ -8,6 +8,7 @@ use App\Filament\Pics\Resources\PicsCases\Pages\EditPicsCase;
 use App\Filament\Pics\Resources\PicsCases\Pages\ListPicsCases;
 use App\Filament\Pics\Resources\PicsCases\Pages\ViewPicsCase;
 use App\Filament\Pics\Resources\PicsCases\RelationManagers\ClinicalAuditsRelationManager;
+use App\Filament\Pics\Resources\PicsCases\RelationManagers\DiaryEntriesRelationManager;
 use App\Filament\Pics\Resources\PicsCases\RelationManagers\FollowupsRelationManager;
 use App\Filament\Pics\Resources\PicsCases\RelationManagers\ReferralsRelationManager;
 use App\Filament\Pics\Resources\PicsCases\Schemas\PicsCaseForm;
@@ -99,6 +100,7 @@ class PicsCaseResource extends Resource
         return [
             FollowupsRelationManager::class,
             ReferralsRelationManager::class,
+            DiaryEntriesRelationManager::class,
             ClinicalAuditsRelationManager::class,
         ];
     }

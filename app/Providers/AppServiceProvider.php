@@ -50,6 +50,7 @@ use App\Models\TepDischargePlan;
 use App\Models\TepFollowup;
 use App\Models\TepImagingStudy;
 use App\Models\TepPertActivation;
+use App\Models\User;
 use App\Observers\AcvCaseObserver;
 use App\Observers\CaseCommentObserver;
 use App\Observers\IndicatorDefinitionObserver;
@@ -145,9 +146,12 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(PicsFollowup::class, PicsFollowupPolicy::class);
         Gate::policy(Site::class, SitePolicy::class);
 
-        // Registrar el último acceso en cada inicio de sesión.
+        // Registrar el último acceso en cada inicio de sesión (solo staff: los guards
+        // "patient"/"caregiver" usan modelos sin columna last_login_at).
         Event::listen(Login::class, function (Login $event): void {
-            $event->user->forceFill(['last_login_at' => now()])->saveQuietly();
+            if ($event->user instanceof User) {
+                $event->user->forceFill(['last_login_at' => now()])->saveQuietly();
+            }
         });
     }
 }

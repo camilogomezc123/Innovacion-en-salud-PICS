@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-#[Fillable(['identification', 'full_name', 'sex', 'age', 'email', 'password', 'must_change_password'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'is_active', 'must_change_password'])]
 #[Hidden(['password', 'remember_token'])]
-class Patient extends Model implements AuthenticatableContract
+class Caregiver extends Model implements AuthenticatableContract
 {
     use Authenticatable;
 
@@ -20,19 +20,20 @@ class Patient extends Model implements AuthenticatableContract
     {
         return [
             'password' => 'hashed',
+            'is_active' => 'boolean',
             'must_change_password' => 'boolean',
             'last_login_at' => 'datetime',
         ];
     }
 
-    public function cases(): HasMany
+    public function authorizations(): HasMany
     {
-        return $this->hasMany(AcvCase::class);
+        return $this->hasMany(CaregiverAuthorization::class);
     }
 
-    public function picsCases(): HasMany
+    public function diaryEntries(): MorphMany
     {
-        return $this->hasMany(PicsCase::class);
+        return $this->morphMany(DiaryEntry::class, 'authorable');
     }
 
     public function goalProgressReports(): MorphMany

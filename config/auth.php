@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Caregiver;
+use App\Models\Patient;
 use App\Models\User;
 
 return [
@@ -42,6 +44,16 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'patient' => [
+            'driver' => 'session',
+            'provider' => 'patients',
+        ],
+
+        'caregiver' => [
+            'driver' => 'session',
+            'provider' => 'caregivers',
+        ],
     ],
 
     /*
@@ -65,6 +77,16 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+
+        'patients' => [
+            'driver' => 'eloquent',
+            'model' => Patient::class,
+        ],
+
+        'caregivers' => [
+            'driver' => 'eloquent',
+            'model' => Caregiver::class,
         ],
 
         // 'users' => [

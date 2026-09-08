@@ -6,8 +6,10 @@ use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Hub;
 use App\Filament\Pics\Pages\ExecutiveSummary;
+use App\Filament\Pics\Pages\PendingReviews;
 use App\Filament\Pics\Pages\PicsIndicators;
 use App\Filament\Pics\Resources\PicsCases\PicsCaseResource;
+use App\Filament\Pics\Resources\RecoveryGoals\RecoveryGoalResource;
 use App\Filament\Programs\Shared\Resources\ClinicalRules\ClinicalRuleResource;
 use App\Filament\Sepsis\Resources\ClinicalPrograms\ClinicalProgramResource;
 use App\Filament\Sepsis\Resources\Competencies\CompetencyResource;
@@ -55,7 +57,7 @@ class PicsPanelProvider extends PanelProvider
             ->favicon(asset('img/favicon.png'))->font('Montserrat')->topNavigation()
             ->navigation(fn (NavigationBuilder $builder) => $builder
                 ->group(NavigationGroup::make()->items([...ExecutiveSummary::getNavigationItems()]))
-                ->group(NavigationGroup::make('Programa PICS')->items([...PicsCaseResource::getNavigationItems()]))
+                ->group(NavigationGroup::make('Programa PICS')->items([...PicsCaseResource::getNavigationItems(), ...RecoveryGoalResource::getNavigationItems(), ...PendingReviews::getNavigationItems()]))
                 ->group(NavigationGroup::make('Gobierno clínico')->items([...ClinicalProgramResource::getNavigationItems(), ...ProgramMembershipResource::getNavigationItems(), ...CompetencyResource::getNavigationItems(), ...ProgramCommitteeResource::getNavigationItems(), ...RaciAssignmentResource::getNavigationItems(), ...ProgramResourceResource::getNavigationItems(), ...ProgramDocumentResource::getNavigationItems(), ...ProtocolGapResource::getNavigationItems(), ...ClinicalRuleResource::getNavigationItems()]))
                 ->group(NavigationGroup::make('Calidad y mejora')->items([...QualityStandardResource::getNavigationItems(), ...ComplianceEvidenceResource::getNavigationItems(), ...FindingResource::getNavigationItems()]))
                 ->group(NavigationGroup::make()->items([...PicsIndicators::getNavigationItems(), ...IndicatorDefinitionResource::getNavigationItems()])))
@@ -64,8 +66,8 @@ class PicsPanelProvider extends PanelProvider
             ->colors(['primary' => Color::Teal, 'gray' => Color::Slate])
             ->renderHook(PanelsRenderHook::TOPBAR_LOGO_AFTER, fn (): string => ExcellenceCenters::headerBadge('PICS'))
             ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn (): string => view('filament.components.centers-menu')->render())
-            ->resources([PicsCaseResource::class, ...$shared])
-            ->pages([ExecutiveSummary::class, PicsIndicators::class])->widgets([])
+            ->resources([PicsCaseResource::class, RecoveryGoalResource::class, ...$shared])
+            ->pages([ExecutiveSummary::class, PicsIndicators::class, PendingReviews::class])->widgets([])
             ->middleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class, AuthenticateSession::class, ShareErrorsFromSession::class, PreventRequestForgery::class, SubstituteBindings::class, DisableBladeIconComponents::class, DispatchServingFilamentEvent::class])
             ->authMiddleware([Authenticate::class]);
     }
