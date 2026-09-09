@@ -1,6 +1,18 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-09 (+ invitación real, recuperar contraseña, cambio forzado, alertas y tendencia en el portal, sobre la trazabilidad + Etapa 1 + módulo PICS clínico ya existentes).
+Última actualización: 2026-09-10 (+ Etapa 2: estados del episodio, plan interdisciplinario versionado, ruta del cuidador, preparación de alta y agenda coordinada).
+
+## Etapa 2 (2026-09-10)
+
+Cierra las 5 brechas pendientes de la Etapa 2 del prompt maestro:
+
+- **Estados formales del episodio**: cada caso PICS ahora avanza por **UCI → Hospitalización → Egreso → Seguimiento** (`clinical_stage`, visible como badge en el caso). Es un concepto distinto del "Estado del caso" (`status`, el flujo de auditoría/revisión, ya existente). El avance es secuencial (no se pueden saltar etapas salvo el líder/administrador) y el **egreso nunca es automático**: solo lo puede confirmar el líder/administrador o un médico del equipo, desde la acción dedicada "Confirmar egreso" — nunca como efecto de otro cambio en el formulario. Cada etapa registra su propia fecha (incluida quién confirmó el egreso).
+- **Plan interdisciplinario formal con versiones** (`/pics → Plan interdisciplinario`): objetivo general, criterios de egreso y el aporte de cada disciplina (medicina, enfermería, terapias, psicología, trabajo social, nutrición). Cada vez que se edita, la versión anterior queda archivada completa con su vigencia — igual que ya funcionaba para las fichas técnicas de indicadores — así un plan histórico nunca se reescribe en silencio.
+- **Ruta propia del cuidador** (`/portal/ruta-cuidador`, exclusiva del cuidador — nueva pestaña "Ruta del cuidador" en el caso): pasos de orientación, autocuidado, red de apoyo y preparación para el manejo en casa que el cuidador completa a su ritmo y el profesional confirma. Requiere una autorización propia (`can_access_journey`), independiente de poder escribir en el diario.
+- **Preparación para el alta con recorrido de comprensión** (`/pics → Preparación para el alta`, `/portal/preparacion-alta`): temas como medicamentos, signos de alarma, citas de control y cuidados en casa. Dos capas independientes: el paciente/cuidador marca "ya lo revisé" desde el portal, y el profesional verifica la comprensión real por teach-back — esta segunda capa no depende de que el portal se haya usado.
+- **Agenda coordinada interna** (`/pics → Agenda coordinada`): lista cronológica (no un calendario — este entorno no tiene Node.js para cargar una librería de calendario) que combina remisiones y tareas/citas/recordatorios internos de todos los casos, agrupada por fecha, con acciones rápidas para completar o cancelar.
+
+Verificado con 28 pruebas automatizadas nuevas (192 en total, todas en verde) y un recorrido manual completo contra el servidor real.
 
 ## Cierre de los 5 huecos del portal (2026-09-09)
 
@@ -75,7 +87,7 @@ Verificado con 16 pruebas nuevas, incluyendo el ciclo completo de la solicitud (
 
 ## Qué quedó simulado o pendiente (no construido todavía)
 
-Quedan para la Etapa 2 (según el prompt maestro más reciente): plan interdisciplinario formal con versiones, ruta propia del cuidador (más allá del diario), preparación para el alta con recorrido de comprensión, agenda coordinada interna. Para etapas posteriores: medicamentos conciliados, educación personalizada, configuración institucional/academia, integraciones reales (agendas externas, dispositivos) y resúmenes asistidos por IA. Tampoco hay fotos/audio en el diario (solo texto, como pide explícitamente el prompt), ni estados formales del episodio (UCI → hospitalización → egreso) — el episodio hoy es un único caso PICS sin sub-estados de estancia.
+Para etapas posteriores (según el prompt maestro más reciente): medicamentos conciliados, educación personalizada, configuración institucional/academia, integraciones reales (agendas externas, dispositivos) y resúmenes asistidos por IA. Tampoco hay fotos/audio en el diario (solo texto, como pide explícitamente el prompt). La agenda coordinada es una lista cronológica, no un calendario visual — no hay Node.js en este entorno para cargar una librería de calendario.
 
 El paciente **no puede escribir** en el diario todavía (solo leer) — así lo pide explícitamente el prompt maestro para esta iteración ("participar posteriormente").
 
@@ -85,8 +97,12 @@ Este equipo no tiene Node.js instalado (solo se copió `node_modules`, sin el ru
 
 ## Modelo de datos nuevo (además de lo ya documentado para PICS)
 
-`patients` (+ columnas de login), `caregivers`, `caregiver_authorizations`, `diary_entries`, `recovery_goals`, `goal_progress_reports` — todas ancladas a `pics_cases` (el "episodio" del paciente). Detalle completo de columnas en la migración `database/migrations/2026_09_08_100000_create_posuci_iteration1_tables.php`.
+`patients` (+ columnas de login), `caregivers`, `caregiver_authorizations`, `diary_entries`, `recovery_goals`, `goal_progress_reports` — todas ancladas a `pics_cases` (el "episodio" del paciente). Detalle completo de columnas en la migración `database/migrations/2026_09_08_100000_create_posuci_iteration1_tables.php`. Para la Etapa 2: `care_plans`/`care_plan_versions`, `caregiver_journey_steps`, `discharge_readiness_checks`/`discharge_readiness_items`, `pics_agenda_items`, más `clinical_stage` (y sus fechas) en `pics_cases` y `can_access_journey` en `caregiver_authorizations` — ver las migraciones fechadas `2026_09_10_*`.
+
+## Decisión confirmada para la Etapa 2
+
+El usuario confirmó (2026-09-08): el ciclo completo **UCI → Hospitalización → Egreso → Seguimiento**, con el egreso dependiendo siempre de confirmación profesional explícita; y que `SupportRequest` se extienda con más tipos en el futuro en vez de construir un flujo de solicitud paralelo por módulo (esta Etapa 2 no le agregó tipos nuevos todavía — ninguna de sus 5 piezas lo requería).
 
 ## Decisión pendiente para la próxima sesión
 
-Antes de avanzar a la Etapa 2, conviene que confirmes: **¿qué estados del episodio necesitas primero** (UCI/hospitalización/egreso/seguimiento) **y si el egreso debe seguir dependiendo de que un profesional lo confirme** (así lo asume el diseño actual, coherente con el prompt maestro). También conviene decidir si el `SupportRequest` de la Etapa 1 debe extenderse a más tipos de solicitud (no solo "dificultad") a medida que avancen las etapas, o si cada módulo futuro (medicamentos, citas) tendrá su propio flujo de solicitud.
+Con la Etapa 2 cerrada, quedan pendientes para decidir antes de avanzar a Etapa 3: qué tan estricta debe ser la relación entre "Preparación para el alta" y "Confirmar egreso" (hoy son independientes — confirmar el egreso no exige que el checklist esté completo, solo lo recomienda en el mensaje de confirmación); y qué prioridad tienen los temas de etapas posteriores (medicamentos conciliados, educación personalizada, integraciones externas).
