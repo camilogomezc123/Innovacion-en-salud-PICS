@@ -3,6 +3,8 @@
 namespace App\Filament\Pics\Resources\PicsCases\Schemas;
 
 use App\Models\PicsCase;
+use App\Services\PortalEngagementService;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Tabs;
@@ -87,6 +89,41 @@ class PicsCaseInfolist
                             ->columnSpanFull()
                             ->schema([TextEntry::make('factor')->hiddenLabel()])
                             ->visible(fn (PicsCase $record): bool => filled($record->risk_factors)),
+                    ]),
+                    Tab::make('Trazabilidad del portal')->columns(3)->schema([
+                        IconEntry::make('caregiver_authorized')->label('Cuidador autorizado')->boolean()
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['caregiver_authorized']),
+                        TextEntry::make('patient_last_login_at')->label('Último ingreso del paciente')
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['patient_last_login_at'])
+                            ->dateTime('d/m/Y H:i')->placeholder('Nunca ha ingresado'),
+                        TextEntry::make('caregiver_last_login_at')->label('Último ingreso del cuidador')
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['caregiver_last_login_at'])
+                            ->dateTime('d/m/Y H:i')->placeholder('Nunca ha ingresado'),
+                        TextEntry::make('diary_entries_count')->label('Entradas de diario')
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['diary_entries_count']),
+                        TextEntry::make('goal_reports_by_patient')->label('Reportes de metas por el paciente')
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['goal_reports_by_patient']),
+                        TextEntry::make('goal_reports_by_caregiver')->label('Reportes de metas por el cuidador')
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['goal_reports_by_caregiver']),
+                        TextEntry::make('wellbeing_self_reports_count')->label('Autorreportes de "Cómo me siento"')
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['wellbeing_self_reports_count']),
+                        TextEntry::make('support_requests_total')->label('Solicitudes de ayuda (respondidas/total)')
+                            ->state(function (PicsCase $record): string {
+                                $s = app(PortalEngagementService::class)->caseSnapshot($record);
+
+                                return "{$s['support_requests_answered']} / {$s['support_requests_total']}";
+                            }),
+                        TextEntry::make('passport_status')->label('Pasaporte de recuperación')->badge()
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['passport_status'])
+                            ->formatStateUsing(fn (string $state): string => match ($state) {
+                                'confirmado' => 'Confirmado', 'reportado' => 'Reportado', default => 'Sin diligenciar',
+                            })
+                            ->color(fn (string $state): string => match ($state) {
+                                'confirmado' => 'success', 'reportado' => 'warning', default => 'gray',
+                            }),
+                        TextEntry::make('last_portal_activity_at')->label('Última actividad en el portal')
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['last_portal_activity_at'])
+                            ->dateTime('d/m/Y H:i')->placeholder('Sin actividad'),
                     ]),
                     Tab::make('Paciente')->columns(3)->schema([
                         TextEntry::make('patient.full_name')->label('Paciente'),

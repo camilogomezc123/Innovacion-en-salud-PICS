@@ -29,6 +29,9 @@
                 <div><p class="text-xs text-slate-600">Casos analizados</p><p class="text-xl font-black">{{ $m['total'] ?? 0 }}</p></div>
             </div>
         </section>
+        <a href="{{ \App\Filament\Pics\Pages\PortalEngagement::getUrl() }}" class="block rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm text-teal-900 hover:bg-teal-100">
+            <strong>Trazabilidad del portal →</strong> estos indicadores miden los instrumentos clínicos PICS. Para ver cómo se están comportando el paciente y la familia en <code>/portal</code> (ingresos, diario, metas, "Cómo me siento", solicitudes de ayuda), entra al módulo de trazabilidad del portal.
+        </a>
         <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
             La ficha técnica completa (numerador, denominador, exclusiones, meta, método de validación) de estos y de los demás indicadores catalogados del programa está disponible en <strong>Programa → Ficha técnica de indicadores</strong>.
         </div>

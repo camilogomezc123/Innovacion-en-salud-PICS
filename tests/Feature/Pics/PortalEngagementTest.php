@@ -1,0 +1,117 @@
+<?php
+
+namespace Tests\Feature\Pics;
+
+use App\Enums\ProgramRole;
+use App\Models\Caregiver;
+use App\Models\CaregiverAuthorization;
+use App\Models\ClinicalProgram;
+use App\Models\Patient;
+use App\Models\PicsCase;
+use App\Models\ProgramMember;
+use App\Models\User;
+use App\Services\PortalEngagementService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
+
+class PortalEngagementTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_a_real_login_records_last_login_at_for_patient_and_caregiver(): void
+    {
+        $patient = Patient::query()->create(['identification' => 'L-1', 'full_name' => 'L', 'email' => 'l@test.com', 'password' => Hash::make('secret')]);
+        $caregiver = Caregiver::query()->create(['name' => 'C', 'email' => 'c-login@test.com', 'password' => Hash::make('secret')]);
+
+        $this->assertNull($patient->last_login_at);
+        $this->assertNull($caregiver->last_login_at);
+
+        Auth::guard('patient')->login($patient);
+        Auth::guard('caregiver')->login($caregiver);
+
+        $this->assertNotNull($patient->fresh()->last_login_at);
+        $this->assertNotNull($caregiver->fresh()->last_login_at);
+    }
+
+    public function test_case_snapshot_reports_accurate_portal_engagement_counts(): void
+    {
+        $program = ClinicalProgram::query()->where('code', 'PICS')->firstOrFail();
+        $patient = Patient::query()->create(['identification' => 'E-1', 'full_name' => 'Engagement', 'email' => 'e@test.com']);
+        $patient->forceFill(['last_login_at' => now()->subDay()])->save();
+        $case = PicsCase::query()->create(['clinical_program_id' => $program->id, 'patient_id' => $patient->id]);
+        $staff = User::factory()->create();
+        $caregiver = Caregiver::query()->create(['name' => 'Cg', 'email' => 'cg@test.com', 'password' => Hash::make('secret')]);
+        CaregiverAuthorization::query()->create([
+            'pics_case_id' => $case->id, 'caregiver_id' => $caregiver->id, 'can_write_diary' => true,
+            'authorized_by' => $staff->id, 'authorized_at' => now(),
+        ]);
+
+        $case->diaryEntries()->create(['authorable_type' => Caregiver::class, 'authorable_id' => $caregiver->id, 'entry_date' => now(), 'content' => 'x']);
+
+        $goal = $case->recoveryGoals()->create(['domain' => 'movilidad', 'description' => 'x', 'status' => 'active']);
+        $goal->progressReports()->create(['reporter_type' => Patient::class, 'reporter_id' => $patient->id, 'reported_at' => now()]);
+        $goal->progressReports()->create(['reporter_type' => Caregiver::class, 'reporter_id' => $caregiver->id, 'reported_at' => now()]);
+        $goal->progressReports()->create(['reporter_type' => Caregiver::class, 'reporter_id' => $caregiver->id, 'reported_at' => now()]);
+
+        $case->followups()->create([
+            'checkpoint' => '7d', 'respondent_type' => 'paciente',
+            'submitted_by_type' => Patient::class, 'submitted_by_id' => $patient->id,
+            'confirmed_by' => $staff->id, 'confirmed_at' => now(),
+        ]);
+
+        $request = $case->supportRequests()->create([
+            'type' => 'dificultad', 'description' => 'x', 'created_by_type' => Patient::class, 'created_by_id' => $patient->id,
+            'created_at' => now()->subHours(4),
+        ]);
+        $request->update(['responded_by' => $staff->id, 'responded_at' => now()]);
+
+        $case->recoveryPassport()->create(['mobility_before' => 'x', 'reported_at' => now(), 'is_confirmed' => true]);
+
+        $snapshot = app(PortalEngagementService::class)->caseSnapshot($case->fresh([
+            'patient', 'caregiverAuthorizations.caregiver', 'diaryEntries', 'recoveryGoals.progressReports', 'followups', 'supportRequests', 'recoveryPassport',
+        ]));
+
+        $this->assertTrue($snapshot['caregiver_authorized']);
+        $this->assertNotNull($snapshot['patient_last_login_at']);
+        $this->assertSame(1, $snapshot['diary_entries_count']);
+        $this->assertSame(3, $snapshot['goal_reports_total']);
+        $this->assertSame(1, $snapshot['goal_reports_by_patient']);
+        $this->assertSame(2, $snapshot['goal_reports_by_caregiver']);
+        $this->assertSame(1, $snapshot['wellbeing_self_reports_count']);
+        $this->assertSame(1, $snapshot['wellbeing_confirmed_count']);
+        $this->assertSame(1, $snapshot['support_requests_total']);
+        $this->assertSame(1, $snapshot['support_requests_answered']);
+        $this->assertNotNull($snapshot['support_requests_avg_response_hours']);
+        $this->assertSame('confirmado', $snapshot['passport_status']);
+        $this->assertNotNull($snapshot['last_portal_activity_at']);
+    }
+
+    public function test_portal_engagement_page_and_case_tab_render_for_staff(): void
+    {
+        $program = ClinicalProgram::query()->where('code', 'PICS')->firstOrFail();
+        $patient = Patient::query()->create(['identification' => 'E-2', 'full_name' => 'Otro caso']);
+        $case = PicsCase::query()->create(['clinical_program_id' => $program->id, 'patient_id' => $patient->id]);
+
+        $leader = User::factory()->create();
+        ProgramMember::query()->create([
+            'clinical_program_id' => $case->clinical_program_id, 'user_id' => $leader->id, 'role' => ProgramRole::Leader,
+        ]);
+
+        $this->actingAs($leader)
+            ->get('/pics/trazabilidad-portal')
+            ->assertOk()
+            ->assertSee('Trazabilidad del portal');
+
+        $this->actingAs($leader)
+            ->get("/pics/pics-cases/{$case->id}")
+            ->assertOk()
+            ->assertSee('Trazabilidad del portal');
+
+        $this->actingAs($leader)
+            ->get('/pics/indicadores')
+            ->assertOk()
+            ->assertSee('Trazabilidad del portal');
+    }
+}

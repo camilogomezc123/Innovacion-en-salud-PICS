@@ -15,6 +15,7 @@ use App\Models\AcsRehabilitationReferral;
 use App\Models\AcsTroponinRecord;
 use App\Models\AcvCase;
 use App\Models\AssessmentFinding;
+use App\Models\Caregiver;
 use App\Models\CaseComment;
 use App\Models\CommitteeMeeting;
 use App\Models\Competency;
@@ -24,6 +25,7 @@ use App\Models\IndicatorDefinition;
 use App\Models\PicsCase;
 use App\Models\PicsFollowup;
 use App\Models\PicsReferral;
+use App\Models\Patient;
 use App\Models\ProgramMember;
 use App\Models\ProgramResource;
 use App\Models\ProtocolGap;
@@ -150,10 +152,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(PicsFollowup::class, PicsFollowupPolicy::class);
         Gate::policy(Site::class, SitePolicy::class);
 
-        // Registrar el último acceso en cada inicio de sesión (solo staff: los guards
-        // "patient"/"caregiver" usan modelos sin columna last_login_at).
+        // Registrar el último acceso en cada inicio de sesión real — staff (guard "web")
+        // y también paciente/cuidador (guards "patient"/"caregiver" del portal), que es
+        // la base de la trazabilidad de uso del portal en /pics/trazabilidad-portal.
         Event::listen(Login::class, function (Login $event): void {
-            if ($event->user instanceof User) {
+            if ($event->user instanceof User || $event->user instanceof Patient || $event->user instanceof Caregiver) {
                 $event->user->forceFill(['last_login_at' => now()])->saveQuietly();
             }
         });
