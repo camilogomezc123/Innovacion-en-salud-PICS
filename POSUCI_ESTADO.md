@@ -1,6 +1,10 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-09 (Etapa 1 cerrada: pasaporte de recuperación + bandeja de solicitudes/dificultades, sobre la Iteración 1 + módulo PICS clínico ya existentes).
+Última actualización: 2026-09-09 (+ módulo de trazabilidad del portal, sobre la Etapa 1 + módulo PICS clínico ya existentes).
+
+## Trazabilidad del portal (`/pics/trazabilidad-portal`, 2026-09-09)
+
+Conecta el panel profesional con el uso real de `/portal`: los logins de paciente y cuidador ahora se registran de verdad (antes la columna existía pero nunca se llenaba). El módulo nuevo mide, por caso y en agregado institucional: si el cuidador está autorizado y ha entrado, último ingreso del paciente, entradas de diario, reportes de metas por autor (paciente vs. cuidador), autorreportes de "Cómo me siento", solicitudes de ayuda respondidas y tiempo de respuesta, y estado del pasaporte de recuperación. Visible también como pestaña dentro de cada caso y como enlace desde `/pics/indicadores`. Es un eje de medición de **uso de la plataforma**, distinto de los indicadores clínicos PICS.
 
 ## Cómo ejecutar la demo
 
