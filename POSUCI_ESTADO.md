@@ -1,6 +1,6 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-08 (Iteración 1 completada).
+Última actualización: 2026-09-09 (Iteración 1 + módulo PICS clínico portado desde "Panel de control").
 
 ## Cómo ejecutar la demo
 
@@ -36,6 +36,16 @@ php artisan db:seed --class=PosuciDemoSeeder  # paciente, cuidador, diario y met
 - **Aislamiento por caso**: cada actor solo ve su propio caso, verificado con peticiones HTTP directas (no solo ocultando botones).
 
 Verificado con 8 pruebas automatizadas nuevas (`tests/Feature/Posuci/PosuciIteration1Test.php`) más las 124 pruebas existentes del proyecto (todas pasan). También se probó manualmente el flujo completo en navegador vía `curl` (login, diario, metas) contra el servidor local.
+
+## Módulo clínico PICS (portado desde "Panel de control", 2026-09-09)
+
+El seguimiento PICS (`/pics → Casos → Seguimientos`) ya no usa campos de texto libre: usa los mismos instrumentos validados que el usuario tenía construidos en `C:\xampp\htdocs\Panel de control` — Pfeiffer/AMT (cognición), MoCA (solo si Pfeiffer ≥ 3 errores), HADS-A (ansiedad), PHQ-9 (depresión), PC-PTSD-5 (estrés postraumático), PTG-SF (crecimiento postraumático, solo checkpoints 3m/6m/12m) y PICS-F (sobrecarga del cuidador). Los puntajes y las banderas de "tamizaje positivo" se calculan siempre desde las respuestas — nunca se diligencian a mano.
+
+`PicsCase` ahora calcula un **riesgo PICS de 7 factores** (estancia UCI, ventilación mecánica, delirium, edad, Barthel, choque/sepsis, debilidad adquirida en UCI por MRC/handgrip) — mismo algoritmo y mismos puntos de corte que el original. Se dispara con la acción "Recalcular riesgo" en el caso (no es automático, porque estos datos se completan por etapas).
+
+El portal ganó una pantalla nueva, **"Cómo me siento"** (`/portal/bienestar`): el paciente autoadministra PHQ-9, HADS-A, PC-PTSD-5 y PTG-SF; el cuidador autoadministra PICS-F. Pfeiffer/AMT, MoCA y el tamizaje de disfagia **no** están en el portal — por seguridad clínica, esos requieren un evaluador presencial calificando respuestas correctas/incorrectas. Lo que el paciente/familia envía queda pendiente de confirmación profesional (mismo patrón que ya existía para las metas de recuperación).
+
+Verificado con 18 pruebas nuevas: fórmulas de puntaje con casos de borde exactos en cada corte, el algoritmo de riesgo completo, render del panel con el formulario nuevo, y el flujo de autorreporte del portal de punta a punta.
 
 ## Qué quedó simulado o pendiente (no construido todavía)
 
