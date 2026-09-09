@@ -1,6 +1,18 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-09 (+ módulo de trazabilidad del portal, sobre la Etapa 1 + módulo PICS clínico ya existentes).
+Última actualización: 2026-09-09 (+ invitación real, recuperar contraseña, cambio forzado, alertas y tendencia en el portal, sobre la trazabilidad + Etapa 1 + módulo PICS clínico ya existentes).
+
+## Cierre de los 5 huecos del portal (2026-09-09)
+
+Hasta ahora no existía ninguna forma de **crear o autorizar un cuidador desde la interfaz** (solo por seeder o pruebas), y las alertas de la trazabilidad del portal eran solo indicadores pasivos. Se cierran cinco huecos relacionados:
+
+- **Alta y autorización real de cuidadores**: nueva pestaña "Familia y cuidadores autorizados" dentro de cada caso PICS (`/pics → Casos → [caso]`). El profesional busca o crea el cuidador, define el parentesco y si puede escribir en el diario; puede revocar el acceso en cualquier momento.
+- **Invitación real por correo**: la acción "Enviar invitación" (para el cuidador) y "Configurar acceso del paciente" (en la cabecera del caso) generan una contraseña temporal, la guardan hasheada y envían un correo con las credenciales (`MAIL_MAILER=log` en este entorno: nada sale a un correo real, todo queda en `storage/logs/laravel.log`, coherente con "solo pacientes ficticios en desarrollo").
+- **"Olvidé mi contraseña"** (`/portal/olvide-password`): funciona igual para paciente y cuidador, con brokers de recuperación propios (`patients`/`caregivers`) y su propia tabla de tokens — responde siempre el mismo mensaje exista o no la cuenta, para no revelar si un correo está registrado.
+- **Cambio de contraseña obligatorio en el primer ingreso**: cualquier cuenta invitada queda marcada `must_change_password = true`; al iniciar sesión se le redirige a `/portal/cambiar-contrasena` antes de poder usar el resto del portal. Las cuentas de demostración documentadas abajo **no** tienen esta bandera activa, para que se pueda entrar directo con ellas.
+- **Alertas de inactividad y tendencia semanal** en `/pics/trazabilidad-portal`: además del resumen agregado ya existente, ahora se listan los casos que necesitan atención (cuidador autorizado que nunca ha entrado tras 3 días, o caso sin ninguna actividad de portal en 15 días) y una gráfica de barras (HTML/CSS, sin librerías nuevas) con la actividad de las últimas 8 semanas.
+
+Verificado con 164 pruebas automatizadas (11 nuevas: relation manager de cuidadores, invitación, recuperación de contraseña para ambos guards, cambio forzado de punta a punta, alertas y tendencia) y un recorrido manual completo contra el servidor real vía HTTP: invitación → correo confirmado en `storage/logs/laravel.log` → login con la contraseña temporal → redirección forzada a cambiar contraseña → cambio → acceso normal al portal, con la base de datos verificada en cada paso.
 
 ## Trazabilidad del portal (`/pics/trazabilidad-portal`, 2026-09-09)
 
