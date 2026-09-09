@@ -24,7 +24,7 @@ class ClinicalAuditService
 
         return ClinicalAudit::query()->create([
             'clinical_program_id' => $programId,
-            'user_id' => auth()->id(),
+            'user_id' => auth('web')->id(),
             'auditable_type' => $auditable->getMorphClass(),
             'auditable_id' => $auditable->getKey(),
             'event' => $event,

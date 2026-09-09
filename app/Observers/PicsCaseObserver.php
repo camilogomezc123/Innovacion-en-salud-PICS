@@ -22,8 +22,8 @@ class PicsCaseObserver
             $case->case_number = 'PICS-'.$next;
         }
 
-        $case->created_by ??= auth()->id();
-        $case->updated_by ??= auth()->id();
+        $case->created_by ??= auth('web')->id();
+        $case->updated_by ??= auth('web')->id();
 
         $this->syncWorkflowDates($case);
     }
@@ -31,11 +31,11 @@ class PicsCaseObserver
     public function updating(PicsCase $case): void
     {
         $this->authorizeStatusTransition($case);
-        $case->updated_by = auth()->id();
+        $case->updated_by = auth('web')->id();
 
         if (! $case->isDirty('status')
             && $case->status === CaseStatus::Assigned
-            && auth()->id() === $case->assigned_auditor_id) {
+            && auth('web')->id() === $case->assigned_auditor_id) {
             $case->status = CaseStatus::InReview;
         }
 
@@ -103,13 +103,13 @@ class PicsCaseObserver
 
     private function authorizeStatusTransition(PicsCase $case): void
     {
-        if (! $case->isDirty('status') || ! auth()->check()) {
+        if (! $case->isDirty('status') || ! auth('web')->check()) {
             return;
         }
 
         $previous = $case->getOriginal('status');
         $next = $case->status instanceof CaseStatus ? $case->status->value : $case->status;
-        $user = auth()->user();
+        $user = auth('web')->user();
         $isManager = $user->canManagePicsCases();
         $isAssignedAuditor = $case->assigned_auditor_id === $user->id;
 

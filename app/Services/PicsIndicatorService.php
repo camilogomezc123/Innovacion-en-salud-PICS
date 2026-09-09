@@ -142,6 +142,12 @@ class PicsIndicatorService
                 ->sortByDesc('value')
                 ->values()
                 ->all(),
+            'risk_level' => $cases
+                ->whereNotNull('risk_level')
+                ->groupBy(fn (PicsCase $c): string => PicsCase::RISK_LEVELS[$c->risk_level] ?? $c->risk_level)
+                ->map(fn (Collection $g, string $label): array => ['label' => $label, 'value' => $g->count()])
+                ->values()
+                ->all(),
         ];
     }
 
@@ -169,37 +175,52 @@ class PicsIndicatorService
             'referral_completion_pct' => $this->percentage($referrals->where('status', 'completed')->count(), $referrals->count()),
             'readmission_pct' => $this->percentage($readmissionAssessed->where('readmission', true)->count(), $readmissionAssessed->count()),
             'return_to_work_pct' => $this->percentage($returnToWorkAssessed->where('return_to_work', true)->count(), $returnToWorkAssessed->count()),
+            // Desglose por dominio — mismos cortes que IND-30 a IND-33 en "Panel de control".
+            'cognitive_impairment_pct' => $this->domainRate($followups, fn (PicsFollowup $f) => $f->isCognitionPositive()),
+            'anxiety_pct' => $this->domainRate($followups, fn (PicsFollowup $f) => $f->isAnxietyPositive()),
+            'depression_pct' => $this->domainRate($followups, fn (PicsFollowup $f) => $f->isDepressionPositive()),
+            'ptsd_pct' => $this->domainRate($followups, fn (PicsFollowup $f) => $f->isPtsdPositive()),
+            'family_distress_pct' => $this->domainRate($followups, fn (PicsFollowup $f) => $f->isFamilyDistressPositive()),
+            'high_risk_pct' => $this->percentage($cases->where('risk_level', 'alto')->count(), $cases->whereNotNull('risk_level')->count()),
         ];
     }
 
     /**
-     * ¿Se documentó interpretación clínica en al menos uno de los cuatro dominios
-     * (cognición, ansiedad, depresión, TEPT) en este checkpoint?
+     * % de seguimientos con un dominio evaluado que resultó positivo. El callback
+     * recibe el método *_Positive() correspondiente, que ya devuelve null si el
+     * instrumento no se diligenció en ese seguimiento (no cuenta como negativo).
      */
-    private function wasScreened(PicsFollowup $followup): bool
+    private function domainRate(Collection $followups, \Closure $positiveCallback): ?float
     {
-        foreach (PicsFollowup::POSITIVE_FLAG_FIELDS as $field) {
-            if ($followup->{$field} !== null) {
-                return true;
-            }
-        }
+        $assessed = $followups->filter(fn (PicsFollowup $f) => $positiveCallback($f) !== null);
+        $positive = $assessed->filter(fn (PicsFollowup $f) => $positiveCallback($f) === true);
 
-        return false;
+        return $this->percentage($positive->count(), $assessed->count());
     }
 
     /**
-     * ¿Algún dominio evaluado resultó positivo? Lee únicamente las banderas explícitas
-     * que registró quien hizo el seguimiento — nunca infiere a partir de texto libre.
+     * ¿Se documentó al menos uno de los cinco dominios de tamizaje en este checkpoint?
+     */
+    private function wasScreened(PicsFollowup $followup): bool
+    {
+        return $followup->isCognitionPositive() !== null
+            || $followup->isAnxietyPositive() !== null
+            || $followup->isDepressionPositive() !== null
+            || $followup->isPtsdPositive() !== null
+            || $followup->isFamilyDistressPositive() !== null;
+    }
+
+    /**
+     * ¿Algún dominio evaluado resultó positivo? Lee los puntos de corte validados de
+     * cada instrumento (PicsFollowup::is*Positive()) — nunca infiere a partir de texto libre.
      */
     private function isPositive(PicsFollowup $followup): bool
     {
-        foreach (PicsFollowup::POSITIVE_FLAG_FIELDS as $field) {
-            if ($followup->{$field} === true) {
-                return true;
-            }
-        }
-
-        return false;
+        return $followup->isCognitionPositive() === true
+            || $followup->isAnxietyPositive() === true
+            || $followup->isDepressionPositive() === true
+            || $followup->isPtsdPositive() === true
+            || $followup->isFamilyDistressPositive() === true;
     }
 
     private function percentage(int $numerator, int $denominator): ?float

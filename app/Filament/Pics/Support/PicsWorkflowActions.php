@@ -16,10 +16,27 @@ class PicsWorkflowActions
     public static function for(PicsCase $record): array
     {
         return [
+            self::recalculateRisk($record),
             self::finalizeFollowup($record),
             self::finalizeReview($record),
             self::reopen($record),
         ];
+    }
+
+    private static function recalculateRisk(PicsCase $record): Action
+    {
+        return Action::make('recalculateRisk')
+            ->label('Recalcular riesgo')
+            ->icon('heroicon-m-calculator')
+            ->color('gray')
+            ->action(function () use ($record) {
+                $record->recalculateRisk()->save();
+                Notification::make()->success()
+                    ->title('Riesgo recalculado: '.$record->riskLevelLabel().' (puntaje '.$record->risk_score.')')
+                    ->send();
+
+                return redirect(PicsCaseResource::getUrl('view', ['record' => $record]));
+            });
     }
 
     private static function finalizeFollowup(PicsCase $record): Action

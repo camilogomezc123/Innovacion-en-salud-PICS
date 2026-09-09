@@ -10,6 +10,7 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -83,15 +84,28 @@ class PicsCaseForm
                             )->values()->all()),
                     ]),
 
-                    Tab::make('Factores de riesgo UCI')->columns(3)->schema([
+                    Tab::make('Riesgo PICS')->columns(3)->schema([
                         TextInput::make('mechanical_ventilation_days')->label('Días de ventilación mecánica')->numeric()->step('0.001')->minValue(0),
-                        TextInput::make('delirium_days')->label('Días con delirium')->numeric()->step('0.001')->minValue(0),
+                        TextInput::make('delirium_days')->label('Días con delirium (CAM-UCI positivo)')->numeric()->step('0.001')->minValue(0),
                         TextInput::make('icu_los_days')->label('Estancia en UCI (días)')->numeric()->step('0.001')->minValue(0),
                         TextInput::make('sedation_deep_days')->label('Días con sedación profunda')->numeric()->step('0.001')->minValue(0),
+                        TextInput::make('age_at_admission')->label('Edad al ingreso UCI (años)')->numeric()->minValue(0)->maxValue(120),
+                        TextInput::make('barthel_at_discharge')->label('Índice de Barthel al egreso (0-100)')->numeric()->step('0.1')->minValue(0)->maxValue(100),
+                        Toggle::make('shock_or_sepsis')->label('Choque o sepsis en el diagnóstico'),
+                        TextInput::make('mrc_total')->label('MRC total (suma 12 grupos musculares, 0-60)')->numeric()->minValue(0)->maxValue(60)
+                            ->helperText('< 48 se considera debilidad adquirida en UCI (DAUCI).'),
+                        TextInput::make('handgrip_kg')->label('Fuerza de prensión — handgrip (kg, máximo de ambas manos)')->numeric()->step('0.1')->minValue(0)
+                            ->helperText('Umbral de alteración: < 16 kg en mujeres, < 27 kg en hombres.'),
                         Placeholder::make('risk_factors_help')
                             ->label('')
                             ->columnSpanFull()
-                            ->content('Si el caso está vinculado a una estancia UCI de origen, estos datos pueden copiarse desde allí; si no, se digitan manualmente.'),
+                            ->content('Estos datos alimentan el puntaje de riesgo PICS de 7 factores. Se completan por etapas — usa la acción "Recalcular riesgo" cuando los tengas actualizados.'),
+                        Placeholder::make('risk_result')
+                            ->label('Resultado del último cálculo')
+                            ->columnSpanFull()
+                            ->content(fn (?PicsCase $record): string => $record?->risk_level
+                                ? $record->riskLevelLabel().' (puntaje '.$record->risk_score.') · '.implode(' · ', $record->risk_factors ?? [])
+                                : 'Sin calcular todavía.'),
                     ]),
 
                     Tab::make('Paciente') ->columns(3)->schema([

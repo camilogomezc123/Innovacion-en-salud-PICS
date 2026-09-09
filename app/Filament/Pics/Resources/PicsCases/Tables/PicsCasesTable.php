@@ -28,6 +28,11 @@ class PicsCasesTable
                     ->formatStateUsing(fn (?string $state): string => PicsCase::ENROLLMENT_SOURCES[$state] ?? '—')
                     ->badge(),
                 TextColumn::make('assignedAuditor.name')->label('Responsable')->placeholder('Sin asignar'),
+                TextColumn::make('risk_level')
+                    ->label('Riesgo PICS')
+                    ->badge()
+                    ->formatStateUsing(fn (PicsCase $record): string => $record->riskLevelLabel() ?? 'Sin calcular')
+                    ->color(fn (PicsCase $record): string => $record->riskLevelColor()),
                 TextColumn::make('status')
                     ->label('Estado')
                     ->formatStateUsing(fn ($state): string => $state?->label() ?? 'Sin estado')
@@ -54,6 +59,9 @@ class PicsCasesTable
                 SelectFilter::make('site_id')
                     ->label('Sede')
                     ->relationship('site', 'name'),
+                SelectFilter::make('risk_level')
+                    ->label('Riesgo PICS')
+                    ->options(PicsCase::RISK_LEVELS),
             ])
             ->recordActions([
                 Action::make('view')->label('Ver')->icon('heroicon-m-eye')

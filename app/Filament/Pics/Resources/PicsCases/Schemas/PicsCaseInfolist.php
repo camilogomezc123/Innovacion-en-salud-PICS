@@ -67,11 +67,26 @@ class PicsCaseInfolist
                             ])
                             ->columns(2),
                     ]),
-                    Tab::make('Factores de riesgo UCI')->columns(3)->schema([
+                    Tab::make('Riesgo PICS')->columns(3)->schema([
+                        TextEntry::make('risk_level')
+                            ->label('Nivel de riesgo')
+                            ->badge()
+                            ->formatStateUsing(fn (PicsCase $record): string => $record->riskLevelLabel() ?? 'Sin calcular')
+                            ->color(fn (PicsCase $record): string => $record->riskLevelColor()),
+                        TextEntry::make('risk_score')->label('Puntaje')->placeholder('Sin calcular'),
                         TextEntry::make('mechanical_ventilation_days')->label('Días de ventilación mecánica')->placeholder('Sin dato'),
                         TextEntry::make('delirium_days')->label('Días con delirium')->placeholder('Sin dato'),
                         TextEntry::make('icu_los_days')->label('Estancia en UCI (días)')->placeholder('Sin dato'),
-                        TextEntry::make('sedation_deep_days')->label('Días con sedación profunda')->placeholder('Sin dato'),
+                        TextEntry::make('age_at_admission')->label('Edad al ingreso UCI')->placeholder('Sin dato'),
+                        TextEntry::make('barthel_at_discharge')->label('Barthel al egreso')->placeholder('Sin dato'),
+                        TextEntry::make('mrc_total')->label('MRC total')->placeholder('Sin dato'),
+                        TextEntry::make('handgrip_kg')->label('Handgrip (kg)')->placeholder('Sin dato'),
+                        RepeatableEntry::make('risk_factors')
+                            ->label('Bitácora del cálculo')
+                            ->state(fn (PicsCase $record): array => collect($record->risk_factors ?? [])->map(fn (string $f) => ['factor' => $f])->all())
+                            ->columnSpanFull()
+                            ->schema([TextEntry::make('factor')->hiddenLabel()])
+                            ->visible(fn (PicsCase $record): bool => filled($record->risk_factors)),
                     ]),
                     Tab::make('Paciente')->columns(3)->schema([
                         TextEntry::make('patient.full_name')->label('Paciente'),

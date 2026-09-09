@@ -34,7 +34,8 @@
                     <ul class="navbar-nav flex-row me-3">
                         <li class="nav-item me-3"><a class="nav-link {{ request()->routeIs('portal.home') ? 'active' : '' }}" href="{{ route('portal.home') }}">Mi recuperación</a></li>
                         <li class="nav-item me-3"><a class="nav-link {{ request()->routeIs('portal.diary') ? 'active' : '' }}" href="{{ route('portal.diary') }}">Mi diario</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.goals') ? 'active' : '' }}" href="{{ route('portal.goals') }}">Mis metas</a></li>
+                        <li class="nav-item me-3"><a class="nav-link {{ request()->routeIs('portal.goals') ? 'active' : '' }}" href="{{ route('portal.goals') }}">Mis metas</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.wellbeing') ? 'active' : '' }}" href="{{ route('portal.wellbeing') }}">Cómo me siento</a></li>
                     </ul>
                     <form method="POST" action="{{ route('portal.logout') }}">
                         @csrf
