@@ -114,4 +114,61 @@ class PortalEngagementTest extends TestCase
             ->assertOk()
             ->assertSee('Trazabilidad del portal');
     }
+
+    public function test_alert_fires_when_caregiver_authorized_days_ago_never_logged_in(): void
+    {
+        $program = ClinicalProgram::query()->where('code', 'PICS')->firstOrFail();
+        $patient = Patient::query()->create(['identification' => 'AL-1', 'full_name' => 'Alerta']);
+        $case = PicsCase::query()->create(['clinical_program_id' => $program->id, 'patient_id' => $patient->id]);
+        $staff = User::factory()->create();
+        $caregiver = Caregiver::query()->create(['name' => 'C', 'email' => 'al@test.com', 'password' => Hash::make('x')]);
+        CaregiverAuthorization::query()->create([
+            'pics_case_id' => $case->id, 'caregiver_id' => $caregiver->id,
+            'authorized_by' => $staff->id, 'authorized_at' => now()->subDays(10),
+        ]);
+
+        $case->load(['patient', 'caregiverAuthorizations.caregiver', 'diaryEntries', 'recoveryGoals.progressReports', 'followups', 'supportRequests', 'recoveryPassport']);
+
+        $alerts = app(PortalEngagementService::class)->inactivityAlerts(collect([$case]));
+
+        $reasons = collect($alerts)->pluck('reason');
+        $this->assertContains('cuidador_sin_ingresar', $reasons);
+        $this->assertContains('sin_actividad', $reasons);
+    }
+
+    public function test_no_alert_when_caregiver_logged_in_recently_and_case_has_activity(): void
+    {
+        $program = ClinicalProgram::query()->where('code', 'PICS')->firstOrFail();
+        $patient = Patient::query()->create(['identification' => 'AL-2', 'full_name' => 'Sin alerta']);
+        $case = PicsCase::query()->create(['clinical_program_id' => $program->id, 'patient_id' => $patient->id]);
+        $staff = User::factory()->create();
+        $caregiver = Caregiver::query()->create(['name' => 'C2', 'email' => 'al2@test.com', 'password' => Hash::make('x')]);
+        $caregiver->forceFill(['last_login_at' => now()->subHour()])->save();
+        CaregiverAuthorization::query()->create([
+            'pics_case_id' => $case->id, 'caregiver_id' => $caregiver->id,
+            'authorized_by' => $staff->id, 'authorized_at' => now()->subDays(10),
+        ]);
+        $case->diaryEntries()->create(['authorable_type' => Caregiver::class, 'authorable_id' => $caregiver->id, 'entry_date' => now(), 'content' => 'x']);
+
+        $case->load(['patient', 'caregiverAuthorizations.caregiver', 'diaryEntries', 'recoveryGoals.progressReports', 'followups', 'supportRequests', 'recoveryPassport']);
+
+        $alerts = app(PortalEngagementService::class)->inactivityAlerts(collect([$case]));
+
+        $this->assertEmpty($alerts);
+    }
+
+    public function test_weekly_trend_counts_portal_originated_activity_in_the_current_week(): void
+    {
+        $program = ClinicalProgram::query()->where('code', 'PICS')->firstOrFail();
+        $patient = Patient::query()->create(['identification' => 'TR-1', 'full_name' => 'Tendencia']);
+        $case = PicsCase::query()->create(['clinical_program_id' => $program->id, 'patient_id' => $patient->id]);
+        $case->diaryEntries()->create(['authorable_type' => Patient::class, 'authorable_id' => $patient->id, 'entry_date' => now(), 'content' => 'x']);
+
+        $case->load(['patient', 'caregiverAuthorizations.caregiver', 'diaryEntries', 'recoveryGoals.progressReports', 'followups', 'supportRequests', 'recoveryPassport']);
+
+        $trend = app(PortalEngagementService::class)->weeklyActivityTrend(collect([$case]), 4);
+
+        $this->assertCount(4, $trend);
+        $this->assertSame(1, $trend[3]['value']); // última semana = la actual
+    }
 }

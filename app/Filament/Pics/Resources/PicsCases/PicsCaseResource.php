@@ -7,6 +7,7 @@ use App\Filament\Pics\Resources\PicsCases\Pages\CreatePicsCase;
 use App\Filament\Pics\Resources\PicsCases\Pages\EditPicsCase;
 use App\Filament\Pics\Resources\PicsCases\Pages\ListPicsCases;
 use App\Filament\Pics\Resources\PicsCases\Pages\ViewPicsCase;
+use App\Filament\Pics\Resources\PicsCases\RelationManagers\CaregiverAuthorizationsRelationManager;
 use App\Filament\Pics\Resources\PicsCases\RelationManagers\ClinicalAuditsRelationManager;
 use App\Filament\Pics\Resources\PicsCases\RelationManagers\DiaryEntriesRelationManager;
 use App\Filament\Pics\Resources\PicsCases\RelationManagers\FollowupsRelationManager;
@@ -98,6 +99,7 @@ class PicsCaseResource extends Resource
     public static function getRelations(): array
     {
         return [
+            CaregiverAuthorizationsRelationManager::class,
             FollowupsRelationManager::class,
             ReferralsRelationManager::class,
             DiaryEntriesRelationManager::class,

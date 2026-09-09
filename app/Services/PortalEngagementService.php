@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Enums\CaseStatus;
 use App\Models\Caregiver;
 use App\Models\Patient;
 use App\Models\PicsCase;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -123,6 +125,90 @@ class PortalEngagementService
             'avg_support_response_hours' => $responseTimes->isEmpty() ? null : round($responseTimes->avg(), 1),
             'passport_confirmed_pct' => $this->percentage($confirmedPassports->count(), $cases->count()),
         ];
+    }
+
+    /**
+     * Casos que necesitan atención: un cuidador autorizado que nunca ha entrado, o un
+     * caso sin ninguna actividad de portal reciente. No es una tabla ni un job
+     * programado — se calcula al vuelo sobre los casos ya cargados.
+     *
+     * @param  Collection<int, PicsCase>  $cases
+     * @return array<int, array{case: PicsCase, reason: string, days: int}>
+     */
+    public function inactivityAlerts(Collection $cases): array
+    {
+        $alerts = [];
+
+        foreach ($cases as $case) {
+            if (in_array($case->status, [CaseStatus::Completed, CaseStatus::Cancelled], true)) {
+                continue;
+            }
+
+            $snapshot = $this->caseSnapshot($case);
+
+            if ($snapshot['caregiver_authorized']
+                && $snapshot['caregiver_last_login_at'] === null
+                && $snapshot['caregiver_authorized_at']
+                && Carbon::parse($snapshot['caregiver_authorized_at'])->lt(now()->subDays(3))) {
+                $alerts[] = [
+                    'case' => $case,
+                    'reason' => 'cuidador_sin_ingresar',
+                    'days' => (int) Carbon::parse($snapshot['caregiver_authorized_at'])->diffInDays(now()),
+                ];
+            }
+
+            $lastActivity = $snapshot['last_portal_activity_at'];
+            if ($lastActivity === null || Carbon::parse($lastActivity)->lt(now()->subDays(15))) {
+                $alerts[] = [
+                    'case' => $case,
+                    'reason' => 'sin_actividad',
+                    'days' => $lastActivity === null ? null : (int) Carbon::parse($lastActivity)->diffInDays(now()),
+                ];
+            }
+        }
+
+        return $alerts;
+    }
+
+    public const ALERT_LABELS = [
+        'cuidador_sin_ingresar' => 'El cuidador autorizado nunca ha ingresado al portal',
+        'sin_actividad' => 'Sin actividad reciente en el portal',
+    ];
+
+    /**
+     * Actividad originada en el portal (diario, reportes de metas, autorreportes de
+     * bienestar, solicitudes de ayuda), agrupada por semana, para ver la tendencia
+     * de las últimas $weeks semanas. Opera sobre las colecciones ya cargadas.
+     *
+     * @param  Collection<int, PicsCase>  $cases
+     * @return array<int, array{label: string, value: int}>
+     */
+    public function weeklyActivityTrend(Collection $cases, int $weeks = 8): array
+    {
+        $events = collect();
+
+        foreach ($cases as $case) {
+            $events = $events
+                ->merge($case->diaryEntries->pluck('created_at'))
+                ->merge($case->recoveryGoals->flatMap->progressReports->pluck('reported_at'))
+                ->merge($case->followups->whereNotNull('submitted_by_type')->pluck('followed_up_at'))
+                ->merge($case->supportRequests->pluck('created_at'));
+        }
+
+        $events = $events->filter()->map(fn ($d) => CarbonImmutable::parse($d));
+
+        $rows = [];
+        for ($i = $weeks - 1; $i >= 0; $i--) {
+            $weekStart = now()->startOfWeek()->subWeeks($i);
+            $weekEnd = $weekStart->copy()->endOfWeek();
+
+            $rows[] = [
+                'label' => $weekStart->format('d/m'),
+                'value' => $events->filter(fn (CarbonImmutable $d) => $d->between($weekStart, $weekEnd))->count(),
+            ];
+        }
+
+        return $rows;
     }
 
     private function percentage(int $numerator, int $denominator): ?float

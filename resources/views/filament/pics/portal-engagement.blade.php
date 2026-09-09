@@ -1,9 +1,42 @@
 <x-filament-panels::page>
     @php($s = $this->summary)
+    @php($alerts = $this->alerts)
+    @php($trend = $this->trend)
     <div class="mx-auto w-full max-w-6xl space-y-5">
         <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
             Mide el uso real de <strong>{{ url('/portal/login') }}</strong> por parte de los pacientes y sus cuidadores — no reemplaza el juicio clínico, es un indicador de participación y respuesta.
         </div>
+
+        @if (count($alerts) > 0)
+            <section class="rounded-xl border border-red-300 bg-red-50 p-4">
+                <h3 class="font-bold text-red-900">Alertas — {{ count($alerts) }} caso(s) necesitan atención</h3>
+                <ul class="mt-2 space-y-1 text-sm text-red-950">
+                    @foreach ($alerts as $alert)
+                        <li>
+                            <strong>{{ $alert['case']->case_number }}</strong> ({{ $alert['case']->patient?->full_name }}) —
+                            {{ \App\Services\PortalEngagementService::ALERT_LABELS[$alert['reason']] ?? $alert['reason'] }}
+                            @if ($alert['days'] !== null)
+                                (hace {{ $alert['days'] }} día{{ $alert['days'] === 1 ? '' : 's' }})
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            </section>
+        @endif
+
+        <section class="rounded-xl border bg-white p-4">
+            <h3 class="font-bold text-slate-900 mb-3">Actividad del portal — últimas 8 semanas</h3>
+            @php($max = max(1, collect($trend)->max('value')))
+            <div class="flex items-end gap-2" style="height: 120px;">
+                @foreach ($trend as $week)
+                    <div class="flex-1 flex flex-col items-center justify-end h-full">
+                        <span class="text-xs font-bold text-slate-700">{{ $week['value'] }}</span>
+                        <div class="w-full rounded-t bg-teal-500" style="height: {{ $week['value'] === 0 ? 2 : max(4, ($week['value'] / $max) * 90) }}px;"></div>
+                        <span class="mt-1 text-[10px] text-slate-500">{{ $week['label'] }}</span>
+                    </div>
+                @endforeach
+            </div>
+        </section>
 
         <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             @foreach([

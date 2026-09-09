@@ -6,6 +6,7 @@ use App\Enums\CaseStatus;
 use App\Filament\Pics\Resources\PicsCases\PicsCaseResource;
 use App\Models\PicsCase;
 use Filament\Actions\Action;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 
 class PicsWorkflowActions
@@ -17,10 +18,31 @@ class PicsWorkflowActions
     {
         return [
             self::recalculateRisk($record),
+            self::configurePatientAccess($record),
             self::finalizeFollowup($record),
             self::finalizeReview($record),
             self::reopen($record),
         ];
+    }
+
+    private static function configurePatientAccess(PicsCase $record): Action
+    {
+        return Action::make('configurePatientAccess')
+            ->label(fn (): string => $record->patient?->email ? 'Reenviar invitación al paciente' : 'Configurar acceso del paciente')
+            ->icon('heroicon-m-key')
+            ->color('gray')
+            ->schema([
+                TextInput::make('email')->label('Correo electrónico del paciente')->email()->required()
+                    ->default(fn (): ?string => $record->patient?->email)
+                    ->unique('patients', 'email', ignorable: $record->patient),
+            ])
+            ->requiresConfirmation()
+            ->modalDescription('Se generará una contraseña temporal y se enviará por correo al paciente para que ingrese al portal.')
+            ->action(function (array $data) use ($record): void {
+                $record->patient->update(['email' => $data['email']]);
+                $record->patient->sendPortalInvitation();
+                Notification::make()->success()->title('Invitación enviada al paciente')->send();
+            });
     }
 
     private static function recalculateRisk(PicsCase $record): Action

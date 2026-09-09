@@ -38,12 +38,27 @@ class PortalEngagement extends Page implements HasTable
     #[Computed]
     public function summary(): array
     {
-        $cases = PicsCase::query()
+        return app(PortalEngagementService::class)->aggregate($this->activeCases());
+    }
+
+    #[Computed]
+    public function alerts(): array
+    {
+        return app(PortalEngagementService::class)->inactivityAlerts($this->activeCases());
+    }
+
+    #[Computed]
+    public function trend(): array
+    {
+        return app(PortalEngagementService::class)->weeklyActivityTrend($this->activeCases());
+    }
+
+    private function activeCases()
+    {
+        return PicsCase::query()
             ->where('is_valid', true)->where('is_cancelled', false)
             ->with($this->eagerLoad())
             ->get();
-
-        return app(PortalEngagementService::class)->aggregate($cases);
     }
 
     private function eagerLoad(): array

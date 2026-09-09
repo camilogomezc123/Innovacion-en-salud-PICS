@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Auth\Authenticatable;
+use App\Concerns\PortalAccountAuthenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
@@ -12,9 +13,14 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[Fillable(['identification', 'full_name', 'sex', 'age', 'email', 'password', 'must_change_password'])]
 #[Hidden(['password', 'remember_token'])]
-class Patient extends Model implements AuthenticatableContract
+class Patient extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
-    use Authenticatable;
+    use PortalAccountAuthenticatable;
+
+    public function portalGuardName(): string
+    {
+        return 'patient';
+    }
 
     protected function casts(): array
     {

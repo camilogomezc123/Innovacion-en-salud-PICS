@@ -121,6 +121,20 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        'patients' => [
+            'provider' => 'patients',
+            'table' => 'patient_password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'caregivers' => [
+            'provider' => 'caregivers',
+            'table' => 'caregiver_password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
     ],
 
     /*
