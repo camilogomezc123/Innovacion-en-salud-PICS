@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[Fillable([
@@ -131,6 +132,16 @@ class PicsCase extends Model
     public function caregiverAuthorizations(): HasMany
     {
         return $this->hasMany(CaregiverAuthorization::class);
+    }
+
+    public function recoveryPassport(): HasOne
+    {
+        return $this->hasOne(RecoveryPassport::class);
+    }
+
+    public function supportRequests(): HasMany
+    {
+        return $this->hasMany(SupportRequest::class);
     }
 
     /**

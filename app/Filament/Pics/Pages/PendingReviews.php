@@ -61,7 +61,7 @@ class PendingReviews extends Page implements HasTable
                     ])
                     ->action(function (GoalProgressReport $record, array $data): void {
                         $record->update([
-                            'validated_by' => auth()->id(),
+                            'validated_by' => auth('web')->id(),
                             'validated_at' => now(),
                             'validation_notes' => $data['validation_notes'] ?? null,
                         ]);

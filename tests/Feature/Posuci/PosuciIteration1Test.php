@@ -192,4 +192,24 @@ class PosuciIteration1Test extends TestCase
         // El paciente no tiene cuenta "web" de staff: el guard del panel /pics lo rechaza.
         $this->actingAs($patient, 'patient')->get('/pics')->assertRedirect();
     }
+
+    public function test_reporting_a_difficulty_records_the_structured_reason(): void
+    {
+        ['case' => $case, 'caregiver' => $caregiver] = $this->makeCaseWithCaregiver();
+        $goal = RecoveryGoal::query()->create([
+            'pics_case_id' => $case->id, 'domain' => 'movilidad', 'description' => 'Caminar',
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($caregiver, 'caregiver');
+        Livewire::test(GoalsComponent::class)
+            ->set('selectedGoalId', $goal->id)
+            ->set('had_difficulty', true)
+            ->set('difficulty_reason', 'dolor')
+            ->call('save');
+
+        $report = $goal->progressReports()->firstOrFail();
+        $this->assertSame('dolor', $report->difficulty_reason);
+        $this->assertNull($report->difficulty_reason_other);
+    }
 }

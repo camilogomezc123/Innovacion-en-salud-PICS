@@ -24,9 +24,26 @@
                             <textarea class="form-control" rows="2" wire:model="notes" placeholder="Cuenta cómo te fue con esta actividad..."></textarea>
                         </div>
                         <div class="col-12 form-check">
-                            <input type="checkbox" class="form-check-input" id="difficulty" wire:model="had_difficulty">
+                            <input type="checkbox" class="form-check-input" id="difficulty" wire:model.live="had_difficulty">
                             <label class="form-check-label" for="difficulty">Tuve dificultad o no pude hacerlo</label>
                         </div>
+                        @if ($had_difficulty)
+                            <div class="col-md-6">
+                                <label class="form-label">¿Por qué?</label>
+                                <select class="form-select" wire:model.live="difficulty_reason">
+                                    <option value="">Selecciona...</option>
+                                    @foreach (\App\Models\GoalProgressReport::DIFFICULTY_REASONS as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @if ($difficulty_reason === 'otra')
+                                <div class="col-md-6">
+                                    <label class="form-label">Cuéntanos más</label>
+                                    <input type="text" class="form-control" wire:model="difficulty_reason_other">
+                                </div>
+                            @endif
+                        @endif
                     </div>
                     <button type="submit" class="btn btn-posuci mt-3">Guardar avance</button>
                 </form>
@@ -65,7 +82,15 @@
                                         <p class="mb-0 mt-1">{{ $report->notes }}</p>
                                     @endif
                                     @if ($report->had_difficulty)
-                                        <p class="mb-0 text-danger small">Reportó dificultad</p>
+                                        <p class="mb-0 text-danger small">
+                                            Reportó dificultad
+                                            @if ($report->difficulty_reason)
+                                                — {{ \App\Models\GoalProgressReport::DIFFICULTY_REASONS[$report->difficulty_reason] ?? $report->difficulty_reason }}
+                                                @if ($report->difficulty_reason === 'otra' && $report->difficulty_reason_other)
+                                                    ({{ $report->difficulty_reason_other }})
+                                                @endif
+                                            @endif
+                                        </p>
                                     @endif
                                 </li>
                             @endforeach

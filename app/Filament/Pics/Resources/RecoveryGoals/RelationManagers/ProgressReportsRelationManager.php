@@ -32,6 +32,8 @@ class ProgressReportsRelationManager extends RelationManager
                     ->getStateUsing(fn (GoalProgressReport $record): string => $record->reporter?->name ?? $record->reporter?->full_name ?? '—'),
                 TextColumn::make('notes')->label('Notas')->wrap()->limit(100)->placeholder('—'),
                 IconColumn::make('had_difficulty')->label('Dificultad')->boolean(),
+                TextColumn::make('difficulty_reason')->label('Motivo')->placeholder('—')
+                    ->formatStateUsing(fn (?string $state): string => GoalProgressReport::DIFFICULTY_REASONS[$state] ?? '—'),
                 IconColumn::make('validated_at')->label('Validado')->boolean(state: fn (GoalProgressReport $record): bool => $record->isValidated()),
                 TextColumn::make('validatedBy.name')->label('Validado por')->placeholder('—'),
             ])
@@ -47,7 +49,7 @@ class ProgressReportsRelationManager extends RelationManager
                     ])
                     ->action(function (GoalProgressReport $record, array $data): void {
                         $record->update([
-                            'validated_by' => auth()->id(),
+                            'validated_by' => auth('web')->id(),
                             'validated_at' => now(),
                             'validation_notes' => $data['validation_notes'] ?? null,
                         ]);

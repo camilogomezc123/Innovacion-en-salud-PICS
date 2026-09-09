@@ -176,7 +176,7 @@ class FollowupsRelationManager extends RelationManager
                     ->color('success')
                     ->visible(fn (PicsFollowup $record): bool => $record->isSelfSubmitted() && ! $record->isConfirmed())
                     ->action(function (PicsFollowup $record): void {
-                        $record->update(['confirmed_by' => auth()->id(), 'confirmed_at' => now()]);
+                        $record->update(['confirmed_by' => auth('web')->id(), 'confirmed_at' => now()]);
                     }),
                 EditAction::make()->mutateFormDataUsing(fn (array $data): array => PicsFollowup::computeScores($data)),
             ])

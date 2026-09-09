@@ -29,18 +29,25 @@
         <div class="container">
             <a class="navbar-brand" href="{{ route('portal.home') }}">POSUCI 360 Conecta</a>
             @if(isset($actorName))
-                <div class="d-flex align-items-center">
-                    <span class="text-white me-3">{{ $actorName }} · {{ $actorRole }}</span>
-                    <ul class="navbar-nav flex-row me-3">
-                        <li class="nav-item me-3"><a class="nav-link {{ request()->routeIs('portal.home') ? 'active' : '' }}" href="{{ route('portal.home') }}">Mi recuperación</a></li>
-                        <li class="nav-item me-3"><a class="nav-link {{ request()->routeIs('portal.diary') ? 'active' : '' }}" href="{{ route('portal.diary') }}">Mi diario</a></li>
-                        <li class="nav-item me-3"><a class="nav-link {{ request()->routeIs('portal.goals') ? 'active' : '' }}" href="{{ route('portal.goals') }}">Mis metas</a></li>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#posuciNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="posuciNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.home') ? 'active' : '' }}" href="{{ route('portal.home') }}">Mi recuperación</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.passport') ? 'active' : '' }}" href="{{ route('portal.passport') }}">Antes y ahora</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.diary') ? 'active' : '' }}" href="{{ route('portal.diary') }}">Mi diario</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.goals') ? 'active' : '' }}" href="{{ route('portal.goals') }}">Mis metas</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.wellbeing') ? 'active' : '' }}" href="{{ route('portal.wellbeing') }}">Cómo me siento</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.support') ? 'active' : '' }}" href="{{ route('portal.support') }}">Necesito ayuda</a></li>
                     </ul>
-                    <form method="POST" action="{{ route('portal.logout') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-sm btn-light">Salir</button>
-                    </form>
+                    <div class="d-flex align-items-center flex-column flex-lg-row">
+                        <span class="text-white me-lg-3 mb-2 mb-lg-0">{{ $actorName }} · {{ $actorRole }}</span>
+                        <form method="POST" action="{{ route('portal.logout') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-light">Salir</button>
+                        </form>
+                    </div>
                 </div>
             @endif
         </div>

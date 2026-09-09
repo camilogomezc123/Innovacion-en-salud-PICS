@@ -9,10 +9,19 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 #[Fillable([
     'recovery_goal_id', 'reporter_type', 'reporter_id', 'reported_at', 'notes', 'had_difficulty',
+    'difficulty_reason', 'difficulty_reason_other',
     'validated_by', 'validated_at', 'validation_notes',
 ])]
 class GoalProgressReport extends Model
 {
+    public const DIFFICULTY_REASONS = [
+        'cansancio' => 'Cansancio',
+        'dolor' => 'Dolor',
+        'falta_ayuda' => 'Falta de ayuda',
+        'dificultad_comprension' => 'Dificultad para comprender la actividad',
+        'otra' => 'Otra razón',
+    ];
+
     protected function casts(): array
     {
         return [

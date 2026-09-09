@@ -21,6 +21,12 @@ class GoalsComponent extends Component
 
     public bool $had_difficulty = false;
 
+    #[Validate('nullable|string')]
+    public string $difficulty_reason = '';
+
+    #[Validate('nullable|string')]
+    public string $difficulty_reason_other = '';
+
     public function mount(): void
     {
         $case = PortalHomeController::currentCase();
@@ -55,9 +61,11 @@ class GoalsComponent extends Component
             'reported_at' => now(),
             'notes' => $this->notes ?: null,
             'had_difficulty' => $this->had_difficulty,
+            'difficulty_reason' => $this->had_difficulty ? ($this->difficulty_reason ?: null) : null,
+            'difficulty_reason_other' => $this->had_difficulty && $this->difficulty_reason === 'otra' ? ($this->difficulty_reason_other ?: null) : null,
         ]);
 
-        $this->reset(['notes', 'had_difficulty']);
+        $this->reset(['notes', 'had_difficulty', 'difficulty_reason', 'difficulty_reason_other']);
 
         session()->flash('goals_status', 'Avance registrado. Tu equipo lo revisará.');
     }
