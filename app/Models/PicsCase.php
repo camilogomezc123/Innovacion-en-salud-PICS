@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CaseStatus;
+use App\Enums\ClinicalStage;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'risk_score', 'risk_level', 'risk_factors',
     'clinical_data', 'field_status', 'is_valid', 'is_cancelled', 'cancellation_reason',
     'assigned_at', 'analysis_started_at', 'auditor_finalized_at', 'completed_at', 'cancelled_at',
+    'clinical_stage', 'uci_started_at', 'hospitalization_started_at',
+    'discharge_confirmed_at', 'discharge_confirmed_by', 'followup_started_at',
 ])]
 class PicsCase extends Model
 {
@@ -58,6 +61,11 @@ class PicsCase extends Model
     {
         return [
             'status' => CaseStatus::class,
+            'clinical_stage' => ClinicalStage::class,
+            'uci_started_at' => 'datetime',
+            'hospitalization_started_at' => 'datetime',
+            'discharge_confirmed_at' => 'datetime',
+            'followup_started_at' => 'datetime',
             'enrollment_at' => 'datetime',
             'mechanical_ventilation_days' => 'decimal:3',
             'delirium_days' => 'decimal:3',
@@ -142,6 +150,38 @@ class PicsCase extends Model
     public function supportRequests(): HasMany
     {
         return $this->hasMany(SupportRequest::class);
+    }
+
+    public function dischargeConfirmedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'discharge_confirmed_by');
+    }
+
+    public function clinicalStageLabel(): string
+    {
+        return $this->clinical_stage instanceof ClinicalStage
+            ? $this->clinical_stage->label()
+            : (string) $this->clinical_stage;
+    }
+
+    public function carePlan(): HasOne
+    {
+        return $this->hasOne(CarePlan::class);
+    }
+
+    public function caregiverJourneySteps(): HasMany
+    {
+        return $this->hasMany(CaregiverJourneyStep::class);
+    }
+
+    public function dischargeReadinessCheck(): HasOne
+    {
+        return $this->hasOne(DischargeReadinessCheck::class);
+    }
+
+    public function agendaItems(): HasMany
+    {
+        return $this->hasMany(PicsAgendaItem::class);
     }
 
     /**

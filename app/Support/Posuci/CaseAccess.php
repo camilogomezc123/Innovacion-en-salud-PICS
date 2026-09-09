@@ -39,6 +39,11 @@ class CaseAccess
         return (bool) self::caregiverAuthorization($caregiver, $case)?->can_write_diary;
     }
 
+    public static function caregiverCanAccessJourney(Caregiver $caregiver, PicsCase $case): bool
+    {
+        return (bool) self::caregiverAuthorization($caregiver, $case)?->can_access_journey;
+    }
+
     /**
      * Caso activo del paciente autenticado en el guard "patient". Null si no existe
      * o si el usuario autenticado no es realmente el dueño (defensa en profundidad).

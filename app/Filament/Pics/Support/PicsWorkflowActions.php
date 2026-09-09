@@ -3,8 +3,11 @@
 namespace App\Filament\Pics\Support;
 
 use App\Enums\CaseStatus;
+use App\Enums\ClinicalStage;
+use App\Enums\ProgramRole;
 use App\Filament\Pics\Resources\PicsCases\PicsCaseResource;
 use App\Models\PicsCase;
+use App\Support\ProgramAccess;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -19,10 +22,104 @@ class PicsWorkflowActions
         return [
             self::recalculateRisk($record),
             self::configurePatientAccess($record),
+            self::startHospitalization($record),
+            self::confirmDischarge($record),
+            self::startFollowup($record),
+            self::revertClinicalStage($record),
             self::finalizeFollowup($record),
             self::finalizeReview($record),
             self::reopen($record),
         ];
+    }
+
+    private static function startHospitalization(PicsCase $record): Action
+    {
+        return Action::make('startHospitalization')
+            ->label('Iniciar hospitalización')
+            ->icon('heroicon-m-building-office-2')
+            ->color('gray')
+            ->visible(function () use ($record): bool {
+                $user = auth()->user();
+
+                return $user
+                    && $record->clinical_stage === ClinicalStage::Uci
+                    && ($user->canManagePicsCases()
+                        || ProgramAccess::hasRole($user, 'pics', ProgramRole::Physician)
+                        || ProgramAccess::hasRole($user, 'pics', ProgramRole::Nurse));
+            })
+            ->requiresConfirmation()
+            ->modalDescription('El paciente pasa de UCI a hospitalización general.')
+            ->action(function () use ($record) {
+                $record->clinical_stage = ClinicalStage::Hospitalizacion;
+                $record->save();
+                Notification::make()->success()->title('Etapa clínica: Hospitalización')->send();
+
+                return redirect(PicsCaseResource::getUrl('view', ['record' => $record]));
+            });
+    }
+
+    private static function confirmDischarge(PicsCase $record): Action
+    {
+        return Action::make('confirmDischarge')
+            ->label('Confirmar egreso')
+            ->icon('heroicon-m-arrow-right-on-rectangle')
+            ->color('warning')
+            ->visible(function () use ($record): bool {
+                $user = auth()->user();
+
+                return $user
+                    && $record->clinical_stage === ClinicalStage::Hospitalizacion
+                    && ($user->canManagePicsCases() || ProgramAccess::hasRole($user, 'pics', ProgramRole::Physician));
+            })
+            ->requiresConfirmation()
+            ->modalDescription('Esta acción confirma el egreso del paciente. No es automática y debe evaluarse en el momento. Recomendado: revise "Preparación para el alta" antes de confirmar.')
+            ->action(function () use ($record) {
+                $record->clinical_stage = ClinicalStage::Egreso;
+                $record->save();
+                Notification::make()->success()->title('Egreso confirmado')->send();
+
+                return redirect(PicsCaseResource::getUrl('view', ['record' => $record]));
+            });
+    }
+
+    private static function startFollowup(PicsCase $record): Action
+    {
+        return Action::make('startFollowup')
+            ->label('Iniciar seguimiento')
+            ->icon('heroicon-m-flag')
+            ->color('gray')
+            ->visible(fn (): bool => auth()->user()
+                && $record->clinical_stage === ClinicalStage::Egreso)
+            ->requiresConfirmation()
+            ->modalDescription('El caso pasa a la etapa de seguimiento post-alta.')
+            ->action(function () use ($record) {
+                $record->clinical_stage = ClinicalStage::Seguimiento;
+                $record->save();
+                Notification::make()->success()->title('Etapa clínica: Seguimiento')->send();
+
+                return redirect(PicsCaseResource::getUrl('view', ['record' => $record]));
+            });
+    }
+
+    private static function revertClinicalStage(PicsCase $record): Action
+    {
+        return Action::make('revertClinicalStage')
+            ->label('Retroceder etapa clínica')
+            ->icon('heroicon-m-arrow-uturn-left')
+            ->color('gray')
+            ->visible(fn (): bool => (auth()->user()?->canManagePicsCases() ?? false)
+                && $record->clinical_stage !== ClinicalStage::Uci)
+            ->requiresConfirmation()
+            ->modalDescription('Uso excepcional: corrige la etapa clínica un paso hacia atrás.')
+            ->action(function () use ($record) {
+                $stages = ClinicalStage::sequence();
+                $currentIndex = array_search($record->clinical_stage, $stages, true);
+                $record->clinical_stage = $stages[$currentIndex - 1];
+                $record->save();
+                Notification::make()->success()->title('Etapa clínica corregida a: '.$record->clinicalStageLabel())->send();
+
+                return redirect(PicsCaseResource::getUrl('view', ['record' => $record]));
+            });
     }
 
     private static function configurePatientAccess(PicsCase $record): Action

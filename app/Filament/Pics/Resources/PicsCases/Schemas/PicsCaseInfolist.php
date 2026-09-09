@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pics\Resources\PicsCases\Schemas;
 
+use App\Enums\ClinicalStage;
 use App\Models\PicsCase;
 use App\Services\PortalEngagementService;
 use Filament\Infolists\Components\IconEntry;
@@ -26,6 +27,15 @@ class PicsCaseInfolist
                         TextEntry::make('case_number')->label('Caso')->badge(),
                         TextEntry::make('status')->label('Estado')
                             ->formatStateUsing(fn ($state): string => $state?->label() ?? 'Sin estado')->badge(),
+                        TextEntry::make('clinical_stage')->label('Etapa clínica')
+                            ->formatStateUsing(fn ($state): string => $state?->label() ?? 'Sin etapa')
+                            ->badge()
+                            ->color(fn ($state): string => match ($state?->value) {
+                                'seguimiento' => 'success',
+                                'egreso' => 'warning',
+                                'hospitalizacion' => 'primary',
+                                default => 'gray',
+                            }),
                         TextEntry::make('assignedAuditor.name')->label('Responsable de seguimiento')->placeholder('Sin asignar'),
                         TextEntry::make('month')->label('Periodo')->placeholder('En proceso'),
                         TextEntry::make('site.name')->label('Sede')->placeholder('Sin asignar'),
@@ -35,6 +45,19 @@ class PicsCaseInfolist
                             ->formatStateUsing(fn (?string $state): string => PicsCase::ENROLLMENT_SOURCES[$state] ?? 'Sin dato'),
                         TextEntry::make('enrollment_at')->label('Fecha de ingreso al programa')
                             ->dateTime('d/m/Y H:i')->placeholder('Sin dato'),
+                        TextEntry::make('discharge_readiness_percentage')
+                            ->label('Preparación para el alta')
+                            ->badge()
+                            ->visible(fn (PicsCase $record): bool => $record->clinical_stage === ClinicalStage::Hospitalizacion)
+                            ->state(fn (PicsCase $record): string => $record->dischargeReadinessCheck
+                                ? number_format($record->dischargeReadinessCheck->readinessSummary()['percentage'], 1, ',', '.').'%'
+                                : 'Sin preparar')
+                            ->color(fn (PicsCase $record): string => match (true) {
+                                $record->dischargeReadinessCheck === null => 'gray',
+                                $record->dischargeReadinessCheck->readinessSummary()['percentage'] >= 90 => 'success',
+                                $record->dischargeReadinessCheck->readinessSummary()['percentage'] >= 50 => 'warning',
+                                default => 'danger',
+                            }),
                     ]),
                     Tab::make('Completitud')->schema([
                         TextEntry::make('completeness_percentage')

@@ -40,6 +40,10 @@
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.goals') ? 'active' : '' }}" href="{{ route('portal.goals') }}">Mis metas</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.wellbeing') ? 'active' : '' }}" href="{{ route('portal.wellbeing') }}">Cómo me siento</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.support') ? 'active' : '' }}" href="{{ route('portal.support') }}">Necesito ayuda</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.discharge-readiness') ? 'active' : '' }}" href="{{ route('portal.discharge-readiness') }}">Preparación para el alta</a></li>
+                        @auth('caregiver')
+                            <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.caregiver-journey') ? 'active' : '' }}" href="{{ route('portal.caregiver-journey') }}">Mi ruta como cuidador</a></li>
+                        @endauth
                     </ul>
                     <div class="d-flex align-items-center flex-column flex-lg-row">
                         <span class="text-white me-lg-3 mb-2 mb-lg-0">{{ $actorName }} · {{ $actorRole }}</span>

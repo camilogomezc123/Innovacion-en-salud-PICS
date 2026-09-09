@@ -3,6 +3,7 @@
 namespace App\Filament\Pics\Resources\PicsCases\Schemas;
 
 use App\Enums\CaseStatus;
+use App\Enums\ClinicalStage;
 use App\Enums\ProgramRole;
 use App\Models\PicsCase;
 use Filament\Forms\Components\DateTimePicker;
@@ -39,6 +40,29 @@ class PicsCaseForm
                             ->required()
                             ->disabled($managerOnly)
                             ->helperText('El flujo se controla con las acciones del caso.'),
+                        Select::make('clinical_stage')
+                            ->label('Etapa clínica')
+                            ->options(collect(ClinicalStage::cases())->mapWithKeys(fn (ClinicalStage $stage): array => [$stage->value => $stage->label()]))
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->helperText('Se controla únicamente con las acciones del caso (Iniciar hospitalización, Confirmar egreso, Iniciar seguimiento).'),
+                        Placeholder::make('clinical_stage_dates')
+                            ->label('Fechas de la etapa clínica')
+                            ->columnSpanFull()
+                            ->content(function (?PicsCase $record): string {
+                                if (! $record) {
+                                    return '—';
+                                }
+
+                                return collect([
+                                    'UCI' => $record->uci_started_at?->format('d/m/Y H:i'),
+                                    'Hospitalización' => $record->hospitalization_started_at?->format('d/m/Y H:i'),
+                                    'Egreso' => $record->discharge_confirmed_at
+                                        ? $record->discharge_confirmed_at->format('d/m/Y H:i').' · confirmado por '.($record->dischargeConfirmedBy?->name ?? '—')
+                                        : null,
+                                    'Seguimiento' => $record->followup_started_at?->format('d/m/Y H:i'),
+                                ])->filter()->map(fn (string $value, string $label): string => "{$label}: {$value}")->implode(' · ') ?: 'Sin fechas registradas.';
+                            }),
                         Select::make('assigned_auditor_id')
                             ->label('Responsable de seguimiento')
                             ->relationship('assignedAuditor', 'name', fn ($query) => $query

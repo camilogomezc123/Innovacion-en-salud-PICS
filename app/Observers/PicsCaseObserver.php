@@ -3,6 +3,8 @@
 namespace App\Observers;
 
 use App\Enums\CaseStatus;
+use App\Enums\ClinicalStage;
+use App\Enums\ProgramRole;
 use App\Models\PicsCase;
 use App\Services\ClinicalAuditService;
 use App\Support\HubMetrics;
@@ -24,6 +26,8 @@ class PicsCaseObserver
 
         $case->created_by ??= auth('web')->id();
         $case->updated_by ??= auth('web')->id();
+        $case->clinical_stage ??= ClinicalStage::Uci;
+        $case->uci_started_at ??= now();
 
         $this->syncWorkflowDates($case);
     }
@@ -31,6 +35,7 @@ class PicsCaseObserver
     public function updating(PicsCase $case): void
     {
         $this->authorizeStatusTransition($case);
+        $this->authorizeClinicalStageTransition($case);
         $case->updated_by = auth('web')->id();
 
         if (! $case->isDirty('status')
@@ -40,6 +45,7 @@ class PicsCaseObserver
         }
 
         $this->syncWorkflowDates($case);
+        $this->syncClinicalStageDates($case);
     }
 
     public function created(PicsCase $case): void
@@ -101,6 +107,29 @@ class PicsCaseObserver
         }
     }
 
+    private function syncClinicalStageDates(PicsCase $case): void
+    {
+        if (! $case->isDirty('clinical_stage')) {
+            return;
+        }
+
+        $stageValue = $case->clinical_stage;
+        $stage = $stageValue instanceof ClinicalStage ? $stageValue : ClinicalStage::from($stageValue);
+
+        if ($stage === ClinicalStage::Hospitalizacion) {
+            $case->hospitalization_started_at ??= now();
+        }
+
+        if ($stage === ClinicalStage::Egreso) {
+            $case->discharge_confirmed_at ??= now();
+            $case->discharge_confirmed_by ??= auth('web')->id();
+        }
+
+        if ($stage === ClinicalStage::Seguimiento) {
+            $case->followup_started_at ??= now();
+        }
+    }
+
     private function authorizeStatusTransition(PicsCase $case): void
     {
         if (! $case->isDirty('status') || ! auth('web')->check()) {
@@ -127,6 +156,38 @@ class PicsCaseObserver
 
         if ($next === CaseStatus::Pending->value && ! ($isManager || $isAssignedAuditor)) {
             throw ValidationException::withMessages(['status' => 'Solo el auditor asignado puede finalizar el seguimiento de este caso.']);
+        }
+    }
+
+    /**
+     * La etapa clínica (UCI → Hospitalización → Egreso → Seguimiento) solo avanza de a
+     * una, y el egreso —al no ser automático— solo lo confirma el equipo clínico
+     * responsable, nunca como efecto secundario de otro cambio en el caso.
+     */
+    private function authorizeClinicalStageTransition(PicsCase $case): void
+    {
+        if (! $case->isDirty('clinical_stage') || ! auth('web')->check()) {
+            return;
+        }
+
+        $previousValue = $case->getOriginal('clinical_stage');
+        $previous = $previousValue instanceof ClinicalStage ? $previousValue : ClinicalStage::from($previousValue ?? ClinicalStage::Uci->value);
+        $nextValue = $case->clinical_stage;
+        $next = $nextValue instanceof ClinicalStage ? $nextValue : ClinicalStage::from($nextValue);
+        $user = auth('web')->user();
+        $isManager = $user->canManagePicsCases();
+
+        if ($next->order() < $previous->order() && ! $isManager) {
+            throw ValidationException::withMessages(['clinical_stage' => 'Solo el líder o el administrador pueden retroceder la etapa clínica.']);
+        }
+
+        if ($next->order() > $previous->order() + 1 && ! $isManager) {
+            throw ValidationException::withMessages(['clinical_stage' => 'La etapa clínica solo puede avanzar un paso a la vez.']);
+        }
+
+        if ($next === ClinicalStage::Egreso
+            && ! ($isManager || ProgramAccess::hasRole($user, 'pics', ProgramRole::Physician))) {
+            throw ValidationException::withMessages(['clinical_stage' => 'Solo el equipo clínico responsable puede confirmar el egreso.']);
         }
     }
 
