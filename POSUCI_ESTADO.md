@@ -1,6 +1,6 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-09 (Iteración 1 + módulo PICS clínico portado desde "Panel de control").
+Última actualización: 2026-09-09 (Etapa 1 cerrada: pasaporte de recuperación + bandeja de solicitudes/dificultades, sobre la Iteración 1 + módulo PICS clínico ya existentes).
 
 ## Cómo ejecutar la demo
 
@@ -47,9 +47,19 @@ El portal ganó una pantalla nueva, **"Cómo me siento"** (`/portal/bienestar`):
 
 Verificado con 18 pruebas nuevas: fórmulas de puntaje con casos de borde exactos en cada corte, el algoritmo de riesgo completo, render del panel con el formulario nuevo, y el flujo de autorreporte del portal de punta a punta.
 
+## Etapa 1 — brechas cerradas frente al prompt maestro más reciente (2026-09-09)
+
+El nuevo prompt maestro pedía explícitamente, para la Etapa 1, un **pasaporte de recuperación** y el ciclo **"el paciente reporta una dificultad → el profesional responde → el paciente ve la respuesta"**. Ninguno existía todavía; ya están implementados:
+
+- **Pasaporte de recuperación** (`/pics → Pasaporte de recuperación`, `/portal/pasaporte` "Antes y ahora"): estado previo al ingreso (movilidad, autonomía, actividades habituales, apoyos), situación actual, barreras (hogar/transporte/acompañamiento/acceso) y una lista de necesidades/objetivos en las propias palabras del paciente (ej. "quiero volver a cocinar"). Registra quién lo reportó y cuándo, con confirmación profesional separada. El portal muestra el "antes" junto al "ahora" (último seguimiento registrado) **sin calcular ningún porcentaje de recuperación** — la comparación la hace quien lo lee.
+- **Solicitudes y dificultades** (`/pics → Solicitudes y dificultades`, `/portal/ayuda` "Necesito ayuda"): el paciente o el cuidador reportan una dificultad con la prioridad que ellos perciben; el profesional la asigna, reconoce recepción, responde, escala o resuelve; el paciente ve la respuesta en su propia sesión, sin ver a quién se asignó internamente.
+- **Motivo estructurado de dificultad** al reportar un avance de meta (cansancio, dolor, falta de ayuda, dificultad para comprender, otra), en vez de solo un sí/no.
+
+Verificado con 16 pruebas nuevas, incluyendo el ciclo completo de la solicitud (reporta → responde → el paciente consulta) y el aislamiento entre casos (un cuidador de un caso no ve el pasaporte ni las solicitudes de otro).
+
 ## Qué quedó simulado o pendiente (no construido todavía)
 
-Por diseño, esta iteración no incluye (quedan para la Iteración 2 según el prompt maestro): estados formales del episodio (UCI → hospitalización → egreso), bienestar emocional ("Cómo me siento"), plan interdisciplinario completo, agenda de citas, tareas/alertas con escalamiento, ni integración de dispositivos. Tampoco hay fotos/audio en el diario (solo texto, como pide la Iteración 1), ni pantalla de "Mi actividad".
+Quedan para la Etapa 2 (según el prompt maestro más reciente): plan interdisciplinario formal con versiones, ruta propia del cuidador (más allá del diario), preparación para el alta con recorrido de comprensión, agenda coordinada interna. Para etapas posteriores: medicamentos conciliados, educación personalizada, configuración institucional/academia, integraciones reales (agendas externas, dispositivos) y resúmenes asistidos por IA. Tampoco hay fotos/audio en el diario (solo texto, como pide explícitamente el prompt), ni estados formales del episodio (UCI → hospitalización → egreso) — el episodio hoy es un único caso PICS sin sub-estados de estancia.
 
 El paciente **no puede escribir** en el diario todavía (solo leer) — así lo pide explícitamente el prompt maestro para esta iteración ("participar posteriormente").
 
@@ -63,4 +73,4 @@ Este equipo no tiene Node.js instalado (solo se copió `node_modules`, sin el ru
 
 ## Decisión pendiente para la próxima sesión
 
-Antes de avanzar a la Iteración 2, conviene que confirmes: **¿qué estados del episodio necesitas primero** (UCI/hospitalización/egreso/seguimiento) **y si el egreso debe seguir dependiendo de que un profesional lo confirme** (así lo asume el diseño actual, coherente con el prompt maestro).
+Antes de avanzar a la Etapa 2, conviene que confirmes: **¿qué estados del episodio necesitas primero** (UCI/hospitalización/egreso/seguimiento) **y si el egreso debe seguir dependiendo de que un profesional lo confirme** (así lo asume el diseño actual, coherente con el prompt maestro). También conviene decidir si el `SupportRequest` de la Etapa 1 debe extenderse a más tipos de solicitud (no solo "dificultad") a medida que avancen las etapas, o si cada módulo futuro (medicamentos, citas) tendrá su propio flujo de solicitud.
