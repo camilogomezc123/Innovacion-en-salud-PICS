@@ -71,6 +71,9 @@
                             data-csrf="{{ csrf_token() }}">
                             🔔 Activar notificaciones
                         </button>
+                        <button type="button" id="installAppBtn" class="btn btn-sm btn-light me-lg-2 mb-2 mb-lg-0" style="display:none;">
+                            📲 Instalar app
+                        </button>
                         <form method="POST" action="{{ route('portal.logout') }}">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-light">Salir</button>
@@ -102,6 +105,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="{{ asset('js/portal-game.js') }}"></script>
     <script src="{{ asset('js/portal-push.js') }}"></script>
+    <script src="{{ asset('js/portal-install.js') }}"></script>
     <script src="{{ asset('js/portal-voice.js') }}"></script>
 </body>
 </html>
