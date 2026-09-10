@@ -4,6 +4,7 @@ use App\Http\Controllers\Portal\PortalAuthController;
 use App\Http\Controllers\Portal\PortalCalendarController;
 use App\Http\Controllers\Portal\PortalHomeController;
 use App\Http\Controllers\Portal\PortalPasswordController;
+use App\Http\Controllers\Portal\PortalProgressController;
 use App\Http\Controllers\Portal\PortalPushController;
 use App\Http\Controllers\Portal\PortalSummaryController;
 use App\Http\Middleware\EnsurePortalPasswordIsCurrent;
@@ -39,6 +40,7 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::get('/calendario', fn () => view('portal.calendar'))->name('calendar');
         Route::get('/calendario/eventos', [PortalCalendarController::class, 'events'])->name('calendar.events');
         Route::get('/resumen-cita', [PortalSummaryController::class, 'show'])->name('summary');
+        Route::get('/progreso', [PortalProgressController::class, 'show'])->name('progress');
         Route::get('/notificaciones/vapid-key', [PortalPushController::class, 'publicKey'])->name('push.public-key');
         Route::post('/notificaciones/suscribir', [PortalPushController::class, 'subscribe'])->name('push.subscribe');
         Route::post('/notificaciones/desuscribir', [PortalPushController::class, 'unsubscribe'])->name('push.unsubscribe');
