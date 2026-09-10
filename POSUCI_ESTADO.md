@@ -1,6 +1,22 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-17 (+ calendario interactivo + modo fácil de accesibilidad).
+Última actualización: 2026-09-17 (+ resumen imprimible para la cita médica).
+
+## Resumen imprimible para la cita médica (2026-09-17)
+
+Nueva página `/portal/resumen-cita` (controlador `PortalSummaryController`, vista `portal/summary.blade.php`): una hoja de una sola página, lista para imprimir o mostrar en el celular en la próxima consulta, con botón "🖨️ Imprimir / Guardar como PDF" que usa `window.print()` del navegador — sin librería de PDF ni paso de build, igual espíritu que el resto del portal.
+
+Contenido, todo tomado de datos ya estructurados y validados (nunca texto libre del diario, nunca nada inventado):
+- Próximas citas/terapias agendadas.
+- Medicamentos conciliados activos (nombre, dosis, vía, frecuencia, estado, instrucciones) — los suspendidos no aparecen.
+- Metas de recuperación activas y el último avance reportado.
+- Últimas 8 lecturas de monitoreo en casa.
+- El autorreporte de bienestar más reciente, mostrado con los mismos semáforos clínicos (verde/amarillo/rojo) que ya usa el equipo en `PicsFollowup` — se reutiliza el cálculo existente, no se inventan puntos de corte nuevos.
+- Dudas o dificultades reportadas que todavía no tienen respuesta del equipo.
+
+Se agregó como una tarjeta más en "Explora todo" del Inicio. Lleva un aviso explícito de que es una ayuda para la conversación con el equipo médico, no un reemplazo de la valoración clínica.
+
+Verificado con 3 pruebas automatizadas nuevas (239 en total, todas en verde) y un recorrido manual real contra el servidor de desarrollo con el paciente demo: todas las secciones se generan correctamente con sus datos reales.
 
 ## Calendario interactivo y modo fácil (2026-09-17)
 
