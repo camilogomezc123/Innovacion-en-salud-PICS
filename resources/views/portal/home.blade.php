@@ -80,7 +80,45 @@
         </div>
     @endif
 
-    <h2 class="h5 mb-3">🗺️ Tus misiones</h2>
+    @if ($ritual)
+        <h2 class="h5 mb-3">☀️ Tu día</h2>
+        <p class="text-muted small mb-3">Un vistazo rápido a lo de hoy — a tu ritmo, no tiene que ser exactamente en este orden ni a esta hora.</p>
+
+        <div class="row g-3 mb-4">
+            @foreach ($ritual as $block)
+                <div class="col-md-4">
+                    <div class="feed-card h-100">
+                        <h3 class="h6 mb-3">{{ $block['icon'] }} {{ $block['label'] }}</h3>
+
+                        @foreach ($block['checklist'] as $item)
+                            <a href="{{ $item['url'] }}" class="check-row {{ $item['done'] ? 'is-done' : '' }} game-pop text-decoration-none text-reset d-flex">
+                                <div class="check-circle">{{ $item['done'] ? '✓' : $item['icon'] }}</div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">{{ $item['title'] }}</div>
+                                    @if (! $item['done'])
+                                        <div class="text-muted small">Toca para hacerlo ahora</div>
+                                    @endif
+                                </div>
+                            </a>
+                        @endforeach
+
+                        @if (count($block['agenda']) > 0)
+                            <hr class="my-3">
+                            <div class="small text-muted mb-2">Agendado para hoy:</div>
+                            @foreach ($block['agenda'] as $entry)
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-light text-dark">{{ $entry['time'] }}</span>
+                                    <span>{{ $entry['icon'] }} {{ $entry['label'] }}</span>
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
+    <h2 class="h5 mb-3">🗺️ Explora todo</h2>
     <div class="mission-grid">
         @foreach ($missions as $mission)
             <a href="{{ $mission['url'] }}" class="mission-card game-pop">

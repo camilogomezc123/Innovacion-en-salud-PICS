@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\Caregiver;
 use App\Models\Patient;
+use App\Models\PicsAgendaItem;
 use App\Models\PicsCase;
 use App\Support\Posuci\CaseAccess;
 use Illuminate\Support\Carbon;
@@ -59,7 +60,7 @@ class PortalHomeController extends Controller
         $case->loadMissing([
             'recoveryGoals.progressReports', 'educationAssignments.resource', 'dischargeReadinessCheck.items',
             'supportRequests', 'caregiverJourneySteps', 'diaryEntries', 'homeMonitoringReadings',
-            'recoveryPassport', 'followups',
+            'recoveryPassport', 'followups', 'agendaItems', 'medicationReconciliation.items', 'personalReminders',
         ]);
 
         $pendingGoals = $case->recoveryGoals->where('status', 'active')->count();
@@ -79,6 +80,7 @@ class PortalHomeController extends Controller
             : null;
 
         $gamification = $actor ? $this->computeGamification($case, $actor, $canAccessJourney) : null;
+        $ritual = $actor ? $this->computeTodayRitual($case, $actor) : null;
 
         $missions = collect([
             ['title' => 'Mi calendario', 'description' => 'Citas, terapias, medicamentos y tus recordatorios.', 'url' => route('portal.calendar'), 'icon' => '📅', 'color' => 'linear-gradient(135deg,#0ea5e9,#7c3aed)'],
@@ -107,8 +109,125 @@ class PortalHomeController extends Controller
             'pendingJourneySteps' => $pendingJourneySteps,
             'missions' => $missions,
             'gamification' => $gamification,
+            'ritual' => $ritual,
             'actorFirstName' => $this->firstName($actor),
         ]);
+    }
+
+    /**
+     * El "ritual del día": qué ya hiciste hoy (de lo que ya reportas en el portal) y qué
+     * tienes agendado hoy (citas, terapias, medicamentos con horario, tus recordatorios),
+     * agrupado en mañana/tarde/noche solo como sugerencia de cuándo hacerlo — el sistema
+     * no exige que se haga a esa hora exacta, es puramente para formar el hábito diario.
+     *
+     * @return array<string, array{checklist: array<int, array{icon: string, title: string, url: string, done: bool}>, agenda: array<int, array{time: string, icon: string, label: string}>}>
+     */
+    private function computeTodayRitual(PicsCase $case, Patient|Caregiver $actor): array
+    {
+        $actorType = $actor::class;
+        $actorId = $actor->id;
+        $today = today();
+
+        $didToday = fn (Collection $items, string $dateField): bool => $items
+            ->filter(fn ($item) => $item->{$dateField} && $item->{$dateField}->isSameDay($today))
+            ->isNotEmpty();
+
+        $didWellbeingToday = $didToday(
+            $case->followups->where('submitted_by_type', $actorType)->where('submitted_by_id', $actorId),
+            'followed_up_at',
+        );
+        $didMonitoringToday = $didToday(
+            $case->homeMonitoringReadings->where('recorded_by_type', $actorType)->where('recorded_by_id', $actorId),
+            'measured_at',
+        );
+        $didDiaryToday = $didToday(
+            $case->diaryEntries->where('authorable_type', $actorType)->where('authorable_id', $actorId),
+            'created_at',
+        );
+        $didGoalReportToday = $didToday(
+            $case->recoveryGoals->flatMap->progressReports->where('reporter_type', $actorType)->where('reporter_id', $actorId),
+            'reported_at',
+        );
+
+        $agenda = $this->todayAgendaEntries($case, $actor, $today);
+        $byWindow = fn (int $from, int $to) => $agenda
+            ->filter(fn ($entry) => $entry['time']->hour >= $from && $entry['time']->hour < $to)
+            ->map(fn ($entry) => ['time' => $entry['time']->format('H:i'), 'icon' => $entry['icon'], 'label' => $entry['label']])
+            ->values()->all();
+
+        return [
+            'morning' => [
+                'label' => 'Mañana',
+                'icon' => '🌅',
+                'checklist' => [
+                    ['icon' => '💙', 'title' => '¿Cómo amaneciste?', 'url' => route('portal.wellbeing'), 'done' => $didWellbeingToday],
+                ],
+                'agenda' => $byWindow(0, 12),
+            ],
+            'afternoon' => [
+                'label' => 'Tarde',
+                'icon' => '☀️',
+                'checklist' => [
+                    ['icon' => '🩺', 'title' => 'Monitoreo en casa', 'url' => route('portal.home-monitoring'), 'done' => $didMonitoringToday],
+                    ['icon' => '🎯', 'title' => 'Avance de tus metas', 'url' => route('portal.goals'), 'done' => $didGoalReportToday],
+                ],
+                'agenda' => $byWindow(12, 18),
+            ],
+            'night' => [
+                'label' => 'Noche',
+                'icon' => '🌙',
+                'checklist' => [
+                    ['icon' => '✍️', 'title' => 'Escribe en tu diario', 'url' => route('portal.diary'), 'done' => $didDiaryToday],
+                ],
+                'agenda' => $byWindow(18, 24),
+            ],
+        ];
+    }
+
+    /**
+     * @return Collection<int, array{time: Carbon, icon: string, label: string}>
+     */
+    private function todayAgendaEntries(PicsCase $case, Patient|Caregiver $actor, Carbon $today): Collection
+    {
+        $agendaItems = $case->agendaItems
+            ->where('status', 'pendiente')
+            ->filter(fn ($item) => $item->scheduled_at && $item->scheduled_at->isSameDay($today))
+            ->map(fn ($item) => [
+                'time' => $item->scheduled_at,
+                'icon' => match ($item->type) {
+                    'cita' => '🩺',
+                    'terapia' => '🧑‍⚕️',
+                    'tarea' => '📋',
+                    default => '🗒️',
+                },
+                'label' => (PicsAgendaItem::TYPES[$item->type] ?? $item->type).': '.$item->title,
+            ]);
+
+        $medications = collect();
+        foreach ($case->medicationReconciliation?->items ?? [] as $item) {
+            if ($item->status === 'suspendida' || empty($item->schedule_times)) {
+                continue;
+            }
+
+            foreach ($item->schedule_times as $time) {
+                if (! preg_match('/^\d{2}:\d{2}/', (string) $time)) {
+                    continue;
+                }
+
+                $medications->push([
+                    'time' => $today->copy()->setTimeFromTimeString($time),
+                    'icon' => '💊',
+                    'label' => $item->medication_name,
+                ]);
+            }
+        }
+
+        $reminders = $case->personalReminders
+            ->where('created_by_type', $actor::class)->where('created_by_id', $actor->id)
+            ->filter(fn ($reminder) => $reminder->remind_at && $reminder->remind_at->isSameDay($today))
+            ->map(fn ($reminder) => ['time' => $reminder->remind_at, 'icon' => '📌', 'label' => $reminder->title]);
+
+        return collect()->merge($agendaItems)->merge($medications)->merge($reminders)->sortBy('time')->values();
     }
 
     /**
