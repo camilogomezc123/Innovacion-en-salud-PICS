@@ -41,6 +41,7 @@
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.wellbeing') ? 'active' : '' }}" href="{{ route('portal.wellbeing') }}">Cómo me siento</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.support') ? 'active' : '' }}" href="{{ route('portal.support') }}">Necesito ayuda</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.medications') ? 'active' : '' }}" href="{{ route('portal.medications') }}">Medicamentos</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.home-monitoring') ? 'active' : '' }}" href="{{ route('portal.home-monitoring') }}">Monitoreo en casa</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.discharge-readiness') ? 'active' : '' }}" href="{{ route('portal.discharge-readiness') }}">Preparación para el alta</a></li>
                         @auth('caregiver')
                             <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.caregiver-journey') ? 'active' : '' }}" href="{{ route('portal.caregiver-journey') }}">Mi ruta como cuidador</a></li>

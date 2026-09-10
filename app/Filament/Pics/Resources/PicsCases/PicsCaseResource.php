@@ -13,6 +13,7 @@ use App\Filament\Pics\Resources\PicsCases\RelationManagers\CaregiverJourneyRelat
 use App\Filament\Pics\Resources\PicsCases\RelationManagers\ClinicalAuditsRelationManager;
 use App\Filament\Pics\Resources\PicsCases\RelationManagers\DiaryEntriesRelationManager;
 use App\Filament\Pics\Resources\PicsCases\RelationManagers\FollowupsRelationManager;
+use App\Filament\Pics\Resources\PicsCases\RelationManagers\HomeMonitoringReadingsRelationManager;
 use App\Filament\Pics\Resources\PicsCases\RelationManagers\ReferralsRelationManager;
 use App\Filament\Pics\Resources\PicsCases\Schemas\PicsCaseForm;
 use App\Filament\Pics\Resources\PicsCases\Schemas\PicsCaseInfolist;
@@ -107,6 +108,7 @@ class PicsCaseResource extends Resource
             ReferralsRelationManager::class,
             AgendaItemsRelationManager::class,
             DiaryEntriesRelationManager::class,
+            HomeMonitoringReadingsRelationManager::class,
             ClinicalAuditsRelationManager::class,
         ];
     }
