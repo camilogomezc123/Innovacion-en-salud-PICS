@@ -1,6 +1,14 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-13 (+ trazabilidad del portal ampliada con los módulos de la Etapa 2/3).
+Última actualización: 2026-09-13 (+ notificación al staff cuando llega una solicitud nueva).
+
+## Notificación al staff cuando llega una solicitud (2026-09-13)
+
+Otra brecha real: cuando un paciente o cuidador reportaba una dificultad o duda desde "Necesito ayuda", nadie del staff se enteraba — solo lo descubrían si entraban manualmente a revisar la lista de "Solicitudes y dificultades". Una dificultad marcada como urgente podía quedar sin respuesta simplemente porque nadie miró esa pantalla. El proyecto ya tenía un patrón probado de notificaciones de Filament (campanita del panel + correo, `MAIL_MAILER=log` en desarrollo) usado en Sepsis y ACV para asignaciones de caso y comentarios — PICS no tenía ninguna.
+
+Ahora, al crear una `SupportRequest`, se notifica automáticamente al auditor asignado al caso; si el caso todavía no tiene auditor asignado, se notifica a quienes lideran el programa (líder, líder clínico o coordinador). Las solicitudes con prioridad alta se marcan como "Urgente" en el título y el ícono, tanto en la notificación del panel como en el correo.
+
+Verificado con 3 pruebas automatizadas nuevas (217 en total, todas en verde) y un recorrido manual: el correo se renderiza sin errores de plantilla y muestra el aviso de urgencia cuando corresponde.
 
 ## Trazabilidad del portal ampliada (2026-09-13)
 
