@@ -1,6 +1,14 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-10 (+ Etapa 2: estados del episodio, plan interdisciplinario versionado, ruta del cuidador, preparación de alta y agenda coordinada).
+Última actualización: 2026-09-11 (+ Etapa 3: medicamentos conciliados).
+
+## Etapa 3 — medicamentos conciliados (2026-09-11)
+
+Primera pieza de la Etapa 3 (elegida por el usuario entre medicamentos, educación personalizada e integraciones): **conciliación de medicamentos** (`/pics → Medicamentos conciliados`, `/portal/medicamentos`). Antes solo existía un campo de texto libre dentro del seguimiento (`PicsFollowup.medications_review`) y el tema genérico "medicamentos" en la preparación de alta (que solo mide si el paciente entendió el tema, no el detalle clínico). Ahora hay una lista real por medicamento: nombre, dosis, vía, frecuencia y la **decisión de conciliación** (continúa igual / nuevo / suspendido / dosis ajustada), documentada por el staff. El portal la muestra en modo lectura — **no es una herramienta de prescripción**, es trazabilidad para que el paciente/familia sepan qué tomar.
+
+Si el paciente o el cuidador tiene una duda sobre un medicamento, no se agregó una tercera capa de "revisado/confirmado": se reutiliza el `SupportRequest` ya construido en la Etapa 1 con un tipo nuevo (`duda_medicamento`) — el enlace "Tengo una duda sobre este medicamento" lleva directo a "Necesito ayuda" con el tipo y la descripción ya prellenados con el nombre del medicamento. Es la primera aplicación concreta de la decisión ya tomada de extender `SupportRequest` con más tipos en vez de construir un flujo de solicitud paralelo por módulo.
+
+Verificado con 5 pruebas automatizadas nuevas (197 en total, todas en verde) y un recorrido manual completo: conciliación creada desde `/pics`, vista en el portal, y el flujo "tengo una duda" confirmado de punta a punta contra el servidor real (el snapshot de Livewire mostró el tipo y la descripción prellenados correctamente).
 
 ## Etapa 2 (2026-09-10)
 
@@ -87,7 +95,7 @@ Verificado con 16 pruebas nuevas, incluyendo el ciclo completo de la solicitud (
 
 ## Qué quedó simulado o pendiente (no construido todavía)
 
-Para etapas posteriores (según el prompt maestro más reciente): medicamentos conciliados, educación personalizada, configuración institucional/academia, integraciones reales (agendas externas, dispositivos) y resúmenes asistidos por IA. Tampoco hay fotos/audio en el diario (solo texto, como pide explícitamente el prompt). La agenda coordinada es una lista cronológica, no un calendario visual — no hay Node.js en este entorno para cargar una librería de calendario.
+Para etapas posteriores (según el prompt maestro más reciente): educación personalizada, configuración institucional/academia, integraciones reales (agendas externas, dispositivos) y resúmenes asistidos por IA. Tampoco hay fotos/audio en el diario (solo texto, como pide explícitamente el prompt). La agenda coordinada es una lista cronológica, no un calendario visual — no hay Node.js en este entorno para cargar una librería de calendario.
 
 El paciente **no puede escribir** en el diario todavía (solo leer) — así lo pide explícitamente el prompt maestro para esta iteración ("participar posteriormente").
 
@@ -97,12 +105,16 @@ Este equipo no tiene Node.js instalado (solo se copió `node_modules`, sin el ru
 
 ## Modelo de datos nuevo (además de lo ya documentado para PICS)
 
-`patients` (+ columnas de login), `caregivers`, `caregiver_authorizations`, `diary_entries`, `recovery_goals`, `goal_progress_reports` — todas ancladas a `pics_cases` (el "episodio" del paciente). Detalle completo de columnas en la migración `database/migrations/2026_09_08_100000_create_posuci_iteration1_tables.php`. Para la Etapa 2: `care_plans`/`care_plan_versions`, `caregiver_journey_steps`, `discharge_readiness_checks`/`discharge_readiness_items`, `pics_agenda_items`, más `clinical_stage` (y sus fechas) en `pics_cases` y `can_access_journey` en `caregiver_authorizations` — ver las migraciones fechadas `2026_09_10_*`.
+`patients` (+ columnas de login), `caregivers`, `caregiver_authorizations`, `diary_entries`, `recovery_goals`, `goal_progress_reports` — todas ancladas a `pics_cases` (el "episodio" del paciente). Detalle completo de columnas en la migración `database/migrations/2026_09_08_100000_create_posuci_iteration1_tables.php`. Para la Etapa 2: `care_plans`/`care_plan_versions`, `caregiver_journey_steps`, `discharge_readiness_checks`/`discharge_readiness_items`, `pics_agenda_items`, más `clinical_stage` (y sus fechas) en `pics_cases` y `can_access_journey` en `caregiver_authorizations` — ver las migraciones fechadas `2026_09_10_*`. Para la Etapa 3: `medication_reconciliations`/`medication_reconciliation_items` (migración `2026_09_11_000000_create_medication_reconciliations_table.php`).
 
 ## Decisión confirmada para la Etapa 2
 
 El usuario confirmó (2026-09-08): el ciclo completo **UCI → Hospitalización → Egreso → Seguimiento**, con el egreso dependiendo siempre de confirmación profesional explícita; y que `SupportRequest` se extienda con más tipos en el futuro en vez de construir un flujo de solicitud paralelo por módulo (esta Etapa 2 no le agregó tipos nuevos todavía — ninguna de sus 5 piezas lo requería).
 
+## Decisión confirmada para la Etapa 3
+
+El usuario confirmó (2026-09-11): "Confirmar egreso" se queda como recomendación, no como bloqueo — no depende de que "Preparación para el alta" esté completo (sin cambios de código, así ya funcionaba). Y eligió **medicamentos conciliados** como primera pieza de la Etapa 3, frente a educación personalizada e integraciones externas.
+
 ## Decisión pendiente para la próxima sesión
 
-Con la Etapa 2 cerrada, quedan pendientes para decidir antes de avanzar a Etapa 3: qué tan estricta debe ser la relación entre "Preparación para el alta" y "Confirmar egreso" (hoy son independientes — confirmar el egreso no exige que el checklist esté completo, solo lo recomienda en el mensaje de confirmación); y qué prioridad tienen los temas de etapas posteriores (medicamentos conciliados, educación personalizada, integraciones externas).
+Con medicamentos conciliados cerrado, falta decidir qué sigue dentro de la Etapa 3: **educación personalizada** (contenido educativo adaptado al diagnóstico/etapa del paciente, más allá de las instrucciones de texto libre que ya existen) o **integraciones externas** (agendas, dispositivos) — o si conviene abrir directamente la configuración institucional/academia.
