@@ -59,6 +59,25 @@
         </div>
     @endif
 
+    @if ($firstSteps && collect($firstSteps)->contains('done', false))
+        <div class="feed-card mb-4">
+            <h2 class="h6 mb-3">🚀 Primeros pasos</h2>
+            @foreach ($firstSteps as $step)
+                @if ($step['url'])
+                    <a href="{{ $step['url'] }}" class="check-row {{ $step['done'] ? 'is-done' : '' }} game-pop text-decoration-none text-reset d-flex">
+                        <div class="check-circle">{{ $step['done'] ? '✓' : $step['icon'] }}</div>
+                        <div class="flex-grow-1 fw-semibold">{{ $step['title'] }}</div>
+                    </a>
+                @else
+                    <div class="check-row {{ $step['done'] ? 'is-done' : '' }} d-flex">
+                        <div class="check-circle">{{ $step['done'] ? '✓' : $step['icon'] }}</div>
+                        <div class="flex-grow-1 fw-semibold">{{ $step['title'] }}</div>
+                    </div>
+                @endif
+            @endforeach
+        </div>
+    @endif
+
     @if ($dailyTip)
         <div class="feed-card mb-4 game-pop" style="background: linear-gradient(135deg,#fff7ed,#fffbeb); border-color:#fde68a;">
             <div class="small text-muted mb-1">✨ Consejo del día</div>

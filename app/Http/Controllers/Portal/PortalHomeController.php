@@ -63,6 +63,7 @@ class PortalHomeController extends Controller
             'supportRequests', 'caregiverJourneySteps', 'diaryEntries', 'homeMonitoringReadings',
             'recoveryPassport', 'followups', 'agendaItems', 'medicationReconciliation.items', 'personalReminders',
         ]);
+        $actor?->loadMissing('pushSubscriptions');
 
         $pendingGoals = $case->recoveryGoals->where('status', 'active')->count();
 
@@ -82,6 +83,7 @@ class PortalHomeController extends Controller
 
         $gamification = $actor ? $this->computeGamification($case, $actor, $canAccessJourney) : null;
         $ritual = $actor ? $this->computeTodayRitual($case, $actor) : null;
+        $firstSteps = $actor ? $this->computeFirstSteps($case, $actor) : null;
 
         $missions = collect([
             ['title' => 'Mi calendario', 'description' => 'Citas, terapias, medicamentos y tus recordatorios.', 'url' => route('portal.calendar'), 'icon' => '📅', 'color' => 'linear-gradient(135deg,#0ea5e9,#7c3aed)'],
@@ -113,6 +115,7 @@ class PortalHomeController extends Controller
             'missions' => $missions,
             'gamification' => $gamification,
             'ritual' => $ritual,
+            'firstSteps' => $firstSteps,
             'dailyTip' => DailyTip::forDate(),
             'actorFirstName' => $this->firstName($actor),
         ]);
@@ -232,6 +235,34 @@ class PortalHomeController extends Controller
             ->map(fn ($reminder) => ['time' => $reminder->remind_at, 'icon' => '📌', 'label' => $reminder->title]);
 
         return collect()->merge($agendaItems)->merge($medications)->merge($reminders)->sortBy('time')->values();
+    }
+
+    /**
+     * Checklist persistente para quien recién entra — a diferencia del tour (que se ve
+     * una sola vez), esta se sigue mostrando hasta completar todos los pasos. Se oculta
+     * sola cuando ya no queda nada pendiente.
+     *
+     * @return array<int, array{icon: string, title: string, url: ?string, done: bool}>
+     */
+    private function computeFirstSteps(PicsCase $case, Patient|Caregiver $actor): array
+    {
+        $actorType = $actor::class;
+        $actorId = $actor->id;
+
+        $passportReportedByActor = $case->recoveryPassport
+            && $case->recoveryPassport->reported_by_type === $actorType
+            && $case->recoveryPassport->reported_by_id === $actorId;
+
+        $diaryCount = $case->diaryEntries->where('authorable_type', $actorType)->where('authorable_id', $actorId)->count();
+        $reminderCount = $case->personalReminders->where('created_by_type', $actorType)->where('created_by_id', $actorId)->count();
+        $pushSubscriptionCount = $actor->pushSubscriptions->count();
+
+        return [
+            ['icon' => '📖', 'title' => 'Completa tu "Antes y ahora"', 'url' => route('portal.passport'), 'done' => $passportReportedByActor],
+            ['icon' => '✍️', 'title' => 'Escribe tu primera entrada del diario', 'url' => route('portal.diary'), 'done' => $diaryCount >= 1],
+            ['icon' => '📌', 'title' => 'Agrega tu primer recordatorio', 'url' => route('portal.calendar'), 'done' => $reminderCount >= 1],
+            ['icon' => '🔔', 'title' => 'Activa las notificaciones (botón arriba)', 'url' => null, 'done' => $pushSubscriptionCount >= 1],
+        ];
     }
 
     /**
