@@ -1,6 +1,19 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-14 (+ tour de bienvenida al modo aventura).
+Última actualización: 2026-09-15 (+ calendario visual del portal — citas, terapias, medicamentos y recordatorios).
+
+## Calendario visual del portal (2026-09-15)
+
+El usuario pidió un módulo de citas más un calendario visual "como Google Calendar" donde el paciente vea citas, horarios de medicamentos y terapias, y pueda programar. Nuevo en `/portal/calendario`, usando **FullCalendar** (librería real vía CDN, sin necesitar Node.js — mismo patrón que `canvas-confetti`), con vista de mes/semana en español:
+
+- **Citas y terapias**: `PicsAgendaItem` ganó el tipo "terapia" (antes solo cita/tarea/recordatorio) — el staff las sigue programando desde `/pics` igual que siempre, ahora el paciente las ve en su calendario.
+- **Remisiones**: las que ya gestiona `PicsReferral` también aparecen.
+- **Medicamentos**: se agregó un campo opcional `schedule_times` (horas concretas, ej. 08:00 y 20:00) al conciliar cada medicamento en `/pics`. **Deliberadamente no se intentó adivinar horarios a partir del texto libre de "frecuencia"** ("cada 12 horas") — eso habría sido un riesgo real de seguridad del paciente; si el staff no diligencia horarios concretos, el medicamento simplemente no aparece en el calendario.
+- **Recordatorios personales** (`PersonalReminder`, modelo nuevo y mínimo): el paciente o el cuidador puede agregar sus propias notas ("tomar agua", "llamar a mi hermana") — **privadas por actor**: cada quien ve solo las suyas, nunca las del otro, y el staff no las ve en ningún recurso de `/pics`. Es su propio espacio de organización, no una cita clínica real.
+
+El calendario es una vista de lectura combinada (mismo espíritu que `PicsAgendaService::upcoming()`, que ya unía remisiones + agenda para `/pics/agenda-coordinada`) servida por un endpoint JSON nuevo que FullCalendar consulta directamente al navegar de mes — no pasa por Livewire para la navegación, solo para agregar recordatorios (que sí dispara un refresco del calendario sin recargar la página).
+
+Verificado con 5 pruebas automatizadas nuevas (224 en total, todas en verde) y un recorrido manual real: cita, terapia, remisión y medicamento con horario aparecen correctamente coloreados en el calendario del paciente demo; un medicamento sin horarios no genera eventos. En el camino confirmé (de nuevo) el problema ya documentado de mezclar `actingAs()` de dos guards en una misma prueba — se solucionó separando en dos métodos de prueba.
 
 ## Tour de bienvenida al modo aventura (2026-09-14)
 
