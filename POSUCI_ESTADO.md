@@ -1,6 +1,19 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-20 (+ notificaciones push reales del portal, PWA).
+Última actualización: 2026-09-20 (+ hablar en vez de escribir, diario y solicitudes de ayuda).
+
+## Hablar en vez de escribir (2026-09-20)
+
+Botón 🎤 junto a los campos de texto largos del diario ("¿Cómo estuvo el día?", "Mensaje para el paciente", "Un recuerdo significativo") y de "Necesito ayuda" ("Cuéntanos") — usa la Web Speech API nativa del navegador (`SpeechRecognition`/`webkitSpeechRecognition`, español) para dictar en vez de escribir, pensado para quien no se sienta cómodo escribiendo o tenga dificultad para teclear.
+
+Decisiones de diseño:
+- Sin librerías externas ni costo — es una API nativa del navegador (funciona en Chrome/Edge; en navegadores sin soporte, el botón simplemente no aparece, vía `body.voice-input-supported`, la misma técnica de progressive enhancement que ya se usó para "Leer esta página").
+- Los botones están en el HTML servido por el servidor (no inyectados por JS), y el script los conecta por delegación de eventos a nivel de documento — así siguen funcionando después de que Livewire vuelva a pintar el formulario (por ejemplo tras un error de validación), sin tener que re-escanear el DOM.
+- El texto reconocido se agrega al campo (no lo reemplaza), para poder dictar en varias tandas.
+
+No se agregó a "Cómo me siento" porque ese formulario es todo de escalas/opciones (PHQ-9, HADS, etc.), sin campos de texto libre donde aplique.
+
+Verificado con 2 pruebas automatizadas nuevas (264 en total, todas en verde) y un recorrido manual real contra el servidor de desarrollo: los botones aparecen en `/portal/diario` y `/portal/ayuda` con los `data-target` correctos.
 
 ## Notificaciones push reales (PWA) (2026-09-20)
 
