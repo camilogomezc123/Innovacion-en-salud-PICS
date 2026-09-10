@@ -5,17 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Mi recuperación') · POSUCI 360 Conecta</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/portal-game.css') }}">
     <style>
         body { background-color: #f5f7f8; font-size: 1.05rem; }
-        .posuci-navbar { background-color: #0e7490; }
-        .posuci-navbar .nav-link, .posuci-navbar .navbar-brand { color: #fff !important; font-weight: 600; }
-        .posuci-navbar .nav-link.active { text-decoration: underline; }
+        .posuci-navbar { background: linear-gradient(135deg, #7c3aed, #0e7490); border-radius: 0 0 1.5rem 1.5rem; }
+        .posuci-navbar .nav-link, .posuci-navbar .navbar-brand { color: #fff !important; font-weight: 700; }
+        .posuci-navbar .nav-link { border-radius: 999px; padding-left: .85rem !important; padding-right: .85rem !important; }
+        .posuci-navbar .nav-link.active { background: rgba(255,255,255,.22); }
         .btn-posuci { background-color: #0e7490; border-color: #0e7490; color: #fff; }
         .btn-posuci:hover { background-color: #0b5d73; border-color: #0b5d73; color: #fff; }
         .card { border-radius: 0.75rem; }
     </style>
 </head>
-<body>
+<body class="game-mode">
     @auth('patient')
         @php($actorName = auth('patient')->user()->full_name)
         @php($actorRole = 'Paciente')
@@ -72,5 +74,8 @@
 
         @yield('content')
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="{{ asset('js/portal-game.js') }}"></script>
 </body>
 </html>

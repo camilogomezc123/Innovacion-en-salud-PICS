@@ -68,6 +68,7 @@ class GoalsComponent extends Component
         $this->reset(['notes', 'had_difficulty', 'difficulty_reason', 'difficulty_reason_other']);
 
         session()->flash('goals_status', 'Avance registrado. Tu equipo lo revisará.');
+        $this->dispatch('celebrate');
     }
 
     public function render()
