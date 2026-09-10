@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'pics_case_id', 'caregiver_id', 'relationship', 'can_write_diary', 'can_access_journey',
-    'authorized_by', 'authorized_at', 'revoked_by', 'revoked_at',
+    'authorized_by', 'authorized_at', 'revoked_by', 'revoked_at', 'last_inactivity_nudge_at',
 ])]
 class CaregiverAuthorization extends Model
 {
@@ -19,6 +19,7 @@ class CaregiverAuthorization extends Model
             'can_access_journey' => 'boolean',
             'authorized_at' => 'datetime',
             'revoked_at' => 'datetime',
+            'last_inactivity_nudge_at' => 'datetime',
         ];
     }
 
