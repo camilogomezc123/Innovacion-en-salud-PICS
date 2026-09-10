@@ -1,6 +1,14 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-13 (+ rediseño del inicio del portal).
+Última actualización: 2026-09-13 (+ trazabilidad del portal ampliada con los módulos de la Etapa 2/3).
+
+## Trazabilidad del portal ampliada (2026-09-13)
+
+Mismo tipo de brecha que el inicio del portal: `PortalEngagementService` (`/pics/trazabilidad-portal`) se construyó antes de la Etapa 2/3 y nunca se actualizó — medía login, diario, metas, "Cómo me siento", pasaporte y solicitudes, pero nada sobre plan interdisciplinario, ruta del cuidador, preparación de alta, medicamentos conciliados, monitoreo en casa ni educación. Ahora `caseSnapshot()` y `aggregate()` incluyen las seis piezas nuevas, agrupadas visualmente en una sección aparte ("Preparación de egreso") tanto en el resumen institucional como en la pestaña "Trazabilidad del portal" de cada caso — sin inflar la tabla principal: las columnas nuevas quedan ocultas por defecto (`toggleable`) y se activan manualmente si se necesitan.
+
+De paso se sumó al resumen institucional el porcentaje de pasaportes confirmados (`passport_confirmed_pct`), que ya se calculaba pero nunca se mostraba en la vista.
+
+Verificado con 2 pruebas automatizadas nuevas (214 en total, todas en verde): el snapshot de un caso refleja correctamente las seis piezas nuevas, y el agregado calcula bien los porcentajes entre varios casos.
 
 ## Rediseño del inicio del portal (2026-09-13)
 
