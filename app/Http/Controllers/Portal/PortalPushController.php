@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Models\Caregiver;
 use App\Models\Patient;
+use App\Models\PushSubscription;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,9 +33,16 @@ class PortalPushController
             'keys.auth' => 'required|string',
         ]);
 
-        $actor->pushSubscriptions()->updateOrCreate(
+        // updateOrCreate() global por endpoint (no solo dentro de las suscripciones del
+        // actor): un endpoint identifica una única suscripción de navegador. Si el mismo
+        // endpoint ya existía bajo otro actor (ej: una tableta familiar compartida donde
+        // el cuidador cierra sesión y el paciente entra), la propiedad se reasigna al
+        // actor que se está suscribiendo ahora, en vez de crear un duplicado huérfano.
+        PushSubscription::query()->updateOrCreate(
             ['endpoint' => $data['endpoint']],
             [
+                'subscriber_type' => $actor::class,
+                'subscriber_id' => $actor->id,
                 'public_key' => $data['keys']['p256dh'],
                 'auth_token' => $data['keys']['auth'],
                 'content_encoding' => 'aesgcm',

@@ -65,6 +65,40 @@ class PortalPushSubscriptionTest extends TestCase
         $this->assertSame('key-2', PushSubscription::query()->where('endpoint', $payload['endpoint'])->first()->public_key);
     }
 
+    public function test_resubscribing_with_an_endpoint_owned_by_another_actor_reassigns_it(): void
+    {
+        $this->withoutMiddleware(PreventRequestForgery::class);
+
+        $caseA = $this->makeCase();
+        $patientA = $caseA->patient;
+        $patientA->update(['email' => 'push-shared-a@test.com', 'must_change_password' => false]);
+
+        $caseB = $this->makeCase();
+        $patientB = $caseB->patient;
+        $patientB->update(['email' => 'push-shared-b@test.com', 'must_change_password' => false]);
+
+        $sharedEndpoint = 'https://fcm.googleapis.com/fcm/send/shared-device';
+
+        // Un tablet familiar compartido: primero se suscribe el paciente A...
+        $this->actingAs($patientA, 'patient')
+            ->postJson('/portal/notificaciones/suscribir', [
+                'endpoint' => $sharedEndpoint,
+                'keys' => ['p256dh' => 'key-a', 'auth' => 'auth-a'],
+            ])->assertOk();
+
+        // ...y luego, en el mismo navegador, se suscribe el paciente B.
+        $this->actingAs($patientB, 'patient')
+            ->postJson('/portal/notificaciones/suscribir', [
+                'endpoint' => $sharedEndpoint,
+                'keys' => ['p256dh' => 'key-b', 'auth' => 'auth-b'],
+            ])->assertOk();
+
+        $this->assertSame(1, PushSubscription::query()->where('endpoint', $sharedEndpoint)->count());
+        $subscription = PushSubscription::query()->where('endpoint', $sharedEndpoint)->firstOrFail();
+        $this->assertSame($patientB->id, $subscription->subscriber_id);
+        $this->assertSame('key-b', $subscription->public_key);
+    }
+
     public function test_patient_can_unsubscribe(): void
     {
         $this->withoutMiddleware(PreventRequestForgery::class);
