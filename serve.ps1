@@ -16,6 +16,7 @@ if (-not (Test-Path -LiteralPath $localIni)) {
 
 $env:PHPRC = $localIni
 $env:Path = $runtimeRoot + [System.IO.Path]::PathSeparator + $env:Path
+$env:OPENSSL_CONF = Join-Path $runtimeRoot 'extras\ssl\openssl.cnf'
 
 Set-Location -LiteralPath $projectRoot
 

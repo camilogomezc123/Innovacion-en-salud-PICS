@@ -48,4 +48,9 @@ class Caregiver extends Model implements AuthenticatableContract, CanResetPasswo
     {
         return $this->morphMany(GoalProgressReport::class, 'reporter');
     }
+
+    public function pushSubscriptions(): MorphMany
+    {
+        return $this->morphMany(PushSubscription::class, 'subscriber');
+    }
 }

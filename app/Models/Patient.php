@@ -52,4 +52,9 @@ class Patient extends Model implements AuthenticatableContract, CanResetPassword
     {
         return $this->morphMany(DiaryEntry::class, 'authorable');
     }
+
+    public function pushSubscriptions(): MorphMany
+    {
+        return $this->morphMany(PushSubscription::class, 'subscriber');
+    }
 }

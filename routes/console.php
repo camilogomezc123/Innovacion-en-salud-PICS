@@ -32,6 +32,12 @@ Schedule::command('agora:notify-caregiver-of-inactive-patient-today')
     ->timezone('America/Bogota')
     ->withoutOverlapping();
 
+Schedule::command('agora:send-daily-portal-push')
+    ->daily()
+    ->at('08:00')
+    ->timezone('America/Bogota')
+    ->withoutOverlapping();
+
 Schedule::command('agora:send-sepsis-monthly-digest')
     ->monthlyOn(1, '07:00')
     ->timezone('America/Bogota')

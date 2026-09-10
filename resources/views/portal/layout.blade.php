@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#7c3aed">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
     <title>@yield('title', 'Mi recuperación') · POSUCI 360 Conecta</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('css/portal-game.css') }}">
@@ -62,6 +64,13 @@
                                 {{ $actorEasyMode ? '🔎 Modo fácil: activado' : '🔎 Modo fácil' }}
                             </button>
                         </form>
+                        <button type="button" id="pushToggleBtn" class="btn btn-sm btn-light me-lg-2 mb-2 mb-lg-0" style="display:none;"
+                            data-key-url="{{ route('portal.push.public-key') }}"
+                            data-subscribe-url="{{ route('portal.push.subscribe') }}"
+                            data-unsubscribe-url="{{ route('portal.push.unsubscribe') }}"
+                            data-csrf="{{ csrf_token() }}">
+                            🔔 Activar notificaciones
+                        </button>
                         <form method="POST" action="{{ route('portal.logout') }}">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-light">Salir</button>
@@ -92,5 +101,6 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="{{ asset('js/portal-game.js') }}"></script>
+    <script src="{{ asset('js/portal-push.js') }}"></script>
 </body>
 </html>
