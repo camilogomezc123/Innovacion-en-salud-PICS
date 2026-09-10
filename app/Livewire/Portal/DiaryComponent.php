@@ -32,25 +32,53 @@ class DiaryComponent extends Component
         $this->entry_date = now()->toDateString();
     }
 
+    /**
+     * El paciente siempre puede escribir en su propio diario; el cuidador solo si
+     * tiene la autorización can_write_diary vigente para este caso.
+     */
+    private function actor(): Patient|Caregiver|null
+    {
+        $case = PortalHomeController::currentCase();
+        if (! $case) {
+            return null;
+        }
+
+        $patient = Auth::guard('patient')->user();
+        $caregiver = Auth::guard('caregiver')->user();
+
+        if ($patient instanceof Patient && CaseAccess::patientCanAccess($patient, $case)) {
+            return $patient;
+        }
+
+        if ($caregiver instanceof Caregiver && CaseAccess::caregiverCanWriteDiary($caregiver, $case)) {
+            return $caregiver;
+        }
+
+        return null;
+    }
+
     public function save(): void
     {
         $case = PortalHomeController::currentCase();
-        $caregiver = Auth::guard('caregiver')->user();
-
-        abort_unless($case && $caregiver instanceof Caregiver && CaseAccess::caregiverCanWriteDiary($caregiver, $case), 403);
+        $actor = $this->actor();
+        abort_unless($case && $actor, 403);
 
         $this->validate();
 
+        $isPatientAuthor = $actor instanceof Patient;
+
         DiaryEntry::query()->create([
             'pics_case_id' => $case->id,
-            'authorable_type' => Caregiver::class,
-            'authorable_id' => $caregiver->id,
+            'authorable_type' => $actor::class,
+            'authorable_id' => $actor->id,
             'entry_date' => $this->entry_date,
             'content' => $this->content,
-            'message_to_patient' => $this->message_to_patient ?: null,
+            // "Mensaje para el paciente" no aplica cuando el propio paciente escribe.
+            'message_to_patient' => $isPatientAuthor ? null : ($this->message_to_patient ?: null),
             'meaningful_memory' => $this->meaningful_memory ?: null,
             'is_draft' => false,
-            'visible_to_patient' => $this->visible_to_patient,
+            // El paciente siempre ve lo que él mismo escribió.
+            'visible_to_patient' => $isPatientAuthor ? true : $this->visible_to_patient,
         ]);
 
         $this->reset(['content', 'message_to_patient', 'meaningful_memory']);
@@ -63,9 +91,6 @@ class DiaryComponent extends Component
     {
         $case = PortalHomeController::currentCase();
         $patient = Auth::guard('patient')->user();
-        $caregiver = Auth::guard('caregiver')->user();
-
-        $canWrite = $case && $caregiver instanceof Caregiver && CaseAccess::caregiverCanWriteDiary($caregiver, $case);
 
         $entries = collect();
 
@@ -82,7 +107,7 @@ class DiaryComponent extends Component
         return view('livewire.portal.diary-component', [
             'case' => $case,
             'entries' => $entries,
-            'canWrite' => $canWrite,
+            'canWrite' => $this->actor() !== null,
             'isPatient' => $patient instanceof Patient,
         ]);
     }

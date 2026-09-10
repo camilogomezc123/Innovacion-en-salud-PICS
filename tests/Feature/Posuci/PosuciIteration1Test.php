@@ -94,6 +94,37 @@ class PosuciIteration1Test extends TestCase
             ->assertDontSee('Nota privada del equipo');
     }
 
+    public function test_patient_can_write_a_diary_entry_and_see_it_labeled_with_their_name(): void
+    {
+        ['case' => $case, 'patient' => $patient, 'caregiver' => $caregiver] = $this->makeCaseWithCaregiver();
+
+        $this->actingAs($patient, 'patient');
+        Livewire::test(DiaryComponent::class)
+            ->assertSee('Escribir una entrada')
+            ->set('entry_date', now()->toDateString())
+            ->set('content', 'Hoy me sentí con más energía.')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $entry = $case->diaryEntries()->firstOrFail();
+        $this->assertSame(Patient::class, $entry->authorable_type);
+        $this->assertSame($patient->id, $entry->authorable_id);
+        $this->assertTrue($entry->visible_to_patient);
+        $this->assertSame($patient->full_name, $entry->authorLabel());
+
+        // El paciente ve su propia entrada, y el cuidador también (sin filtro de visibilidad).
+        $this->actingAs($patient, 'patient')
+            ->get('/portal/diario')
+            ->assertOk()
+            ->assertSee('Hoy me sentí con más energía.')
+            ->assertSee($patient->full_name);
+
+        $this->actingAs($caregiver, 'caregiver')
+            ->get('/portal/diario')
+            ->assertOk()
+            ->assertSee('Hoy me sentí con más energía.');
+    }
+
     public function test_caregiver_reports_progress_on_a_goal_assigned_by_the_professional(): void
     {
         ['case' => $case, 'caregiver' => $caregiver] = $this->makeCaseWithCaregiver();

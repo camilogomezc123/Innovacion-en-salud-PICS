@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pics\Resources\PicsCases\RelationManagers;
 
+use App\Models\DiaryEntry;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
@@ -24,7 +25,8 @@ class DiaryEntriesRelationManager extends RelationManager
         return $table
             ->columns([
                 TextColumn::make('entry_date')->label('Fecha')->date('d/m/Y')->sortable(),
-                TextColumn::make('authorable.name')->label('Autor')->placeholder('Familia'),
+                TextColumn::make('author')->label('Autor')
+                    ->getStateUsing(fn (DiaryEntry $record): string => $record->authorLabel()),
                 TextColumn::make('content')->label('Relato del día')->wrap()->limit(150),
                 IconColumn::make('visible_to_patient')->label('Visible al paciente')->boolean(),
             ])

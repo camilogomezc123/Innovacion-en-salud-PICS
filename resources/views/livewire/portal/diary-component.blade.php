@@ -20,18 +20,22 @@
                                 <textarea class="form-control" rows="3" wire:model="content" placeholder="Cuéntale a la familia cómo fue el día..."></textarea>
                                 @error('content') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Mensaje para el paciente (opcional)</label>
-                                <textarea class="form-control" rows="2" wire:model="message_to_patient"></textarea>
-                            </div>
+                            @if (! $isPatient)
+                                <div class="col-md-6">
+                                    <label class="form-label">Mensaje para el paciente (opcional)</label>
+                                    <textarea class="form-control" rows="2" wire:model="message_to_patient"></textarea>
+                                </div>
+                            @endif
                             <div class="col-md-6">
                                 <label class="form-label">Un recuerdo significativo (opcional)</label>
                                 <textarea class="form-control" rows="2" wire:model="meaningful_memory"></textarea>
                             </div>
-                            <div class="col-12 form-check">
-                                <input type="checkbox" class="form-check-input" id="visible" wire:model="visible_to_patient">
-                                <label class="form-check-label" for="visible">El paciente puede leer esta entrada</label>
-                            </div>
+                            @if (! $isPatient)
+                                <div class="col-12 form-check">
+                                    <input type="checkbox" class="form-check-input" id="visible" wire:model="visible_to_patient">
+                                    <label class="form-check-label" for="visible">El paciente puede leer esta entrada</label>
+                                </div>
+                            @endif
                         </div>
                         <button type="submit" class="btn btn-posuci mt-3">Guardar entrada</button>
                     </form>
@@ -46,7 +50,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <strong>{{ $entry->entry_date->format('d/m/Y') }}</strong>
-                        <span class="text-muted small">{{ $entry->authorable?->name ?? 'Familia' }}</span>
+                        <span class="text-muted small">{{ $entry->authorLabel() }}</span>
                     </div>
                     <p class="mb-2 mt-2">{{ $entry->content }}</p>
                     @if ($entry->message_to_patient)
