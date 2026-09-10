@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\PicsAgendaItem;
 use App\Models\PicsCase;
 use App\Support\Posuci\CaseAccess;
+use App\Support\Posuci\DailyTip;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Http\RedirectResponse;
@@ -111,6 +112,7 @@ class PortalHomeController extends Controller
             'missions' => $missions,
             'gamification' => $gamification,
             'ritual' => $ritual,
+            'dailyTip' => DailyTip::forDate(),
             'actorFirstName' => $this->firstName($actor),
         ]);
     }

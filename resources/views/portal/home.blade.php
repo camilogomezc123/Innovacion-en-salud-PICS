@@ -59,6 +59,13 @@
         </div>
     @endif
 
+    @if ($dailyTip)
+        <div class="feed-card mb-4 game-pop" style="background: linear-gradient(135deg,#fff7ed,#fffbeb); border-color:#fde68a;">
+            <div class="small text-muted mb-1">✨ Consejo del día</div>
+            <div class="fw-semibold">{{ $dailyTip }}</div>
+        </div>
+    @endif
+
     @php($pendingCount = $unreadEducation + $pendingReadinessItems + $openSupportRequests + ($pendingJourneySteps ?? 0))
     @if ($pendingCount > 0)
         <div class="alert alert-info mb-4">
