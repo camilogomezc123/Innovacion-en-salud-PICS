@@ -1,6 +1,14 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-21 (+ checklist de primeros pasos).
+Última actualización: 2026-09-21 (verificación: varios cuidadores autorizados por caso).
+
+## Varios cuidadores autorizados por caso — verificado (2026-09-21)
+
+El usuario pidió permitir más de un cuidador con acceso al portal por caso. Al revisar el código, resultó que **ya estaba construido**: `caregiverAuthorizations` en `PicsCase` siempre fue `HasMany` (no `HasOne`), la restricción única en la tabla es `[pics_case_id, caregiver_id]` (evita duplicar el mismo cuidador, nunca bloqueó agregar uno distinto), `CaseAccess` siempre revisa la autorización del cuidador específico que inició sesión (nunca asume "el" cuidador del caso), y el panel de staff (`CaregiverAuthorizationsRelationManager`) ya permite crear tantas autorizaciones como se quiera desde el botón "Crear". El diario ya es compartido entre todos los actores del caso (no por cuidador), y los recordatorios personales, las notificaciones de inactividad y las suscripciones push ya estaban correctamente aisladas por actor individual, no por "el cuidador".
+
+Como no había nada que construir, esta entrada es de **verificación**: se agregaron 7 pruebas automatizadas nuevas que confirman con dos cuidadores reales en el mismo caso (ej: "esposa" e "hija") que: ambas pueden entrar de forma independiente, el diario se comparte correctamente entre ambas con la autoría correcta, los recordatorios personales de cada una siguen siendo privados entre sí, y el aviso de "el paciente no entró hoy" les llega a ambas de forma independiente. Se encontró y corrigió un bug de la propia prueba en el camino (no del producto): faltaba la contraseña del paciente en los datos de prueba, lo que hacía parecer que algo fallaba cuando en realidad la protección "solo notificar pacientes con cuenta de portal" estaba funcionando exactamente como debía.
+
+282 pruebas en total, todas en verde.
 
 ## Checklist de primeros pasos (2026-09-21)
 
