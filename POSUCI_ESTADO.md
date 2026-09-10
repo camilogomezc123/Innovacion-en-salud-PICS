@@ -1,6 +1,25 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-16 (+ ritual diario guiado "Tu día" en el Inicio del portal).
+Última actualización: 2026-09-17 (+ calendario interactivo + modo fácil de accesibilidad).
+
+## Calendario interactivo y modo fácil (2026-09-17)
+
+Dos mejoras en paralelo, elegidas por el usuario entre varias propuestas.
+
+**Calendario más interactivo** (`resources/views/livewire/portal/calendar-component.blade.php`, `app/Livewire/Portal/CalendarComponent.php`, `app/Http/Controllers/Portal/PortalCalendarController.php`):
+- Tocar cualquier día del calendario abre un modal para agregar un recordatorio ahí mismo (`dateClick`), sin tener que bajar al formulario.
+- Tocar uno de tus propios recordatorios (📌) abre el mismo modal en modo edición, con un botón para borrarlo.
+- Arrastrar un recordatorio propio a otro día/hora lo reprograma (`eventDrop`) — únicamente tus recordatorios personales son arrastrables (`editable: true` solo en esos eventos); las citas y terapias las sigue controlando el equipo clínico.
+- Filtros con casillas para mostrar/ocultar cada tipo de evento (cita, terapia, tarea, remisión, medicamento, mi recordatorio) — útil cuando hay muchos eventos el mismo mes.
+- Vistas de lista y de día, además de mes/semana, para quien prefiera leer un renglón por evento en vez de una cuadrícula.
+- Nuevos métodos en `CalendarComponent`: `saveReminder()` (crea o edita), `deleteReminder()`, `rescheduleReminder()` — los tres limitados por consulta a `created_by_type`/`created_by_id` del actor autenticado, así que nadie puede editar ni borrar el recordatorio de otra persona (ni siquiera el del otro miembro de la misma pareja paciente/cuidador).
+
+**Modo fácil** (accesibilidad para cualquier edad):
+- Botón "🔎 Modo fácil" en la barra superior del portal. Al activarlo, guarda la preferencia en la cuenta del actor (columna `portal_easy_mode` en `patients`/`caregivers`, no en el navegador) para que se mantenga entre visitas y dispositivos — mismo patrón que `has_seen_portal_tour`.
+- Con el modo activo: letra más grande, más contraste en el texto secundario, botones y campos de formulario más grandes — pensado para personas mayores o con baja visión.
+- Botón flotante "🔊 Leer esta página" que usa la Web Speech API nativa del navegador (sin librerías externas ni costo) para leer en voz alta el contenido de la página actual. Se oculta solo si el navegador no soporta la API (progressive enhancement) — nunca se muestra un botón que no vaya a funcionar.
+
+Verificado con 8 pruebas automatizadas nuevas (236 en total, todas en verde) y un recorrido manual real contra el servidor de desarrollo: el modal de recordatorios, los filtros y las vistas de lista/día se generan correctamente en `/portal/calendario`; el modo fácil se activa/desactiva correctamente y cambia la clase del `<body>` y el texto del botón (se restableció al estado original del paciente demo después de la prueba).
 
 ## Ritual diario guiado "Tu día" (2026-09-16)
 
