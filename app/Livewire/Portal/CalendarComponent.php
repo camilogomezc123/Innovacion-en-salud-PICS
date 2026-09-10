@@ -7,6 +7,7 @@ use App\Models\Caregiver;
 use App\Models\Patient;
 use App\Models\PersonalReminder;
 use App\Models\PicsAgendaItem;
+use App\Models\PicsCase;
 use App\Notifications\AppointmentResponseNotification;
 use App\Support\Posuci\CaseAccess;
 use App\Support\Posuci\StaffNotifier;
@@ -74,6 +75,75 @@ class CalendarComponent extends Component
         session()->flash('calendar_status', 'Recordatorio agregado.');
         $this->dispatch('celebrate');
         $this->dispatch('calendar-refresh');
+    }
+
+    /**
+     * Crea o edita un recordatorio personal desde el calendario (tocar un día vacío,
+     * o tocar un recordatorio ya existente). Siempre atribuido/limitado al actor
+     * autenticado — nunca se puede editar el recordatorio de otra persona.
+     */
+    public function saveReminder(?int $id, string $title, string $remindAt, ?string $notes): void
+    {
+        $case = PortalHomeController::currentCase();
+        $actor = $this->actor();
+        abort_unless($case && $actor, 403);
+
+        $title = trim($title);
+        abort_if($title === '' || $remindAt === '', 422);
+
+        $payload = [
+            'pics_case_id' => $case->id,
+            'title' => $title,
+            'remind_at' => $remindAt,
+            'notes' => $notes ? trim($notes) : null,
+        ];
+
+        if ($id) {
+            $this->ownReminder($case, $actor, $id)->update($payload);
+            session()->flash('calendar_status', 'Recordatorio actualizado.');
+        } else {
+            $payload['created_by_type'] = $actor::class;
+            $payload['created_by_id'] = $actor->id;
+            PersonalReminder::query()->create($payload);
+            session()->flash('calendar_status', 'Recordatorio agregado.');
+            $this->dispatch('celebrate');
+        }
+
+        $this->dispatch('calendar-refresh');
+    }
+
+    public function deleteReminder(int $id): void
+    {
+        $case = PortalHomeController::currentCase();
+        $actor = $this->actor();
+        abort_unless($case && $actor, 403);
+
+        $this->ownReminder($case, $actor, $id)->delete();
+
+        session()->flash('calendar_status', 'Recordatorio eliminado.');
+        $this->dispatch('calendar-refresh');
+    }
+
+    /** Arrastrar y soltar un recordatorio propio en el calendario para reprogramarlo. */
+    public function rescheduleReminder(int $id, string $remindAt): void
+    {
+        $case = PortalHomeController::currentCase();
+        $actor = $this->actor();
+        abort_unless($case && $actor, 403);
+
+        $this->ownReminder($case, $actor, $id)->update(['remind_at' => $remindAt]);
+
+        session()->flash('calendar_status', 'Recordatorio reprogramado.');
+        $this->dispatch('calendar-refresh');
+    }
+
+    private function ownReminder(PicsCase $case, Patient|Caregiver $actor, int $id): PersonalReminder
+    {
+        return PersonalReminder::query()
+            ->where('pics_case_id', $case->id)
+            ->where('created_by_type', $actor::class)
+            ->where('created_by_id', $actor->id)
+            ->findOrFail($id);
     }
 
     public function respondToAppointment(int $itemId, string $response): void

@@ -82,6 +82,7 @@ class PortalCalendarController
                     'color' => self::TYPE_COLORS[$item->type] ?? '#64748b',
                     'extendedProps' => [
                         'kind' => 'agenda_item',
+                        'type' => $item->type,
                         'notes' => $item->notes,
                         'id' => $item->id,
                         'respondable' => $item->isRespondable() && $item->patient_response === null,
@@ -161,7 +162,8 @@ class PortalCalendarController
                 'title' => '📌 '.$reminder->title,
                 'start' => $reminder->remind_at->toIso8601String(),
                 'color' => self::PERSONAL_REMINDER_COLOR,
-                'extendedProps' => ['kind' => 'personal_reminder', 'notes' => $reminder->notes],
+                'editable' => true,
+                'extendedProps' => ['kind' => 'personal_reminder', 'notes' => $reminder->notes, 'id' => $reminder->id],
             ])
             ->all();
     }

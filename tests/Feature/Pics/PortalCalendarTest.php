@@ -147,6 +147,91 @@ class PortalCalendarTest extends TestCase
         $this->assertSame('Tomar agua', $reminder->title);
     }
 
+    public function test_events_expose_type_for_agenda_items_and_id_for_personal_reminders(): void
+    {
+        $case = $this->makeCase();
+        $patient = $case->patient;
+        $patient->update(['email' => 'cal-patient4@test.com', 'must_change_password' => false]);
+
+        PicsAgendaItem::query()->create([
+            'pics_case_id' => $case->id, 'type' => 'terapia', 'title' => 'Fisioterapia', 'status' => 'pendiente',
+            'scheduled_at' => now()->addDays(2),
+        ]);
+        $reminder = PersonalReminder::query()->create([
+            'pics_case_id' => $case->id, 'title' => 'Tomar agua', 'remind_at' => now()->addDay(),
+            'created_by_type' => Patient::class, 'created_by_id' => $patient->id,
+        ]);
+
+        $this->actingAs($patient, 'patient');
+        $start = now()->startOfMonth()->toDateString();
+        $end = now()->endOfMonth()->toDateString();
+        $events = collect($this->getJson("/portal/calendario/eventos?start={$start}&end={$end}")->assertOk()->json());
+
+        $therapy = $events->firstWhere(fn ($e) => str_contains($e['title'], 'Fisioterapia'));
+        $this->assertSame('terapia', $therapy['extendedProps']['type']);
+
+        $reminderEvent = $events->firstWhere(fn ($e) => str_contains($e['title'], 'Tomar agua'));
+        $this->assertSame($reminder->id, $reminderEvent['extendedProps']['id']);
+        $this->assertTrue($reminderEvent['editable']);
+    }
+
+    public function test_saving_a_reminder_creates_or_updates_it_for_the_actor(): void
+    {
+        $case = $this->makeCase();
+        $patient = $case->patient;
+        $patient->update(['email' => 'cal-patient5@test.com', 'must_change_password' => false]);
+
+        $this->actingAs($patient, 'patient');
+
+        Livewire::test(CalendarComponent::class)
+            ->call('saveReminder', null, 'Tomar agua', now()->addHour()->format('Y-m-d\TH:i'), null)
+            ->assertHasNoErrors();
+
+        $reminder = PersonalReminder::query()->where('pics_case_id', $case->id)->firstOrFail();
+        $this->assertSame('Tomar agua', $reminder->title);
+        $this->assertSame(Patient::class, $reminder->created_by_type);
+        $this->assertSame($patient->id, $reminder->created_by_id);
+
+        Livewire::test(CalendarComponent::class)
+            ->call('saveReminder', $reminder->id, 'Tomar agua y estirar', now()->addHours(2)->format('Y-m-d\TH:i'), 'Nota nueva')
+            ->assertHasNoErrors();
+
+        $reminder->refresh();
+        $this->assertSame('Tomar agua y estirar', $reminder->title);
+        $this->assertSame('Nota nueva', $reminder->notes);
+    }
+
+    public function test_deleting_a_reminder_is_scoped_to_its_owner(): void
+    {
+        ['case' => $case, 'patient' => $patient, 'caregiver' => $caregiver] = $this->makeCaseWithCaregiver();
+        $caregiverReminder = PersonalReminder::query()->where('created_by_type', Caregiver::class)->firstOrFail();
+
+        $this->actingAs($patient, 'patient');
+
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        Livewire::test(CalendarComponent::class)->call('deleteReminder', $caregiverReminder->id);
+    }
+
+    public function test_rescheduling_a_reminder_updates_its_time(): void
+    {
+        $case = $this->makeCase();
+        $patient = $case->patient;
+        $patient->update(['email' => 'cal-patient6@test.com', 'must_change_password' => false]);
+        $reminder = PersonalReminder::query()->create([
+            'pics_case_id' => $case->id, 'title' => 'Tomar agua', 'remind_at' => now()->addDay(),
+            'created_by_type' => Patient::class, 'created_by_id' => $patient->id,
+        ]);
+
+        $newTime = now()->addDays(3)->startOfHour();
+
+        $this->actingAs($patient, 'patient');
+        Livewire::test(CalendarComponent::class)
+            ->call('rescheduleReminder', $reminder->id, $newTime->toIso8601String())
+            ->assertHasNoErrors();
+
+        $this->assertTrue($newTime->equalTo($reminder->fresh()->remind_at));
+    }
+
     public function test_case_isolation_for_calendar_events(): void
     {
         $caseA = $this->makeCase();
