@@ -6,7 +6,10 @@ use App\Http\Controllers\Portal\PortalHomeController;
 use App\Models\Caregiver;
 use App\Models\Patient;
 use App\Models\PersonalReminder;
+use App\Models\PicsAgendaItem;
+use App\Notifications\AppointmentResponseNotification;
 use App\Support\Posuci\CaseAccess;
+use App\Support\Posuci\StaffNotifier;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -71,6 +74,35 @@ class CalendarComponent extends Component
         session()->flash('calendar_status', 'Recordatorio agregado.');
         $this->dispatch('celebrate');
         $this->dispatch('calendar-refresh');
+    }
+
+    public function respondToAppointment(int $itemId, string $response): void
+    {
+        $case = PortalHomeController::currentCase();
+        $actor = $this->actor();
+        abort_unless($case && $actor, 403);
+        abort_unless(array_key_exists($response, PicsAgendaItem::RESPONSES), 422);
+
+        $item = PicsAgendaItem::query()
+            ->where('pics_case_id', $case->id)
+            ->whereIn('type', PicsAgendaItem::RESPONDABLE_TYPES)
+            ->findOrFail($itemId);
+
+        $item->update([
+            'patient_response' => $response,
+            'patient_response_at' => now(),
+            'patient_responded_by_type' => $actor::class,
+            'patient_responded_by_id' => $actor->id,
+        ]);
+
+        StaffNotifier::notifyCaseStaff($case, new AppointmentResponseNotification($item));
+
+        if ($response === 'confirmada') {
+            $this->dispatch('celebrate');
+        }
+
+        $this->dispatch('calendar-refresh');
+        session()->flash('calendar_status', $response === 'confirmada' ? '¡Confirmaste tu asistencia!' : 'Le avisamos a tu equipo que no podrás asistir.');
     }
 
     public function render()

@@ -18,6 +18,7 @@
                 <span><span style="display:inline-block;width:.8rem;height:.8rem;border-radius:50%;background:#f97316;"></span> Medicamento</span>
                 <span><span style="display:inline-block;width:.8rem;height:.8rem;border-radius:50%;background:#ec4899;"></span> Mi recordatorio</span>
             </div>
+            <p class="text-muted small mb-0 mt-2">💡 Haz clic en una cita o terapia para confirmar tu asistencia o avisar que no podrás ir.</p>
         </div>
 
         <div class="feed-card mb-4" id="portalCalendar" wire:ignore></div>
@@ -46,6 +47,24 @@
             </form>
         </div>
 
+        <div class="modal fade" id="appointmentResponseModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 1.5rem;">
+                    <div class="modal-header">
+                        <h5 class="modal-title">📅 <span id="appointmentResponseTitle"></span></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-0">¿Podrás asistir?</p>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-outline-danger" id="appointmentResponseDecline">❌ No podré asistir</button>
+                        <button type="button" class="btn btn-game" id="appointmentResponseConfirm">✅ Confirmaré</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 var el = document.getElementById('portalCalendar');
@@ -59,6 +78,32 @@
                     height: 'auto',
                     headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
                     events: @js(route('portal.calendar.events')),
+                    eventClick: function (info) {
+                        var props = info.event.extendedProps;
+                        if (! props.respondable) {
+                            return;
+                        }
+
+                        var modalEl = document.getElementById('appointmentResponseModal');
+                        document.getElementById('appointmentResponseTitle').textContent = info.event.title;
+
+                        var wireRoot = el.closest('[wire\\:id]');
+                        var componentId = wireRoot ? wireRoot.getAttribute('wire:id') : null;
+                        var component = componentId && typeof Livewire !== 'undefined' ? Livewire.find(componentId) : null;
+
+                        var modal = window.bootstrap ? new bootstrap.Modal(modalEl) : null;
+
+                        document.getElementById('appointmentResponseConfirm').onclick = function () {
+                            if (component) { component.call('respondToAppointment', props.id, 'confirmada'); }
+                            if (modal) { modal.hide(); }
+                        };
+                        document.getElementById('appointmentResponseDecline').onclick = function () {
+                            if (component) { component.call('respondToAppointment', props.id, 'no_asistira'); }
+                            if (modal) { modal.hide(); }
+                        };
+
+                        if (modal) { modal.show(); }
+                    },
                 });
                 calendar.render();
 

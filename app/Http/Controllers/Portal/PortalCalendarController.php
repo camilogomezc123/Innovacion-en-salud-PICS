@@ -69,12 +69,26 @@ class PortalCalendarController
             ->where('status', 'pendiente')
             ->whereBetween('scheduled_at', [$start, $end])
             ->get()
-            ->map(fn (PicsAgendaItem $item): array => [
-                'title' => (PicsAgendaItem::TYPES[$item->type] ?? $item->type).': '.$item->title,
-                'start' => $item->scheduled_at->toIso8601String(),
-                'color' => self::TYPE_COLORS[$item->type] ?? '#64748b',
-                'extendedProps' => ['kind' => 'agenda_item', 'notes' => $item->notes],
-            ])
+            ->map(function (PicsAgendaItem $item): array {
+                $responseIcon = match ($item->patient_response) {
+                    'confirmada' => '✅ ',
+                    'no_asistira' => '❌ ',
+                    default => '',
+                };
+
+                return [
+                    'title' => $responseIcon.(PicsAgendaItem::TYPES[$item->type] ?? $item->type).': '.$item->title,
+                    'start' => $item->scheduled_at->toIso8601String(),
+                    'color' => self::TYPE_COLORS[$item->type] ?? '#64748b',
+                    'extendedProps' => [
+                        'kind' => 'agenda_item',
+                        'notes' => $item->notes,
+                        'id' => $item->id,
+                        'respondable' => $item->isRespondable() && $item->patient_response === null,
+                        'patientResponse' => $item->patient_response,
+                    ],
+                ];
+            })
             ->all();
     }
 

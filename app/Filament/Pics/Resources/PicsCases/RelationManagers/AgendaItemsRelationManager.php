@@ -50,6 +50,13 @@ class AgendaItemsRelationManager extends RelationManager
                         'cancelada' => 'danger',
                         default => 'warning',
                     }),
+                TextColumn::make('patient_response')->label('Respuesta del paciente')->badge()
+                    ->formatStateUsing(fn (PicsAgendaItem $record): string => $record->patientResponseLabel() ?? 'Sin responder')
+                    ->color(fn (?string $state): string => match ($state) {
+                        'confirmada' => 'success',
+                        'no_asistira' => 'danger',
+                        default => 'gray',
+                    }),
             ])
             ->defaultSort('scheduled_at')
             ->headerActions([
