@@ -1,6 +1,14 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-13 (+ "modo aventura" extendido a las 10 pantallas del portal).
+Última actualización: 2026-09-14 (+ tour de bienvenida al modo aventura).
+
+## Tour de bienvenida al modo aventura (2026-09-14)
+
+Con las 10 pantallas ya en modo aventura, quedaba un riesgo real: alguien entra por primera vez, ve "Nivel 1 · 0 XP" y no entiende qué significa. Ahora, la primera vez que un paciente o cuidador entra a `/portal`, aparece un modal explicando en tres líneas qué son los puntos, las insignias y la racha — y deja explícito que **no es parte de la evaluación médica**, solo una capa de motivación; el equipo clínico solo ve la información real que la persona reporta, nunca los puntos.
+
+Se guarda `has_seen_portal_tour` en `patients`/`caregivers` (no en `localStorage`) para que no vuelva a aparecer sin importar desde qué dispositivo entre la misma persona — relevante porque un paciente y su familia suelen alternar entre varios celulares/tablets.
+
+Verificado con 2 pruebas automatizadas nuevas (219 en total, todas en verde) y un recorrido manual real: el tour aparece la primera vez, y tras cerrarlo (con el botón o la X, ambos lo marcan como visto) ya no vuelve a aparecer.
 
 ## "Modo aventura" en todo el portal (2026-09-13)
 
