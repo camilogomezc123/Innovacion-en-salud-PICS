@@ -23,6 +23,8 @@
     @auth('caregiver')
         @php($actorName = auth('caregiver')->user()->name)
         @php($actorRole = 'Familiar / cuidador')
+        @php($caregiverCase = \App\Http\Controllers\Portal\PortalHomeController::currentCase())
+        @php($canAccessCaregiverJourney = $caregiverCase && \App\Support\Posuci\CaseAccess::caregiverCanAccessJourney(auth('caregiver')->user(), $caregiverCase))
     @endauth
 
     <nav class="navbar navbar-expand-lg posuci-navbar mb-4">
@@ -44,9 +46,9 @@
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.home-monitoring') ? 'active' : '' }}" href="{{ route('portal.home-monitoring') }}">Monitoreo en casa</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.education') ? 'active' : '' }}" href="{{ route('portal.education') }}">Educación</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.discharge-readiness') ? 'active' : '' }}" href="{{ route('portal.discharge-readiness') }}">Preparación para el alta</a></li>
-                        @auth('caregiver')
+                        @if ($canAccessCaregiverJourney ?? false)
                             <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.caregiver-journey') ? 'active' : '' }}" href="{{ route('portal.caregiver-journey') }}">Mi ruta como cuidador</a></li>
-                        @endauth
+                        @endif
                     </ul>
                     <div class="d-flex align-items-center flex-column flex-lg-row">
                         <span class="text-white me-lg-3 mb-2 mb-lg-0">{{ $actorName }} · {{ $actorRole }}</span>
