@@ -4,6 +4,7 @@ use App\Http\Controllers\Portal\PortalAuthController;
 use App\Http\Controllers\Portal\PortalCalendarController;
 use App\Http\Controllers\Portal\PortalHomeController;
 use App\Http\Controllers\Portal\PortalPasswordController;
+use App\Http\Controllers\Portal\PortalSummaryController;
 use App\Http\Middleware\EnsurePortalPasswordIsCurrent;
 use Illuminate\Support\Facades\Route;
 
@@ -36,5 +37,6 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::get('/ruta-cuidador', fn () => view('portal.caregiver-journey'))->name('caregiver-journey');
         Route::get('/calendario', fn () => view('portal.calendar'))->name('calendar');
         Route::get('/calendario/eventos', [PortalCalendarController::class, 'events'])->name('calendar.events');
+        Route::get('/resumen-cita', [PortalSummaryController::class, 'show'])->name('summary');
     });
 });

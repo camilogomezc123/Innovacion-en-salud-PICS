@@ -84,6 +84,7 @@ class PortalHomeController extends Controller
 
         $missions = collect([
             ['title' => 'Mi calendario', 'description' => 'Citas, terapias, medicamentos y tus recordatorios.', 'url' => route('portal.calendar'), 'icon' => '📅', 'color' => 'linear-gradient(135deg,#0ea5e9,#7c3aed)'],
+            ['title' => 'Resumen para tu cita', 'description' => 'Una página lista para imprimir o mostrar en tu próxima consulta.', 'url' => route('portal.summary'), 'icon' => '🖨️', 'color' => 'linear-gradient(135deg,#14b8a6,#0e7490)'],
             ['title' => 'Antes y ahora', 'description' => 'Tu pasaporte de recuperación.', 'url' => route('portal.passport'), 'icon' => '📖', 'color' => 'linear-gradient(135deg,#0ea5e9,#0e7490)'],
             ['title' => 'Mi diario', 'description' => 'Lo que tu familia — y tú — han escrito.', 'url' => route('portal.diary'), 'icon' => '✍️', 'color' => 'linear-gradient(135deg,#7c3aed,#5b21b6)'],
             ['title' => 'Mis metas', 'description' => 'Tus metas de recuperación y tu avance.', 'url' => route('portal.goals'), 'icon' => '🎯', 'color' => 'linear-gradient(135deg,#f97316,#ea580c)', 'pending' => $pendingGoals],

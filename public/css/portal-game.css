@@ -436,3 +436,10 @@ body.easy-mode #readAloudBtn {
     font-size: 1.1rem;
     padding: .9rem 1.6rem;
 }
+
+/* ---------- Impresión (resumen para la cita médica) ---------- */
+@media print {
+    .posuci-navbar, #readAloudBtn, .no-print { display: none !important; }
+    body { background: #fff !important; }
+    .feed-card, .quest-card, .mission-card { box-shadow: none !important; border: 1px solid #ccc !important; }
+}
