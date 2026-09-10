@@ -93,5 +93,39 @@
             </a>
         @endforeach
     </div>
+
+    @if ($showTour)
+        <div class="modal fade" id="portalTourModal" tabindex="-1" aria-labelledby="portalTourModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <form method="POST" action="{{ route('portal.tour.dismiss') }}" class="modal-content" style="border-radius: 1.5rem; overflow: hidden;">
+                    @csrf
+                    <div class="modal-header border-0" style="background: linear-gradient(135deg,#7c3aed,#ec4899); color: #fff;">
+                        <h5 class="modal-title" id="portalTourModalLabel">🎮 ¡Bienvenido a tu aventura de recuperación!</h5>
+                        <button type="submit" class="btn-close btn-close-white" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Para animarte a participar, esta pantalla funciona un poco como un juego:</p>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">⭐ <strong>Puntos:</strong> cada vez que registras algo (tu diario, un avance, cómo te sientes...) ganas puntos y subes de nivel.</li>
+                            <li class="mb-2">🏅 <strong>Insignias:</strong> se desbloquean la primera vez que haces cada tipo de actividad.</li>
+                            <li class="mb-2">🔥 <strong>Racha:</strong> cuenta los días seguidos que participas.</li>
+                        </ul>
+                        <p class="text-muted small mb-0">Esto es solo para animarte — no es parte de tu evaluación médica. Tu equipo solo ve la información real que reportas, nunca tus puntos.</p>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-game">¡Entendido, vamos! 🚀</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var el = document.getElementById('portalTourModal');
+                if (el && window.bootstrap) {
+                    new bootstrap.Modal(el).show();
+                }
+            });
+        </script>
+    @endif
 @endif
 @endsection

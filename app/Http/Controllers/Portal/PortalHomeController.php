@@ -9,6 +9,7 @@ use App\Models\PicsCase;
 use App\Support\Posuci\CaseAccess;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -97,6 +98,7 @@ class PortalHomeController extends Controller
 
         return view('portal.home', [
             'case' => $case,
+            'showTour' => $actor !== null && ! $actor->has_seen_portal_tour,
             'pendingGoals' => $pendingGoals,
             'unreadEducation' => $unreadEducation,
             'pendingReadinessItems' => $pendingReadinessItems,
@@ -223,6 +225,14 @@ class PortalHomeController extends Controller
         }
 
         return '';
+    }
+
+    public function dismissTour(): RedirectResponse
+    {
+        $actor = Auth::guard('patient')->user() ?? Auth::guard('caregiver')->user();
+        $actor?->update(['has_seen_portal_tour' => true]);
+
+        return redirect()->route('portal.home');
     }
 
     public static function currentCase(): ?PicsCase

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-#[Fillable(['name', 'email', 'password', 'phone', 'is_active', 'must_change_password'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'is_active', 'must_change_password', 'has_seen_portal_tour'])]
 #[Hidden(['password', 'remember_token'])]
 class Caregiver extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
@@ -28,6 +28,7 @@ class Caregiver extends Model implements AuthenticatableContract, CanResetPasswo
             'password' => 'hashed',
             'is_active' => 'boolean',
             'must_change_password' => 'boolean',
+            'has_seen_portal_tour' => 'boolean',
             'last_login_at' => 'datetime',
         ];
     }

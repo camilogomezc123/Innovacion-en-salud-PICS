@@ -21,6 +21,7 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::post('/cambiar-contrasena', [PortalPasswordController::class, 'forceChange'])->name('password.force-change.submit');
 
         Route::get('/', [PortalHomeController::class, 'index'])->name('home');
+        Route::post('/tour-visto', [PortalHomeController::class, 'dismissTour'])->name('tour.dismiss');
         Route::get('/diario', fn () => view('portal.diary'))->name('diary');
         Route::get('/metas', fn () => view('portal.goals'))->name('goals');
         Route::get('/bienestar', fn () => view('portal.wellbeing'))->name('wellbeing');
