@@ -1,6 +1,34 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-18 (+ alerta al equipo cuando un caso deja de tener actividad en el portal).
+Última actualización: 2026-09-20 (+ notificaciones push reales del portal, PWA).
+
+## Notificaciones push reales (PWA) (2026-09-20)
+
+La pieza más grande de la meta "necesidad diaria": el portal ya avisa aunque el paciente/cuidador no tenga el navegador abierto — la palanca más directa para que entren sin tener que acordarse solos.
+
+**Qué se agregó:**
+- Librería `minishlink/web-push` (Web Push estándar: VAPID + cifrado del payload) — nueva dependencia real de Composer.
+- `php artisan agora:generate-vapid-keys` genera el par de llaves del servidor (una sola vez por entorno); se guardan en `.env` (`VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`/`VAPID_SUBJECT`), nunca en el repositorio.
+- `public/manifest.json` + `public/sw.js` (service worker) + ícono — el portal ya es instalable como app (PWA). El service worker no cachea nada (sin soporte offline): su único trabajo es mostrar la notificación push y abrir/enfocar el portal al tocarla.
+- Botón "🔔 Activar notificaciones" en la barra superior (`public/js/portal-push.js`) — pide permiso, se suscribe con la Push API nativa del navegador, y guarda la suscripción en `push_subscriptions` (tabla nueva, morph a Patient/Caregiver — una persona puede tener varias, una por dispositivo).
+- `App\Support\Posuci\WebPushSender` — envía a todas las suscripciones de un actor y **borra automáticamente** las que el navegador ya invalidó (permiso revocado, dispositivo desinstalado) cuando el servicio de push responde que expiraron.
+- `agora:send-daily-portal-push` (corre todos los días 8am hora Colombia): manda un recordatorio matutino a quien ya activó las notificaciones y tenga un caso activo (no completed/cancelled). Sin `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` configuradas, no hace nada — no rompe el resto del portal.
+
+**Decisión de alcance:** el contenido del push es un recordatorio genérico ("Buenos días 👋 ¿Cómo amaneciste?"), no un mensaje distinto por cada medicamento/cita en tiempo real — eso requeriría revisar horarios cada pocos minutos para cada paciente, un salto de complejidad mucho mayor. Esta primera versión cubre lo esencial (alcanzar a la persona aunque no abra la app) de forma confiable; mandar avisos por evento específico queda como posible siguiente paso.
+
+**Nota de entorno local:** el runtime portátil de PHP no traía configurado un archivo de certificados CA ni `OPENSSL_CONF` — sin esto, cualquier llamada HTTPS saliente (incluido Web Push) fallaba. Se corrigió agregando `curl.cainfo`/`openssl.cafile` a `php.local.ini` y `OPENSSL_CONF` a `serve.ps1`, apuntando a un bundle de certificados ya confiable (el mismo que usa Composer). Esto también deja mejor preparado cualquier otro llamado HTTPS saliente futuro del proyecto.
+
+**Verificado con 8 pruebas automatizadas nuevas** (262 en total, todas en verde; `phpunit.xml` fija `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` vacías para que la suite nunca intente una llamada de red real) y un **recorrido manual real de extremo a extremo contra el servidor de desarrollo**: se generaron llaves VAPID reales, se confirmó que `/manifest.json` y `/sw.js` se sirven correctamente, se suscribió al paciente demo por HTTP, se corrió el comando real (se saltó correctamente el caso demo por estar `completed`), y — en una prueba aislada con una suscripción de navegador válida simulada — se confirmó que la firma VAPID, el cifrado del payload y el envío real a un servicio de push (Google FCM) funcionan de principio a fin (respondió "410 Gone" para el endpoint falso, y la librería lo detectó correctamente como suscripción expirada). Lo único que esta sesión no puede probar es la recepción real en un navegador/dispositivo físico — eso requiere una prueba manual del usuario con el botón "Activar notificaciones".
+
+## Consejo del día y aviso a la familia el mismo día (2026-09-19)
+
+Dos piezas más de la meta "que sea una necesidad diaria", elegidas junto con las notificaciones push (siguiente entrada).
+
+**Consejo del día** (`app/Support/Posuci/DailyTip.php`): una tarjeta en el Inicio con una frase corta de ánimo/autocuidado que cambia todos los días (24 frases, rotan por día del año — `dayOfYear % 24`, estable durante el mismo día). Todas son genéricas y no clínicas a propósito — nunca instrucciones de dosis ni nada que deba decidir el equipo tratante. Le da al paciente una razón para entrar aunque ya haya hecho todo lo de hoy.
+
+**Aviso a la familia si el paciente no entró hoy** (`app/Console/Commands/NotifyCaregiverOfInactivePatientToday.php`, corre todos los días 8pm hora Colombia): distinto de la alerta al equipo por inactividad (que espera 15 días y avisa al staff clínico) — este es interno de familia, del mismo día: si el paciente con cuenta de portal no ha iniciado sesión hoy, se le avisa por correo al cuidador autorizado para que le recuerde o lo llame. No repite el aviso el mismo día (columna `last_inactivity_nudge_at` en `caregiver_authorizations`); se salta autorizaciones revocadas, pacientes sin cuenta de portal, y casos completed/cancelled.
+
+Verificado con 9 pruebas automatizadas nuevas (254 en total, todas en verde) y un recorrido manual real: el consejo del día aparece correctamente en `/portal` con el paciente demo.
 
 ## Alerta al equipo por inactividad en el portal (2026-09-18)
 
