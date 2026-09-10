@@ -20,6 +20,12 @@ Schedule::command('agora:close-expired-followups')
     ->timezone('America/Bogota')
     ->withoutOverlapping();
 
+Schedule::command('agora:check-portal-inactivity')
+    ->daily()
+    ->at('07:30')
+    ->timezone('America/Bogota')
+    ->withoutOverlapping();
+
 Schedule::command('agora:send-sepsis-monthly-digest')
     ->monthlyOn(1, '07:00')
     ->timezone('America/Bogota')

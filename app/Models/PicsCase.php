@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'clinical_data', 'field_status', 'is_valid', 'is_cancelled', 'cancellation_reason',
     'assigned_at', 'analysis_started_at', 'auditor_finalized_at', 'completed_at', 'cancelled_at',
     'clinical_stage', 'uci_started_at', 'hospitalization_started_at',
-    'discharge_confirmed_at', 'discharge_confirmed_by', 'followup_started_at',
+    'discharge_confirmed_at', 'discharge_confirmed_by', 'followup_started_at', 'last_inactivity_alert_at',
 ])]
 class PicsCase extends Model
 {
@@ -84,6 +84,7 @@ class PicsCase extends Model
             'auditor_finalized_at' => 'datetime',
             'completed_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'last_inactivity_alert_at' => 'datetime',
         ];
     }
 
