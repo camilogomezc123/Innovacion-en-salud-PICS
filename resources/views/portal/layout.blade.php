@@ -58,6 +58,7 @@
                     </ul>
                     <div class="d-flex align-items-center flex-column flex-lg-row">
                         <span class="text-white me-lg-3 mb-2 mb-lg-0">{{ $actorName }} · {{ $actorRole }}</span>
+                        @livewire('portal.notification-center-component')
                         <form method="POST" action="{{ route('portal.easy-mode.toggle') }}" class="me-lg-2 mb-2 mb-lg-0">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-light">

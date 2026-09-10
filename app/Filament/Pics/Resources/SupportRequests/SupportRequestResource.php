@@ -4,6 +4,7 @@ namespace App\Filament\Pics\Resources\SupportRequests;
 
 use App\Filament\Pics\Resources\SupportRequests\Pages\ListSupportRequests;
 use App\Models\SupportRequest;
+use App\Notifications\SupportRequestAnsweredNotification;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -98,6 +99,7 @@ class SupportRequestResource extends Resource
                             'responded_at' => now(),
                             'status' => 'respondida',
                         ]);
+                        $record->createdBy?->notify(new SupportRequestAnsweredNotification($record));
                         Notification::make()->success()->title('Respuesta enviada')->send();
                     }),
                 Action::make('escalate')
