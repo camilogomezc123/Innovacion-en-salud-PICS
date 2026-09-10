@@ -1,6 +1,16 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-11 (+ Etapa 3: registro manual de monitoreo domiciliario).
+Última actualización: 2026-09-13 (+ Etapa 3: educación personalizada — Etapa 3 completa).
+
+## Etapa 3 — educación personalizada (2026-09-13)
+
+Última pieza de la Etapa 3. Hasta ahora la "educación" solo existía como texto libre repetido por caso (el campo `medications_review` del seguimiento, o las instrucciones de `DischargeReadinessItem`). Ahora hay un **catálogo reutilizable** (`/pics → Educación personalizada`, `EducationResource`): el staff redacta un contenido una sola vez (título, categoría — respiratorio/movilidad/cognitivo/emocional/nutrición/cuidador —, dirigido a paciente/cuidador/ambos, cuerpo de texto) y luego lo **asigna** a los casos donde aplica desde la pestaña "Educación personalizada" de cada caso, con una nota opcional de por qué aplica a ese paciente en particular — eso es lo "personalizado": la biblioteca es compartida, la selección es por paciente.
+
+El portal (`/portal/educacion`) muestra solo el contenido asignado y activo, agrupado por categoría, con un botón "Marcar como leído". A diferencia de "Preparación para el alta", aquí no hay verificación profesional de comprensión — es material de consulta continua, no un requisito de egreso.
+
+Verificado con 6 pruebas automatizadas nuevas (207 en total, todas en verde): creación del catálogo, asignación con atribución server-side, el portal solo muestra contenido activo (uno inactivo asignado no aparece), marcar como leído, aislamiento entre casos, y render real de las páginas del recurso y la pestaña del caso en `/pics`.
+
+**Con esto se cierra la Etapa 3 completa**: medicamentos conciliados, monitoreo en casa (registro manual) y educación personalizada.
 
 ## Etapa 3 — monitoreo en casa (2026-09-11)
 
@@ -101,7 +111,7 @@ Verificado con 16 pruebas nuevas, incluyendo el ciclo completo de la solicitud (
 
 ## Qué quedó simulado o pendiente (no construido todavía)
 
-Para etapas posteriores (según el prompt maestro más reciente): educación personalizada, configuración institucional/academia, integraciones reales (agendas externas, dispositivos) y resúmenes asistidos por IA. Tampoco hay fotos/audio en el diario (solo texto, como pide explícitamente el prompt). La agenda coordinada es una lista cronológica, no un calendario visual — no hay Node.js en este entorno para cargar una librería de calendario.
+Para etapas posteriores (según el prompt maestro más reciente): configuración institucional/academia, integraciones reales con proveedores de dispositivos (hoy el monitoreo en casa es un registro manual, no una API conectada) y resúmenes asistidos por IA. Tampoco hay fotos/audio en el diario (solo texto, como pide explícitamente el prompt). La agenda coordinada es una lista cronológica, no un calendario visual — no hay Node.js en este entorno para cargar una librería de calendario.
 
 El paciente **no puede escribir** en el diario todavía (solo leer) — así lo pide explícitamente el prompt maestro para esta iteración ("participar posteriormente").
 
@@ -111,7 +121,7 @@ Este equipo no tiene Node.js instalado (solo se copió `node_modules`, sin el ru
 
 ## Modelo de datos nuevo (además de lo ya documentado para PICS)
 
-`patients` (+ columnas de login), `caregivers`, `caregiver_authorizations`, `diary_entries`, `recovery_goals`, `goal_progress_reports` — todas ancladas a `pics_cases` (el "episodio" del paciente). Detalle completo de columnas en la migración `database/migrations/2026_09_08_100000_create_posuci_iteration1_tables.php`. Para la Etapa 2: `care_plans`/`care_plan_versions`, `caregiver_journey_steps`, `discharge_readiness_checks`/`discharge_readiness_items`, `pics_agenda_items`, más `clinical_stage` (y sus fechas) en `pics_cases` y `can_access_journey` en `caregiver_authorizations` — ver las migraciones fechadas `2026_09_10_*`. Para la Etapa 3: `medication_reconciliations`/`medication_reconciliation_items` (`2026_09_11_000000_create_medication_reconciliations_table.php`) y `home_monitoring_readings` (`2026_09_12_000000_create_home_monitoring_readings_table.php`).
+`patients` (+ columnas de login), `caregivers`, `caregiver_authorizations`, `diary_entries`, `recovery_goals`, `goal_progress_reports` — todas ancladas a `pics_cases` (el "episodio" del paciente). Detalle completo de columnas en la migración `database/migrations/2026_09_08_100000_create_posuci_iteration1_tables.php`. Para la Etapa 2: `care_plans`/`care_plan_versions`, `caregiver_journey_steps`, `discharge_readiness_checks`/`discharge_readiness_items`, `pics_agenda_items`, más `clinical_stage` (y sus fechas) en `pics_cases` y `can_access_journey` en `caregiver_authorizations` — ver las migraciones fechadas `2026_09_10_*`. Para la Etapa 3: `medication_reconciliations`/`medication_reconciliation_items` (`2026_09_11_000000_create_medication_reconciliations_table.php`), `home_monitoring_readings` (`2026_09_12_000000_create_home_monitoring_readings_table.php`) y `education_resources`/`education_assignments` (`2026_09_13_000000_create_education_resources_table.php`).
 
 ## Decisión confirmada para la Etapa 2
 
@@ -119,8 +129,8 @@ El usuario confirmó (2026-09-08): el ciclo completo **UCI → Hospitalización 
 
 ## Decisiones confirmadas para la Etapa 3
 
-El usuario confirmó (2026-09-11): "Confirmar egreso" se queda como recomendación, no como bloqueo — no depende de que "Preparación para el alta" esté completo (sin cambios de código, así ya funcionaba). Eligió **medicamentos conciliados** como primera pieza de la Etapa 3, y luego **integraciones externas** como segunda — pero al confirmar que no existe ninguna API/credencial real de ningún proveedor de dispositivos, se construyó el registro manual de monitoreo en su lugar (ver arriba).
+El usuario confirmó (2026-09-11): "Confirmar egreso" se queda como recomendación, no como bloqueo. Eligió, en orden: **medicamentos conciliados**, luego **integraciones externas** — pero al confirmar que no existe ninguna API/credencial real de ningún proveedor de dispositivos, se construyó el registro manual de monitoreo en su lugar — y por último **educación personalizada**, con lo que la Etapa 3 queda completa.
 
 ## Decisión pendiente para la próxima sesión
 
-Con medicamentos conciliados y monitoreo en casa cerrados, falta decidir qué sigue dentro de la Etapa 3: **educación personalizada** (contenido educativo adaptado al diagnóstico/etapa del paciente) o **configuración institucional/academia**. También queda abierto si alguna vez aparece una API real de un proveedor de dispositivos, conectarla para poblar `home_monitoring_readings` automáticamente en vez del registro manual.
+Con la Etapa 3 completa, falta decidir qué sigue del prompt maestro: **configuración institucional/academia** (panel para que la institución ajuste catálogos/plantillas/roles propios) o **resúmenes asistidos por IA**. También sigue abierto si el paciente debe poder escribir en el diario (hoy solo lee) y si alguna vez aparece una API real de un proveedor de dispositivos, conectarla para poblar `home_monitoring_readings` automáticamente en vez del registro manual.
