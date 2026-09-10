@@ -26,7 +26,10 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Cuéntanos</label>
-                    <textarea class="form-control" rows="3" wire:model="description"></textarea>
+                    <div class="position-relative">
+                        <textarea class="form-control" rows="3" wire:model="description" id="support-description"></textarea>
+                        <button type="button" class="voice-input-btn" data-target="support-description" title="Hablar en vez de escribir">🎤</button>
+                    </div>
                     @error('description') <div class="text-danger small">{{ $message }}</div> @enderror
                 </div>
                 <div class="mb-3">

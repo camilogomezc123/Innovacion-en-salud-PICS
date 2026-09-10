@@ -437,6 +437,31 @@ body.easy-mode #readAloudBtn {
     padding: .9rem 1.6rem;
 }
 
+/* ---------- Hablar en vez de escribir (micrófono) ---------- */
+.voice-input-btn {
+    display: none;
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    border: none;
+    background: #f1f5f9;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    cursor: pointer;
+    z-index: 2;
+}
+
+body.voice-input-supported .voice-input-btn { display: inline-flex; }
+
+.voice-input-btn.is-listening {
+    background: #fee2e2;
+    animation: game-pulse 1.2s ease-in-out infinite;
+}
+
 /* ---------- Impresión (resumen para la cita médica) ---------- */
 @media print {
     .posuci-navbar, #readAloudBtn, .no-print { display: none !important; }

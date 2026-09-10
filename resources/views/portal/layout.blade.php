@@ -102,5 +102,6 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="{{ asset('js/portal-game.js') }}"></script>
     <script src="{{ asset('js/portal-push.js') }}"></script>
+    <script src="{{ asset('js/portal-voice.js') }}"></script>
 </body>
 </html>

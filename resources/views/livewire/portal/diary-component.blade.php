@@ -21,18 +21,27 @@
                         </div>
                         <div class="col-md-8">
                             <label class="form-label">¿Cómo estuvo el día?</label>
-                            <textarea class="form-control" rows="3" wire:model="content" placeholder="Cuéntale a la familia cómo fue el día..."></textarea>
+                            <div class="position-relative">
+                                <textarea class="form-control" rows="3" wire:model="content" id="diary-content" placeholder="Cuéntale a la familia cómo fue el día..."></textarea>
+                                <button type="button" class="voice-input-btn" data-target="diary-content" title="Hablar en vez de escribir">🎤</button>
+                            </div>
                             @error('content') <div class="text-danger small">{{ $message }}</div> @enderror
                         </div>
                         @if (! $isPatient)
                             <div class="col-md-6">
                                 <label class="form-label">Mensaje para el paciente (opcional)</label>
-                                <textarea class="form-control" rows="2" wire:model="message_to_patient"></textarea>
+                                <div class="position-relative">
+                                    <textarea class="form-control" rows="2" wire:model="message_to_patient" id="diary-message"></textarea>
+                                    <button type="button" class="voice-input-btn" data-target="diary-message" title="Hablar en vez de escribir">🎤</button>
+                                </div>
                             </div>
                         @endif
                         <div class="col-md-6">
                             <label class="form-label">Un recuerdo significativo (opcional)</label>
-                            <textarea class="form-control" rows="2" wire:model="meaningful_memory"></textarea>
+                            <div class="position-relative">
+                                <textarea class="form-control" rows="2" wire:model="meaningful_memory" id="diary-memory"></textarea>
+                                <button type="button" class="voice-input-btn" data-target="diary-memory" title="Hablar en vez de escribir">🎤</button>
+                            </div>
                         </div>
                         @if (! $isPatient)
                             <div class="col-12 form-check">
