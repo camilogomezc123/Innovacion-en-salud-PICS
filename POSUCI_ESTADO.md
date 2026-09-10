@@ -1,6 +1,19 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-13 (+ notificación al staff cuando llega una solicitud nueva).
+Última actualización: 2026-09-13 (+ piloto de "modo aventura" — portal más visual y lúdico, Inicio y Metas).
+
+## Piloto de "modo aventura" en el portal (2026-09-13)
+
+A pedido del usuario: hacer el portal del paciente/familia más gráfico, intuitivo y lúdico — "como si el paciente estuviera jugando". Se acordó un piloto en dos pantallas (Inicio y Metas) antes de extenderlo a las otras 8, con tono **totalmente lúdico** (mascota, puntos, niveles, animación al lograr algo).
+
+- **Puntos e insignias son puramente de interfaz, no clínicos**: se calculan al vuelo a partir de lo que el propio actor (paciente o cuidador) ya reportó — diario, avances de metas, "Cómo me siento", pasaporte, monitoreo, educación vista, temas de alta revisados, pasos de la ruta del cuidador, solicitudes — y **no se guardan en base de datos**. Quedó documentado explícitamente en el código para que nadie los confunda con un puntaje de salud.
+- **Inicio** (`/portal`): mascota con saludo, tarjeta de nivel/XP con barra de progreso, estante de insignias (bloqueadas en gris, desbloqueadas a color), y las 9-10 pantallas del portal como "misiones" — tarjetas grandes con ícono y color propio, con un contador pulsante si hay algo pendiente ahí.
+- **Metas** (`/portal/metas`), ahora "Mis misiones": cada meta es una tarjeta con anillo de progreso (según cuántos avances se han contado) y hasta 3 estrellas; al guardar un avance nuevo, estalla un confeti (`canvas-confetti` por CDN, sin paso de build — respeta `prefers-reduced-motion` para quien lo necesite).
+- El resto del portal (8 pantallas) sigue funcionando igual, sin tocar — solo cambió el fondo/navegación levemente para que se sienta parte del mismo "mundo" (gradiente morado-turquesa, navegación en píldoras).
+
+Verificado con la suite completa (217 pruebas, todas en verde) y un recorrido manual real contra el servidor: inicio y metas renderizan las clases e insignias esperadas para el paciente demo (todo bloqueado, sin actividad previa) y para el cuidador demo (insignias desbloqueadas y XP > 0, reflejando su actividad real ya sembrada).
+
+**Pendiente de decisión del usuario**: si aprueba el estilo, extenderlo a las otras 8 pantallas del portal.
 
 ## Notificación al staff cuando llega una solicitud (2026-09-13)
 
