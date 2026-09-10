@@ -1,6 +1,16 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-21 (+ gráficas de progreso).
+Última actualización: 2026-09-21 (+ checklist de primeros pasos).
+
+## Checklist de primeros pasos (2026-09-21)
+
+A diferencia del tour de bienvenida (que se ve una sola vez y luego desaparece), una tarjeta "🚀 Primeros pasos" en el Inicio con 4 pasos concretos: completar el "Antes y ahora", escribir la primera entrada del diario, agregar el primer recordatorio, y activar las notificaciones. Se muestra mientras falte al menos uno; se oculta sola en cuanto ya se hizo todo — sin necesidad de un botón de "descartar".
+
+Reutiliza exactamente las mismas verificaciones actor-scoped que ya usa el sistema de puntos (`computeGamification`) para que ambos siempre coincidan.
+
+Encontré y corregí en el camino un bug de mi propia prueba (no del producto): había nombrado a la paciente de prueba "Primeros pasos", que coincidía con el propio texto que estaba verificando en la barra de navegación — el mismo tipo de error que ya había pasado antes con "Modo fácil" como nombre de prueba en otra ronda.
+
+Verificado con 2 pruebas automatizadas nuevas (275 en total, todas en verde) y un recorrido manual real: el checklist aparece correctamente para el paciente demo con sus 4 pasos pendientes.
 
 ## Gráficas de progreso (2026-09-21)
 
