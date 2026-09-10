@@ -1,6 +1,16 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-21 (+ centro de notificaciones dentro del portal).
+Última actualización: 2026-09-21 (+ gráficas de progreso).
+
+## Gráficas de progreso (2026-09-21)
+
+Nueva página "📈 Mi progreso" (`PortalProgressController`, Chart.js vía CDN — sin build): convierte en gráficas de tendencia lo que hoy solo se veía como listas.
+
+- Una gráfica por tipo de lectura de monitoreo en casa que tenga al menos 2 registros (SpO2, frecuencia cardíaca, etc.).
+- Una gráfica de bienestar en el tiempo: para el paciente, Ansiedad (HADS-A) y Ánimo (PHQ-9); para el cuidador, Carga del cuidador (PICS-F) — los mismos puntajes ya validados que usa el equipo en `PicsFollowup`, sin calcular ni interpretar nada nuevo.
+- Si no hay suficientes datos (menos de 2 puntos), muestra un mensaje explicando qué falta en vez de una gráfica vacía o engañosa.
+
+Verificado con 4 pruebas automatizadas nuevas (273 en total, todas en verde) y un recorrido manual real contra el servidor de desarrollo con el paciente demo.
 
 ## Centro de notificaciones dentro del portal (2026-09-21)
 
