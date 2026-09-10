@@ -1,6 +1,14 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-15 (+ calendario visual del portal — citas, terapias, medicamentos y recordatorios).
+Última actualización: 2026-09-16 (+ confirmar/rechazar asistencia a citas desde el calendario).
+
+## Confirmar/rechazar asistencia a citas (2026-09-16)
+
+Cierra el ciclo del calendario recién construido: antes, citas y terapias eran de solo lectura para el paciente. Ahora, al hacer clic en una cita o terapia en `/portal/calendario`, aparece un modal con dos botones — "✅ Confirmaré" / "❌ No podré asistir" — que guarda la respuesta (`patient_response`, quién y cuándo respondió) y **notifica al staff automáticamente** (al auditor asignado al caso, o a quienes lideran el programa si aún no hay uno asignado — reutilizando `StaffNotifier`, extraído del mismo mecanismo ya usado para las solicitudes de ayuda). Así el staff se entera de una inasistencia probable con anticipación, en vez de el día de la cita. La respuesta también queda visible para el staff en la pestaña "Agenda coordinada" de cada caso.
+
+Solo aplica a citas y terapias (`PicsAgendaItem::RESPONDABLE_TYPES`) — tareas y recordatorios internos no tienen sentido "confirmarlos". Una vez respondida, la cita muestra ✅ o ❌ en el calendario y ya no se puede volver a responder desde el portal.
+
+Verificado con 4 pruebas automatizadas nuevas (228 en total, todas en verde) y un recorrido manual real: el modal aparece al hacer clic, y el correo de notificación al staff se renderiza correctamente tanto para confirmación como para inasistencia.
 
 ## Calendario visual del portal (2026-09-15)
 
