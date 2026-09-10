@@ -1,6 +1,17 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-16 (+ confirmar/rechazar asistencia a citas desde el calendario).
+Última actualización: 2026-09-16 (+ ritual diario guiado "Tu día" en el Inicio del portal).
+
+## Ritual diario guiado "Tu día" (2026-09-16)
+
+El paciente pidió que el portal se vuelva parte de su rutina de todo el día, no solo un lugar al que entrar de vez en cuando. En vez de agregar notificaciones push (que requieren infraestructura nueva) se rediseñó el Inicio: ahora, justo debajo de la tarjeta de nivel/racha, aparece "☀️ Tu día" — tres columnas (Mañana/Tarde/Noche) con un checklist de lo que ya hiciste hoy (✅/pendiente, con enlace directo al módulo) y, debajo, lo que tengas agendado en esa franja (citas, terapias, medicamentos con horario, tus recordatorios personales), tomado de las mismas fuentes ya usadas por el calendario.
+
+Decisiones de diseño:
+- Las franjas horarias son solo una sugerencia de cuándo suele hacerse cada cosa — el sistema no le exige al paciente hacerlo a esa hora exacta, ni oculta nada si lo hace en otro momento del día. Nunca se fabrica una obligación que no existe.
+- El checklist ("¿Cómo amaneciste?", "Monitoreo en casa", "Avance de tus metas", "Escribe en tu diario") se marca como hecho únicamente si existe un registro real de ese actor con fecha de hoy — reutiliza exactamente las mismas consultas por actor que ya alimentan el sistema de puntos, así que ambos siempre coinciden.
+- No se agregó tracking de "medicamento tomado" — el bloque de medicamentos sigue siendo solo informativo (igual que en el calendario), por la misma razón de seguridad del paciente ya documentada: nunca se inventa ni se confirma algo que el paciente no reportó.
+
+Verificado con 3 pruebas automatizadas nuevas (231 en total, todas en verde) y un recorrido manual real contra el servidor de desarrollo: con el paciente demo, "Tu día" se ve correctamente con las cuatro tareas pendientes y los horarios de un medicamento (Enalapril) agendados para hoy.
 
 ## Confirmar/rechazar asistencia a citas (2026-09-16)
 
