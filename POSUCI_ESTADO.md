@@ -1,6 +1,12 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-11 (+ Etapa 3: medicamentos conciliados).
+Última actualización: 2026-09-11 (+ Etapa 3: registro manual de monitoreo domiciliario).
+
+## Etapa 3 — monitoreo en casa (2026-09-11)
+
+El usuario pidió avanzar con "integraciones externas" (dispositivos de monitoreo), pero confirmó que **no hay hoy ninguna API ni credencial real** de ningún proveedor. Construir una integración contra un sistema que no existe habría sido fabricar una conexión falsa, en contra de la convención del proyecto de no inventar funcionalidad ni datos. Se construyó en cambio lo que sí es real hoy: un **registro manual de lecturas** (`/portal/monitoreo`, pestaña "Monitoreo en casa" de solo lectura en `/pics → Casos → [caso]`) — saturación, frecuencia cardíaca, presión arterial, temperatura, frecuencia respiratoria, glucosa o peso, digitadas por el paciente o el cuidador. Sin reglas de "rango normal" ni alertas automáticas — eso sería inventar una regla clínica no pedida; el staff interpreta los números. Cuando exista una API real de algún proveedor, este modelo de datos (`HomeMonitoringReading`) es el punto de partida natural para poblarlo automáticamente en vez de a mano.
+
+Verificado con 4 pruebas automatizadas nuevas (201 en total, todas en verde): paciente y cuidador autorizado registran lecturas con atribución server-side, la pestaña de solo lectura renderiza en el caso, y el aislamiento entre casos.
 
 ## Etapa 3 — medicamentos conciliados (2026-09-11)
 
@@ -105,16 +111,16 @@ Este equipo no tiene Node.js instalado (solo se copió `node_modules`, sin el ru
 
 ## Modelo de datos nuevo (además de lo ya documentado para PICS)
 
-`patients` (+ columnas de login), `caregivers`, `caregiver_authorizations`, `diary_entries`, `recovery_goals`, `goal_progress_reports` — todas ancladas a `pics_cases` (el "episodio" del paciente). Detalle completo de columnas en la migración `database/migrations/2026_09_08_100000_create_posuci_iteration1_tables.php`. Para la Etapa 2: `care_plans`/`care_plan_versions`, `caregiver_journey_steps`, `discharge_readiness_checks`/`discharge_readiness_items`, `pics_agenda_items`, más `clinical_stage` (y sus fechas) en `pics_cases` y `can_access_journey` en `caregiver_authorizations` — ver las migraciones fechadas `2026_09_10_*`. Para la Etapa 3: `medication_reconciliations`/`medication_reconciliation_items` (migración `2026_09_11_000000_create_medication_reconciliations_table.php`).
+`patients` (+ columnas de login), `caregivers`, `caregiver_authorizations`, `diary_entries`, `recovery_goals`, `goal_progress_reports` — todas ancladas a `pics_cases` (el "episodio" del paciente). Detalle completo de columnas en la migración `database/migrations/2026_09_08_100000_create_posuci_iteration1_tables.php`. Para la Etapa 2: `care_plans`/`care_plan_versions`, `caregiver_journey_steps`, `discharge_readiness_checks`/`discharge_readiness_items`, `pics_agenda_items`, más `clinical_stage` (y sus fechas) en `pics_cases` y `can_access_journey` en `caregiver_authorizations` — ver las migraciones fechadas `2026_09_10_*`. Para la Etapa 3: `medication_reconciliations`/`medication_reconciliation_items` (`2026_09_11_000000_create_medication_reconciliations_table.php`) y `home_monitoring_readings` (`2026_09_12_000000_create_home_monitoring_readings_table.php`).
 
 ## Decisión confirmada para la Etapa 2
 
 El usuario confirmó (2026-09-08): el ciclo completo **UCI → Hospitalización → Egreso → Seguimiento**, con el egreso dependiendo siempre de confirmación profesional explícita; y que `SupportRequest` se extienda con más tipos en el futuro en vez de construir un flujo de solicitud paralelo por módulo (esta Etapa 2 no le agregó tipos nuevos todavía — ninguna de sus 5 piezas lo requería).
 
-## Decisión confirmada para la Etapa 3
+## Decisiones confirmadas para la Etapa 3
 
-El usuario confirmó (2026-09-11): "Confirmar egreso" se queda como recomendación, no como bloqueo — no depende de que "Preparación para el alta" esté completo (sin cambios de código, así ya funcionaba). Y eligió **medicamentos conciliados** como primera pieza de la Etapa 3, frente a educación personalizada e integraciones externas.
+El usuario confirmó (2026-09-11): "Confirmar egreso" se queda como recomendación, no como bloqueo — no depende de que "Preparación para el alta" esté completo (sin cambios de código, así ya funcionaba). Eligió **medicamentos conciliados** como primera pieza de la Etapa 3, y luego **integraciones externas** como segunda — pero al confirmar que no existe ninguna API/credencial real de ningún proveedor de dispositivos, se construyó el registro manual de monitoreo en su lugar (ver arriba).
 
 ## Decisión pendiente para la próxima sesión
 
-Con medicamentos conciliados cerrado, falta decidir qué sigue dentro de la Etapa 3: **educación personalizada** (contenido educativo adaptado al diagnóstico/etapa del paciente, más allá de las instrucciones de texto libre que ya existen) o **integraciones externas** (agendas, dispositivos) — o si conviene abrir directamente la configuración institucional/academia.
+Con medicamentos conciliados y monitoreo en casa cerrados, falta decidir qué sigue dentro de la Etapa 3: **educación personalizada** (contenido educativo adaptado al diagnóstico/etapa del paciente) o **configuración institucional/academia**. También queda abierto si alguna vez aparece una API real de un proveedor de dispositivos, conectarla para poblar `home_monitoring_readings` automáticamente en vez del registro manual.
