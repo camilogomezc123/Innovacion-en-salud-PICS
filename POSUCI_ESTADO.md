@@ -1,6 +1,12 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-20 (+ hablar en vez de escribir, diario y solicitudes de ayuda).
+Última actualización: 2026-09-20 (+ botón "Instalar app").
+
+## Botón "Instalar app" (2026-09-20)
+
+Complementa el trabajo de PWA de las notificaciones push: un botón "📲 Instalar app" en la barra superior que aprovecha que el portal ya tiene `manifest.json` + service worker para agregarlo a la pantalla de inicio con un toque — que se sienta como una app real (ícono propio, sin barra de navegador) en vez de depender de recordar una URL. En Android/Chrome usa el evento nativo `beforeinstallprompt`; en iOS (que no lo soporta) muestra instrucciones para "Agregar a pantalla de inicio" desde Safari, porque ahí instalar es un gesto manual del sistema. Se oculta solo si el portal ya está instalado (`display-mode: standalone`).
+
+Verificado con 1 prueba automatizada nueva (265 en total, todas en verde) y un recorrido manual real: el botón y el script se sirven correctamente.
 
 ## Hablar en vez de escribir (2026-09-20)
 
