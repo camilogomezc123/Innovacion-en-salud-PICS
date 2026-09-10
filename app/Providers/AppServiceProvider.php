@@ -70,6 +70,7 @@ use App\Observers\PicsCaseObserver;
 use App\Observers\ProgramClinicalRecordObserver;
 use App\Observers\SepsisCaseObserver;
 use App\Observers\SepsisChildRecordObserver;
+use App\Observers\SupportRequestObserver;
 use App\Policies\CommitteeMeetingPolicy;
 use App\Policies\CompetencyPolicy;
 use App\Policies\ComplianceEvidencePolicy;
@@ -142,6 +143,7 @@ class AppServiceProvider extends ServiceProvider
         PicsReferral::observe(SepsisChildRecordObserver::class);
         RecoveryPassport::observe(SepsisChildRecordObserver::class);
         SupportRequest::observe(SepsisChildRecordObserver::class);
+        SupportRequest::observe(SupportRequestObserver::class);
         CarePlan::observe(CarePlanObserver::class);
         CaregiverJourneyStep::observe(SepsisChildRecordObserver::class);
         DischargeReadinessCheck::observe(SepsisChildRecordObserver::class);
