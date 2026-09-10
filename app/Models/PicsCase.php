@@ -194,6 +194,11 @@ class PicsCase extends Model
         return $this->hasMany(HomeMonitoringReading::class);
     }
 
+    public function educationAssignments(): HasMany
+    {
+        return $this->hasMany(EducationAssignment::class);
+    }
+
     /**
      * Algoritmo de riesgo PICS de 7 factores, portado tal cual del proyecto "Panel de
      * control" (PicsController::computarRiesgo()): misma ponderación, mismos cortes.
