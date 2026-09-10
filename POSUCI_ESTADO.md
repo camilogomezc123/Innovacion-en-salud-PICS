@@ -1,6 +1,16 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-21 (revisión de permisos + endurecer suscripciones push).
+Última actualización: 2026-09-21 (+ centro de notificaciones dentro del portal).
+
+## Centro de notificaciones dentro del portal (2026-09-21)
+
+Campanita 🔔 en la barra superior (nuevo `NotificationCenterComponent`) que junta en un solo lugar los avisos que antes solo se veían si la persona entraba módulo por módulo a revisar. Patient/Caregiver ya eran `Notifiable` (vía `PortalAccountAuthenticatable`, usado para las invitaciones y el restablecimiento de contraseña), así que esto reutiliza directamente las tablas estándar de notificaciones de Laravel — nada nuevo que mantener aparte.
+
+**Primer disparador:** cuando el equipo responde una solicitud de "Necesito ayuda" (acción "Responder" en `/pics/support-requests`), se le notifica automáticamente al paciente/cuidador que la creó (`SupportRequestAnsweredNotification`, canal panel + correo). Queda listo para sumar más disparadores (cita nueva, contenido educativo asignado, etc.) sin cambiar la arquitectura — cualquier notificación normal de Laravel dirigida a un Patient/Caregiver ya aparece en la campanita automáticamente.
+
+**Nota operativa (no es un cambio de esta sesión, ya era así):** como todas las notificaciones de este proyecto usan `ShouldQueue`, necesitan un queue worker corriendo para entregarse — el script `composer run dev` ya lo levanta junto con el servidor (`queue:listen`); `serve.ps1` (el lanzador que se ha usado en esta sesión para pruebas rápidas) no lo incluye, así que las notificaciones quedan encoladas sin procesarse si se usa solo `serve.ps1`.
+
+Verificado con 3 pruebas automatizadas nuevas (269 en total, todas en verde) y una verificación real contra la base de datos de desarrollo (con rollback, forzando el driver de cola a `sync` para confirmar el contenido de inmediato): la notificación se guarda correctamente, el título/cuerpo son los esperados, y el correo se renderiza sin errores.
 
 ## Revisión de permisos de los módulos nuevos (2026-09-21)
 
