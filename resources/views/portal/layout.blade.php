@@ -48,6 +48,7 @@
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.home-monitoring') ? 'active' : '' }}" href="{{ route('portal.home-monitoring') }}">Monitoreo en casa</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.education') ? 'active' : '' }}" href="{{ route('portal.education') }}">Educación</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.discharge-readiness') ? 'active' : '' }}" href="{{ route('portal.discharge-readiness') }}">Preparación para el alta</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.calendar') ? 'active' : '' }}" href="{{ route('portal.calendar') }}">📅 Calendario</a></li>
                         @if ($canAccessCaregiverJourney ?? false)
                             <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.caregiver-journey') ? 'active' : '' }}" href="{{ route('portal.caregiver-journey') }}">Mi ruta como cuidador</a></li>
                         @endif
@@ -76,6 +77,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script src="{{ asset('js/portal-game.js') }}"></script>
 </body>
 </html>

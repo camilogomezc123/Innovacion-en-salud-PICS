@@ -14,6 +14,7 @@ class PicsAgendaItem extends Model
 {
     public const TYPES = [
         'cita' => 'Cita',
+        'terapia' => 'Terapia',
         'tarea' => 'Tarea',
         'recordatorio' => 'Recordatorio',
     ];

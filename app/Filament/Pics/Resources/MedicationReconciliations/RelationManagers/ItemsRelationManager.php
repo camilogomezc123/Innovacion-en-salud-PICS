@@ -5,9 +5,11 @@ namespace App\Filament\Pics\Resources\MedicationReconciliations\RelationManagers
 use App\Models\MedicationReconciliationItem;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -26,6 +28,11 @@ class ItemsRelationManager extends RelationManager
             TextInput::make('dose')->label('Dosis'),
             Select::make('route')->label('Vía')->options(MedicationReconciliationItem::ROUTES),
             TextInput::make('frequency')->label('Frecuencia'),
+            Repeater::make('schedule_times')
+                ->label('Horarios (opcional, para que aparezca en el calendario del paciente)')
+                ->simple(TimePicker::make('time')->seconds(false)->required())
+                ->addActionLabel('Agregar hora')
+                ->columnSpanFull(),
             Select::make('status')->label('Decisión de conciliación')->options(MedicationReconciliationItem::STATUSES)->default('continua')->required(),
             Textarea::make('reconciliation_notes')->label('Notas de conciliación (motivo del cambio/suspensión)')->columnSpanFull(),
             Textarea::make('patient_instructions')->label('Instrucciones para el paciente/familia')->columnSpanFull(),

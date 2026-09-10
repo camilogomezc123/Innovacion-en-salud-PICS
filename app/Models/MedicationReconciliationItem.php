@@ -8,10 +8,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'medication_reconciliation_id', 'medication_name', 'dose', 'route', 'frequency',
-    'status', 'reconciliation_notes', 'patient_instructions', 'sort_order',
+    'schedule_times', 'status', 'reconciliation_notes', 'patient_instructions', 'sort_order',
 ])]
 class MedicationReconciliationItem extends Model
 {
+    protected function casts(): array
+    {
+        return ['schedule_times' => 'array'];
+    }
+
     public const STATUSES = [
         'continua' => 'Continúa igual',
         'nueva' => 'Nueva',

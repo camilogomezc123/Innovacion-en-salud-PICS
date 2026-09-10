@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Portal\PortalAuthController;
+use App\Http\Controllers\Portal\PortalCalendarController;
 use App\Http\Controllers\Portal\PortalHomeController;
 use App\Http\Controllers\Portal\PortalPasswordController;
 use App\Http\Middleware\EnsurePortalPasswordIsCurrent;
@@ -32,5 +33,7 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::get('/educacion', fn () => view('portal.education'))->name('education');
         Route::get('/preparacion-alta', fn () => view('portal.discharge-readiness'))->name('discharge-readiness');
         Route::get('/ruta-cuidador', fn () => view('portal.caregiver-journey'))->name('caregiver-journey');
+        Route::get('/calendario', fn () => view('portal.calendar'))->name('calendar');
+        Route::get('/calendario/eventos', [PortalCalendarController::class, 'events'])->name('calendar.events');
     });
 });

@@ -81,6 +81,7 @@ class PortalHomeController extends Controller
         $gamification = $actor ? $this->computeGamification($case, $actor, $canAccessJourney) : null;
 
         $missions = collect([
+            ['title' => 'Mi calendario', 'description' => 'Citas, terapias, medicamentos y tus recordatorios.', 'url' => route('portal.calendar'), 'icon' => '📅', 'color' => 'linear-gradient(135deg,#0ea5e9,#7c3aed)'],
             ['title' => 'Antes y ahora', 'description' => 'Tu pasaporte de recuperación.', 'url' => route('portal.passport'), 'icon' => '📖', 'color' => 'linear-gradient(135deg,#0ea5e9,#0e7490)'],
             ['title' => 'Mi diario', 'description' => 'Lo que tu familia — y tú — han escrito.', 'url' => route('portal.diary'), 'icon' => '✍️', 'color' => 'linear-gradient(135deg,#7c3aed,#5b21b6)'],
             ['title' => 'Mis metas', 'description' => 'Tus metas de recuperación y tu avance.', 'url' => route('portal.goals'), 'icon' => '🎯', 'color' => 'linear-gradient(135deg,#f97316,#ea580c)', 'pending' => $pendingGoals],
