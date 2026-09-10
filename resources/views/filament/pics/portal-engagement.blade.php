@@ -67,6 +67,25 @@
             </article>
         </section>
 
+        <section>
+            <h3 class="font-bold text-slate-900 mb-3">Preparación de egreso</h3>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach([
+                    ['Pasaporte de recuperación confirmado', $s['passport_confirmed_pct']],
+                    ['Casos con plan interdisciplinario', $s['care_plan_pct']],
+                    ['Casos con medicamentos conciliados', $s['medication_reconciliation_pct']],
+                    ['Preparación para el alta (promedio)', $s['discharge_readiness_avg_pct']],
+                    ['Contenido educativo ya visto', $s['education_viewed_pct']],
+                    ['Ruta del cuidador completada (promedio)', $s['caregiver_journey_avg_pct']],
+                ] as [$label, $value])
+                    <article class="rounded-xl border bg-white p-4">
+                        <p class="text-xs font-bold text-slate-600">{{ $label }}</p>
+                        <p class="mt-1 text-2xl font-black text-slate-950">{{ $value === null ? 'Sin dato' : number_format($value, 1, ',', '.').'%' }}</p>
+                    </article>
+                @endforeach
+            </div>
+        </section>
+
         {{ $this->table }}
     </div>
 </x-filament-panels::page>

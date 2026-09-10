@@ -147,6 +147,29 @@ class PicsCaseInfolist
                         TextEntry::make('last_portal_activity_at')->label('Última actividad en el portal')
                             ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['last_portal_activity_at'])
                             ->dateTime('d/m/Y H:i')->placeholder('Sin actividad'),
+                        IconEntry::make('care_plan_exists')->label('Plan interdisciplinario')->boolean()
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['care_plan_exists']),
+                        TextEntry::make('caregiver_journey')->label('Ruta del cuidador (completados/total)')
+                            ->state(function (PicsCase $record): string {
+                                $s = app(PortalEngagementService::class)->caseSnapshot($record);
+
+                                return "{$s['caregiver_journey_completed']} / {$s['caregiver_journey_total']}";
+                            }),
+                        TextEntry::make('discharge_readiness_percentage')->label('Preparación para el alta')
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['discharge_readiness_percentage'])
+                            ->formatStateUsing(fn (?float $state): string => $state === null ? 'Sin preparar' : number_format($state, 1, ',', '.').'%'),
+                        TextEntry::make('medication_reconciliation_status')->label('Medicamentos')->badge()
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['medication_reconciliation_status'])
+                            ->formatStateUsing(fn (string $state): string => $state === 'conciliado' ? 'Conciliados' : 'Sin conciliar')
+                            ->color(fn (string $state): string => $state === 'conciliado' ? 'success' : 'gray'),
+                        TextEntry::make('home_monitoring_readings_count')->label('Lecturas de monitoreo en casa')
+                            ->state(fn (PicsCase $record) => app(PortalEngagementService::class)->caseSnapshot($record)['home_monitoring_readings_count']),
+                        TextEntry::make('education')->label('Educación (vistos/asignados)')
+                            ->state(function (PicsCase $record): string {
+                                $s = app(PortalEngagementService::class)->caseSnapshot($record);
+
+                                return "{$s['education_viewed_count']} / {$s['education_assigned_count']}";
+                            }),
                     ]),
                     Tab::make('Paciente')->columns(3)->schema([
                         TextEntry::make('patient.full_name')->label('Paciente'),

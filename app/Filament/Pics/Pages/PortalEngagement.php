@@ -63,7 +63,12 @@ class PortalEngagement extends Page implements HasTable
 
     private function eagerLoad(): array
     {
-        return ['patient', 'caregiverAuthorizations.caregiver', 'diaryEntries', 'recoveryGoals.progressReports', 'followups', 'supportRequests', 'recoveryPassport'];
+        return [
+            'patient', 'caregiverAuthorizations.caregiver', 'diaryEntries', 'recoveryGoals.progressReports',
+            'followups', 'supportRequests', 'recoveryPassport', 'carePlan', 'caregiverJourneySteps',
+            'dischargeReadinessCheck.items', 'medicationReconciliation.items', 'homeMonitoringReadings',
+            'educationAssignments',
+        ];
     }
 
     public function table(Table $table): Table
@@ -110,6 +115,35 @@ class PortalEngagement extends Page implements HasTable
                 TextColumn::make('last_portal_activity_at')->label('Última actividad')
                     ->getStateUsing(fn (PicsCase $record) => $service->caseSnapshot($record)['last_portal_activity_at'])
                     ->dateTime('d/m/Y H:i')->placeholder('Sin actividad'),
+                IconColumn::make('care_plan_exists')->label('Plan interdisciplinario')->boolean()
+                    ->getStateUsing(fn (PicsCase $record) => $service->caseSnapshot($record)['care_plan_exists'])
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('caregiver_journey')->label('Ruta del cuidador (completados/total)')
+                    ->getStateUsing(function (PicsCase $record) use ($service): string {
+                        $s = $service->caseSnapshot($record);
+
+                        return "{$s['caregiver_journey_completed']} / {$s['caregiver_journey_total']}";
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('discharge_readiness_percentage')->label('Preparación para el alta')
+                    ->getStateUsing(fn (PicsCase $record) => $service->caseSnapshot($record)['discharge_readiness_percentage'])
+                    ->formatStateUsing(fn (?float $state): string => $state === null ? 'Sin preparar' : number_format($state, 1, ',', '.').'%')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('medication_reconciliation_status')->label('Medicamentos')->badge()
+                    ->getStateUsing(fn (PicsCase $record) => $service->caseSnapshot($record)['medication_reconciliation_status'])
+                    ->formatStateUsing(fn (string $state): string => $state === 'conciliado' ? 'Conciliados' : 'Sin conciliar')
+                    ->color(fn (string $state): string => $state === 'conciliado' ? 'success' : 'gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('home_monitoring_readings_count')->label('Lecturas de monitoreo')
+                    ->getStateUsing(fn (PicsCase $record) => $service->caseSnapshot($record)['home_monitoring_readings_count'])
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('education')->label('Educación (vistos/asignados)')
+                    ->getStateUsing(function (PicsCase $record) use ($service): string {
+                        $s = $service->caseSnapshot($record);
+
+                        return "{$s['education_viewed_count']} / {$s['education_assigned_count']}";
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('case_number')
             ->emptyStateHeading('No hay casos PICS activos todavía');

@@ -6,6 +6,7 @@ use App\Enums\ProgramRole;
 use App\Models\Caregiver;
 use App\Models\CaregiverAuthorization;
 use App\Models\ClinicalProgram;
+use App\Models\EducationResource;
 use App\Models\Patient;
 use App\Models\PicsCase;
 use App\Models\ProgramMember;
@@ -170,5 +171,73 @@ class PortalEngagementTest extends TestCase
 
         $this->assertCount(4, $trend);
         $this->assertSame(1, $trend[3]['value']); // última semana = la actual
+    }
+
+    private function eagerLoad(): array
+    {
+        return [
+            'patient', 'caregiverAuthorizations.caregiver', 'diaryEntries', 'recoveryGoals.progressReports',
+            'followups', 'supportRequests', 'recoveryPassport', 'carePlan', 'caregiverJourneySteps',
+            'dischargeReadinessCheck.items', 'medicationReconciliation.items', 'homeMonitoringReadings',
+            'educationAssignments',
+        ];
+    }
+
+    public function test_case_snapshot_includes_etapa_2_and_3_modules(): void
+    {
+        $program = ClinicalProgram::query()->where('code', 'PICS')->firstOrFail();
+        $patient = Patient::query()->create(['identification' => 'EG-1', 'full_name' => 'Egreso']);
+        $case = PicsCase::query()->create(['clinical_program_id' => $program->id, 'patient_id' => $patient->id]);
+
+        $case->carePlan()->create(['general_objective' => 'x']);
+
+        $case->caregiverJourneySteps()->create(['title' => 'Paso 1', 'reported_at' => now()]);
+        $case->caregiverJourneySteps()->create(['title' => 'Paso 2']);
+
+        $check = $case->dischargeReadinessCheck()->create([]);
+        $check->items()->create(['topic' => 'medicamentos', 'understood' => true]);
+        $check->items()->create(['topic' => 'signos_alarma', 'understood' => false]);
+
+        $reconciliation = $case->medicationReconciliation()->create([]);
+        $reconciliation->items()->create(['medication_name' => 'Enalapril']);
+
+        $case->homeMonitoringReadings()->create(['reading_type' => 'spo2', 'value' => '97', 'measured_at' => now()]);
+        $case->homeMonitoringReadings()->create(['reading_type' => 'heart_rate', 'value' => '80', 'measured_at' => now()]);
+
+        $resource = EducationResource::query()->create(['title' => 'Contenido', 'category' => 'general']);
+        $case->educationAssignments()->create(['education_resource_id' => $resource->id, 'viewed_at' => now()]);
+
+        $case->load($this->eagerLoad());
+        $snapshot = app(PortalEngagementService::class)->caseSnapshot($case);
+
+        $this->assertTrue($snapshot['care_plan_exists']);
+        $this->assertSame(2, $snapshot['caregiver_journey_total']);
+        $this->assertSame(1, $snapshot['caregiver_journey_completed']);
+        $this->assertSame(50.0, $snapshot['discharge_readiness_percentage']);
+        $this->assertSame('conciliado', $snapshot['medication_reconciliation_status']);
+        $this->assertSame(2, $snapshot['home_monitoring_readings_count']);
+        $this->assertSame(1, $snapshot['education_assigned_count']);
+        $this->assertSame(1, $snapshot['education_viewed_count']);
+    }
+
+    public function test_aggregate_computes_discharge_preparation_percentages(): void
+    {
+        $program = ClinicalProgram::query()->where('code', 'PICS')->firstOrFail();
+        $patient = Patient::query()->create(['identification' => 'EG-2', 'full_name' => 'Egreso 2']);
+        $case = PicsCase::query()->create(['clinical_program_id' => $program->id, 'patient_id' => $patient->id]);
+        $case->carePlan()->create(['general_objective' => 'x']);
+        $reconciliation = $case->medicationReconciliation()->create([]);
+        $reconciliation->items()->create(['medication_name' => 'Enalapril']);
+
+        $program2 = $program;
+        $patient2 = Patient::query()->create(['identification' => 'EG-3', 'full_name' => 'Egreso 3']);
+        $caseWithoutPrep = PicsCase::query()->create(['clinical_program_id' => $program2->id, 'patient_id' => $patient2->id]);
+
+        $cases = PicsCase::query()->whereIn('id', [$case->id, $caseWithoutPrep->id])->with($this->eagerLoad())->get();
+
+        $summary = app(PortalEngagementService::class)->aggregate($cases);
+
+        $this->assertSame(50.0, $summary['care_plan_pct']);
+        $this->assertSame(50.0, $summary['medication_reconciliation_pct']);
     }
 }

@@ -13,16 +13,20 @@ use Illuminate\Support\Collection;
 /**
  * Trazabilidad del uso real del portal (/portal) por parte del paciente y la familia
  * — cuántas veces entran, si escriben el diario, si reportan avances, si diligencian
- * "Cómo me siento", si piden ayuda y qué tan rápido se les responde. Es un eje de
- * medición distinto al de PicsIndicatorService (que mide los instrumentos clínicos
- * PICS, no el comportamiento de uso de la plataforma).
+ * "Cómo me siento", si piden ayuda y qué tan rápido se les responde, y qué tan
+ * preparado está el egreso (plan interdisciplinario, ruta del cuidador, preparación
+ * para el alta, medicamentos conciliados, monitoreo en casa, educación vista). Es un
+ * eje de medición distinto al de PicsIndicatorService (que mide los instrumentos
+ * clínicos PICS, no el comportamiento de uso de la plataforma).
  */
 class PortalEngagementService
 {
     /**
      * Instantánea de uso del portal para un caso puntual. Asume que las relaciones ya
      * vienen precargadas (patient, caregiverAuthorizations.caregiver, diaryEntries,
-     * recoveryGoals.progressReports, followups, supportRequests, recoveryPassport) —
+     * recoveryGoals.progressReports, followups, supportRequests, recoveryPassport,
+     * carePlan, caregiverJourneySteps, dischargeReadinessCheck.items,
+     * medicationReconciliation.items, homeMonitoringReadings, educationAssignments) —
      * no dispara consultas adicionales por caso.
      *
      * @return array<string, mixed>
@@ -56,6 +60,11 @@ class PortalEngagementService
             default => 'reportado',
         };
 
+        $journeySteps = $case->caregiverJourneySteps;
+        $dischargeCheck = $case->dischargeReadinessCheck;
+        $medicationReconciliation = $case->medicationReconciliation;
+        $educationAssignments = $case->educationAssignments;
+
         $lastActivity = collect([
             $patient?->last_login_at,
             $caregiver?->last_login_at,
@@ -67,6 +76,14 @@ class PortalEngagementService
         ])->filter()->map(fn ($d) => Carbon::parse($d))->sort()->last();
 
         return [
+            'care_plan_exists' => $case->carePlan !== null,
+            'caregiver_journey_total' => $journeySteps->count(),
+            'caregiver_journey_completed' => $journeySteps->whereNotNull('reported_at')->count(),
+            'discharge_readiness_percentage' => $dischargeCheck?->readinessSummary()['percentage'],
+            'medication_reconciliation_status' => ($medicationReconciliation && $medicationReconciliation->items->isNotEmpty()) ? 'conciliado' : 'sin_conciliar',
+            'home_monitoring_readings_count' => $case->homeMonitoringReadings->count(),
+            'education_assigned_count' => $educationAssignments->count(),
+            'education_viewed_count' => $educationAssignments->whereNotNull('viewed_at')->count(),
             'caregiver_authorized' => $authorization !== null,
             'caregiver_authorized_at' => $authorization?->authorized_at,
             'caregiver_last_login_at' => $caregiver?->last_login_at,
@@ -101,6 +118,9 @@ class PortalEngagementService
                 'diary_activity_pct' => null, 'wellbeing_self_report_pct' => null,
                 'avg_goal_reports_per_case' => null, 'patient_report_share_pct' => null,
                 'avg_support_response_hours' => null, 'passport_confirmed_pct' => null,
+                'care_plan_pct' => null, 'medication_reconciliation_pct' => null,
+                'discharge_readiness_avg_pct' => null, 'education_viewed_pct' => null,
+                'caregiver_journey_avg_pct' => null,
             ];
         }
 
@@ -113,6 +133,16 @@ class PortalEngagementService
         $patientGoalReports = $snapshots->sum('goal_reports_by_patient');
         $responseTimes = $snapshots->pluck('support_requests_avg_response_hours')->filter();
         $confirmedPassports = $snapshots->filter(fn (array $s) => $s['passport_status'] === 'confirmado');
+        $withCarePlan = $snapshots->where('care_plan_exists', true);
+        $withMedicationReconciliation = $snapshots->filter(fn (array $s) => $s['medication_reconciliation_status'] === 'conciliado');
+        $dischargeReadinessValues = $snapshots->pluck('discharge_readiness_percentage')->filter(fn ($v) => $v !== null);
+        $totalEducationAssigned = $snapshots->sum('education_assigned_count');
+        $totalEducationViewed = $snapshots->sum('education_viewed_count');
+        $casesWithJourney = $snapshots->filter(fn (array $s) => $s['caregiver_journey_total'] > 0);
+        $journeyAvgPct = $casesWithJourney->isEmpty() ? null : round(
+            $casesWithJourney->avg(fn (array $s) => $this->percentage($s['caregiver_journey_completed'], $s['caregiver_journey_total'])),
+            1,
+        );
 
         return [
             'total_cases' => $cases->count(),
@@ -122,6 +152,11 @@ class PortalEngagementService
             'wellbeing_self_report_pct' => $this->percentage($withWellbeing->count(), $cases->count()),
             'avg_goal_reports_per_case' => round($totalGoalReports / $cases->count(), 1),
             'patient_report_share_pct' => $this->percentage($patientGoalReports, $totalGoalReports),
+            'care_plan_pct' => $this->percentage($withCarePlan->count(), $cases->count()),
+            'medication_reconciliation_pct' => $this->percentage($withMedicationReconciliation->count(), $cases->count()),
+            'discharge_readiness_avg_pct' => $dischargeReadinessValues->isEmpty() ? null : round($dischargeReadinessValues->avg(), 1),
+            'education_viewed_pct' => $this->percentage($totalEducationViewed, $totalEducationAssigned),
+            'caregiver_journey_avg_pct' => $journeyAvgPct,
             'avg_support_response_hours' => $responseTimes->isEmpty() ? null : round($responseTimes->avg(), 1),
             'passport_confirmed_pct' => $this->percentage($confirmedPassports->count(), $cases->count()),
         ];
