@@ -1,6 +1,16 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-20 (+ botón "Instalar app").
+Última actualización: 2026-09-21 (revisión de permisos + endurecer suscripciones push).
+
+## Revisión de permisos de los módulos nuevos (2026-09-21)
+
+Con tanta superficie nueva agregada esta semana (calendario interactivo, push, modo fácil, resumen imprimible), tocaba revisar que la autorización siguiera siendo sólida en todo — algo que ya se había dejado pendiente en una ronda de ideas anterior.
+
+**Resultado:** todo lo revisado (`CalendarComponent`, `PortalCalendarController`, `PortalSummaryController`, `PortalPushController`, `PortalHomeController::toggleEasyMode`) sigue el mismo patrón ya establecido — cada acción se limita al caso resuelto por el actor autenticado (`CaseAccess`/`currentCase()`), y los recordatorios personales, además, se limitan también por `created_by_type`/`created_by_id`. No encontré ninguna forma de que un paciente o cuidador lea o modifique algo de otro caso o de otro actor.
+
+**Un detalle real que sí se corrigió:** la tabla `push_subscriptions` no tenía una restricción de unicidad real en `endpoint` (era `text`, sin índice). Un endpoint de Web Push identifica una única suscripción de navegador — ahora es `string(500)` con índice único, y `PortalPushController::subscribe()` hace el `updateOrCreate` por endpoint de forma global (no solo dentro de las suscripciones del actor). Esto además resuelve bien un caso real: una tableta familiar compartida donde el cuidador cierra sesión y el paciente se suscribe después con el mismo navegador — ahora la suscripción se reasigna correctamente al actor que se está suscribiendo, en vez de quedar huérfana o duplicada.
+
+Verificado con 1 prueba automatizada nueva que reproduce exactamente ese escenario de dispositivo compartido (266 en total, todas en verde).
 
 ## Botón "Instalar app" (2026-09-20)
 
