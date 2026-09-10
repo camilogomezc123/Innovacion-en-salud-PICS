@@ -1,6 +1,19 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-13 (+ piloto de "modo aventura" — portal más visual y lúdico, Inicio y Metas).
+Última actualización: 2026-09-13 (+ "modo aventura" extendido a las 10 pantallas del portal).
+
+## "Modo aventura" en todo el portal (2026-09-13)
+
+El usuario aprobó el piloto (Inicio + Metas) y pidió extenderlo a **todo** el portal, con un tono totalmente lúdico e inspirado en el modelo de interacción de Instagram/Facebook (feed, reacciones, racha de días). Las 8 pantallas restantes quedaron rediseñadas:
+
+- **Racha de días (🔥)**: nueva en el Inicio, junto al nivel/XP — días consecutivos con actividad del propio actor, calculada en memoria a partir de las mismas fechas ya usadas para los puntos (nunca se guarda en base de datos).
+- **Mi diario**: ahora es un feed tipo Instagram — cada entrada con avatar circular con la inicial del autor, y un botón de reacción ❤️ **decorativo y privado** (se guarda solo en `localStorage` del navegador de quien lo usa, no hay "otros" reaccionando — es cariño hacia lo que uno mismo escribió, no interacción social real).
+- **Mis metas** ("Mis misiones"), **Preparación para el alta** (checklist con círculos que hacen "pop" al completarse y barra de progreso), **Medicamentos** y **Monitoreo en casa** (tarjetas grandes tipo "misión"/estadística con emoji e ícono de color por tipo), **Educación** (feed agrupado por categoría con "anillo de historia" estilo Instagram — degradado si no se ha leído, gris si ya se leyó) — todas con confeti (`celebrate`) al completar una acción con sentido de logro.
+- **Cómo me siento** y **Antes y ahora**: mismo contenido y preguntas exactas (instrumentos clínicos validados — no se tocó ninguna pregunta, opción ni fórmula de puntaje), solo el empaque visual cambió a tarjetas del mismo lenguaje.
+- **Necesito ayuda**: estilo de burbujas de chat (mi mensaje vs. la respuesta del equipo), sin confeti — no tiene sentido celebrar que alguien reporte una dificultad.
+- Se sembraron datos de demostración reales para medicamentos conciliados, preparación de alta y educación en el caso demo (antes esos módulos estaban vacíos para el paciente/cuidador demo), incorporados directamente al seeder para que sobrevivan a un reseed.
+
+Verificado con la suite completa (217 pruebas, todas en verde) y un recorrido manual real por las 10 pantallas del portal como paciente y como cuidador demo, confirmando que cada una muestra las clases y el contenido nuevo esperado.
 
 ## Piloto de "modo aventura" en el portal (2026-09-13)
 
@@ -9,11 +22,9 @@ A pedido del usuario: hacer el portal del paciente/familia más gráfico, intuit
 - **Puntos e insignias son puramente de interfaz, no clínicos**: se calculan al vuelo a partir de lo que el propio actor (paciente o cuidador) ya reportó — diario, avances de metas, "Cómo me siento", pasaporte, monitoreo, educación vista, temas de alta revisados, pasos de la ruta del cuidador, solicitudes — y **no se guardan en base de datos**. Quedó documentado explícitamente en el código para que nadie los confunda con un puntaje de salud.
 - **Inicio** (`/portal`): mascota con saludo, tarjeta de nivel/XP con barra de progreso, estante de insignias (bloqueadas en gris, desbloqueadas a color), y las 9-10 pantallas del portal como "misiones" — tarjetas grandes con ícono y color propio, con un contador pulsante si hay algo pendiente ahí.
 - **Metas** (`/portal/metas`), ahora "Mis misiones": cada meta es una tarjeta con anillo de progreso (según cuántos avances se han contado) y hasta 3 estrellas; al guardar un avance nuevo, estalla un confeti (`canvas-confetti` por CDN, sin paso de build — respeta `prefers-reduced-motion` para quien lo necesite).
-- El resto del portal (8 pantallas) sigue funcionando igual, sin tocar — solo cambió el fondo/navegación levemente para que se sienta parte del mismo "mundo" (gradiente morado-turquesa, navegación en píldoras).
+- El resto del portal (8 pantallas) siguió funcionando igual en este piloto, sin tocar — solo cambió el fondo/navegación levemente para que se sienta parte del mismo "mundo" (gradiente morado-turquesa, navegación en píldoras). El usuario aprobó el estilo y pidió extenderlo a todo el portal — ver la sección de arriba.
 
 Verificado con la suite completa (217 pruebas, todas en verde) y un recorrido manual real contra el servidor: inicio y metas renderizan las clases e insignias esperadas para el paciente demo (todo bloqueado, sin actividad previa) y para el cuidador demo (insignias desbloqueadas y XP > 0, reflejando su actividad real ya sembrada).
-
-**Pendiente de decisión del usuario**: si aprueba el estilo, extenderlo a las otras 8 pantallas del portal.
 
 ## Notificación al staff cuando llega una solicitud (2026-09-13)
 
