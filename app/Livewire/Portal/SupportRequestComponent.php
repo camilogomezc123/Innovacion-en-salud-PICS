@@ -7,6 +7,7 @@ use App\Models\Caregiver;
 use App\Models\Patient;
 use App\Models\SupportRequest;
 use App\Support\Posuci\CaseAccess;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -18,6 +19,25 @@ class SupportRequestComponent extends Component
 
     #[Validate('required|in:baja,media,alta')]
     public string $priority = 'media';
+
+    public string $type = 'dificultad';
+
+    /**
+     * Permite llegar desde otro módulo (ej. Medicamentos, "Tengo una duda sobre este
+     * medicamento") con el tipo y una descripción sugerida ya listos.
+     */
+    public function mount(Request $request): void
+    {
+        $tipo = $request->query('tipo');
+        if (is_string($tipo) && array_key_exists($tipo, SupportRequest::TYPES)) {
+            $this->type = $tipo;
+        }
+
+        $medicamento = $request->query('medicamento');
+        if (is_string($medicamento) && $medicamento !== '') {
+            $this->description = "Duda sobre {$medicamento}: ";
+        }
+    }
 
     public function save(): void
     {
@@ -36,11 +56,15 @@ class SupportRequestComponent extends Component
 
         abort_unless($actor, 403);
 
-        $this->validate();
+        $this->validate([
+            'description' => 'required|string|min:5',
+            'priority' => 'required|in:baja,media,alta',
+            'type' => 'required|in:'.implode(',', array_keys(SupportRequest::TYPES)),
+        ]);
 
         SupportRequest::query()->create([
             'pics_case_id' => $case->id,
-            'type' => 'dificultad',
+            'type' => $this->type,
             'description' => $this->description,
             'priority' => $this->priority,
             'status' => 'nueva',
@@ -48,8 +72,9 @@ class SupportRequestComponent extends Component
             'created_by_id' => $actor->id,
         ]);
 
-        $this->reset(['description', 'priority']);
+        $this->reset(['description', 'priority', 'type']);
         $this->priority = 'media';
+        $this->type = 'dificultad';
 
         session()->flash('support_status', 'Tu solicitud fue enviada. Tu equipo la revisará.');
     }

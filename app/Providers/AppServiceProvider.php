@@ -25,6 +25,7 @@ use App\Models\DischargeReadinessCheck;
 use App\Models\EvidenceAcknowledgement;
 use App\Models\EvidenceDocument;
 use App\Models\IndicatorDefinition;
+use App\Models\MedicationReconciliation;
 use App\Models\PicsAgendaItem;
 use App\Models\PicsCase;
 use App\Models\PicsFollowup;
@@ -143,6 +144,7 @@ class AppServiceProvider extends ServiceProvider
         CaregiverJourneyStep::observe(SepsisChildRecordObserver::class);
         DischargeReadinessCheck::observe(SepsisChildRecordObserver::class);
         PicsAgendaItem::observe(SepsisChildRecordObserver::class);
+        MedicationReconciliation::observe(SepsisChildRecordObserver::class);
         IndicatorDefinition::observe(IndicatorDefinitionObserver::class);
         Gate::policy(AccreditationStandard::class, QualityStandardPolicy::class);
         Gate::policy(EvidenceDocument::class, ComplianceEvidencePolicy::class);

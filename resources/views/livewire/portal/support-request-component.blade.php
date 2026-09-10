@@ -15,10 +15,18 @@
     @else
         <div class="card shadow-sm mb-4">
             <div class="card-body">
-                <h2 class="h5 mb-3">Reportar una dificultad</h2>
+                <h2 class="h5 mb-3">Reportar una solicitud</h2>
                 <form wire:submit="save">
                     <div class="mb-3">
-                        <label class="form-label">¿Qué dificultad tienes?</label>
+                        <label class="form-label">Tipo de solicitud</label>
+                        <select class="form-select" wire:model="type">
+                            @foreach (\App\Models\SupportRequest::TYPES as $value => $label)
+                                <option value="{{ $value }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cuéntanos</label>
                         <textarea class="form-control" rows="3" wire:model="description"></textarea>
                         @error('description') <div class="text-danger small">{{ $message }}</div> @enderror
                     </div>

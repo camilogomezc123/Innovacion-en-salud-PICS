@@ -26,6 +26,7 @@ Route::prefix('portal')->name('portal.')->group(function () {
         Route::get('/bienestar', fn () => view('portal.wellbeing'))->name('wellbeing');
         Route::get('/pasaporte', fn () => view('portal.passport'))->name('passport');
         Route::get('/ayuda', fn () => view('portal.support'))->name('support');
+        Route::get('/medicamentos', fn () => view('portal.medications'))->name('medications');
         Route::get('/preparacion-alta', fn () => view('portal.discharge-readiness'))->name('discharge-readiness');
         Route::get('/ruta-cuidador', fn () => view('portal.caregiver-journey'))->name('caregiver-journey');
     });

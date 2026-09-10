@@ -22,6 +22,7 @@ class SupportRequest extends Model
 {
     public const TYPES = [
         'dificultad' => 'Dificultad',
+        'duda_medicamento' => 'Duda sobre un medicamento',
     ];
 
     public const PRIORITIES = [

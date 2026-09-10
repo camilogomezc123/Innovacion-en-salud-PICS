@@ -184,6 +184,11 @@ class PicsCase extends Model
         return $this->hasMany(PicsAgendaItem::class);
     }
 
+    public function medicationReconciliation(): HasOne
+    {
+        return $this->hasOne(MedicationReconciliation::class);
+    }
+
     /**
      * Algoritmo de riesgo PICS de 7 factores, portado tal cual del proyecto "Panel de
      * control" (PicsController::computarRiesgo()): misma ponderación, mismos cortes.
