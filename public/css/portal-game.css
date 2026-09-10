@@ -379,3 +379,60 @@ body.game-mode {
     .xp-bar-fill { transition: none; }
     .check-row.is-done .check-circle { animation: none; }
 }
+
+/* ---------- Modo fácil: letra grande, más contraste, botones más grandes ----------
+   Pensado para que cualquier edad —sobre todo personas mayores o con baja visión—
+   pueda usar el portal cómodo. Se activa por cuenta (no por navegador) desde el botón
+   "Modo fácil" en la barra superior. */
+body.easy-mode {
+    font-size: 1.28rem;
+    line-height: 1.55;
+}
+
+body.easy-mode h1 { font-size: 2rem; }
+body.easy-mode h2, body.easy-mode .h2 { font-size: 1.6rem; }
+body.easy-mode h3, body.easy-mode .h3,
+body.easy-mode h5, body.easy-mode .h5 { font-size: 1.35rem; }
+body.easy-mode h6, body.easy-mode .h6 { font-size: 1.2rem; }
+
+body.easy-mode .small,
+body.easy-mode small { font-size: 1rem !important; }
+
+body.easy-mode .text-muted { color: #3f4859 !important; }
+
+body.easy-mode .btn,
+body.easy-mode .btn-game,
+body.easy-mode .btn-game-outline,
+body.easy-mode .btn-posuci {
+    font-size: 1.15rem;
+    padding: .75rem 1.5rem;
+}
+
+body.easy-mode .mission-card,
+body.easy-mode .check-row,
+body.easy-mode .feed-card,
+body.easy-mode .quest-card {
+    border-width: 2px;
+}
+
+body.easy-mode .mission-icon {
+    width: 3.4rem;
+    height: 3.4rem;
+    font-size: 1.7rem;
+}
+
+body.easy-mode .form-control,
+body.easy-mode .form-select,
+body.easy-mode .form-label {
+    font-size: 1.15rem;
+}
+
+body.easy-mode .form-control,
+body.easy-mode .form-select {
+    padding: .65rem .9rem;
+}
+
+body.easy-mode #readAloudBtn {
+    font-size: 1.1rem;
+    padding: .9rem 1.6rem;
+}

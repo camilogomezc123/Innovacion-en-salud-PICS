@@ -60,4 +60,50 @@
 
     document.addEventListener('DOMContentLoaded', restoreReactions);
     document.addEventListener('livewire:navigated', restoreReactions);
+
+    /* "Leer esta página" — usa la Web Speech API nativa del navegador (sin librerías
+       externas). Es parte del "modo fácil": lee en voz alta el contenido principal para
+       quien prefiera escuchar en vez de leer. Si el navegador no la soporta, el botón
+       simplemente se queda oculto (progressive enhancement). */
+    function initReadAloud() {
+        var btn = document.getElementById('readAloudBtn');
+        if (! btn || ! ('speechSynthesis' in window)) {
+            return;
+        }
+
+        btn.style.display = 'inline-block';
+        var speaking = false;
+
+        var reset = function () {
+            speaking = false;
+            btn.textContent = '🔊 Leer esta página';
+        };
+
+        btn.addEventListener('click', function () {
+            if (speaking) {
+                window.speechSynthesis.cancel();
+                reset();
+                return;
+            }
+
+            var main = document.querySelector('main');
+            var text = main ? main.innerText.trim() : '';
+            if (! text) {
+                return;
+            }
+
+            var utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'es-ES';
+            utterance.rate = 0.95;
+            utterance.onend = reset;
+            utterance.onerror = reset;
+
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+            speaking = true;
+            btn.textContent = '⏹️ Detener lectura';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initReadAloud);
 })();

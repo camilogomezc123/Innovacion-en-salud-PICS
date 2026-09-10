@@ -355,6 +355,19 @@ class PortalHomeController extends Controller
         return redirect()->route('portal.home');
     }
 
+    /**
+     * "Modo fácil": letra más grande, más contraste, botones más grandes — pensado para
+     * que cualquier edad pueda usar el portal cómodamente. Se guarda en la cuenta del
+     * actor (no en el navegador) para que se mantenga activo entre dispositivos y visitas.
+     */
+    public function toggleEasyMode(): RedirectResponse
+    {
+        $actor = Auth::guard('patient')->user() ?? Auth::guard('caregiver')->user();
+        $actor?->update(['portal_easy_mode' => ! $actor->portal_easy_mode]);
+
+        return redirect()->back();
+    }
+
     public static function currentCase(): ?PicsCase
     {
         if ($patient = Auth::guard('patient')->user()) {

@@ -17,18 +17,19 @@
         .card { border-radius: 0.75rem; }
     </style>
 </head>
-<body class="game-mode">
-    @auth('patient')
-        @php($actorName = auth('patient')->user()->full_name)
-        @php($actorRole = 'Paciente')
-    @endauth
-    @auth('caregiver')
-        @php($actorName = auth('caregiver')->user()->name)
-        @php($actorRole = 'Familiar / cuidador')
-        @php($caregiverCase = \App\Http\Controllers\Portal\PortalHomeController::currentCase())
-        @php($canAccessCaregiverJourney = $caregiverCase && \App\Support\Posuci\CaseAccess::caregiverCanAccessJourney(auth('caregiver')->user(), $caregiverCase))
-    @endauth
-
+@auth('patient')
+    @php($actorName = auth('patient')->user()->full_name)
+    @php($actorRole = 'Paciente')
+    @php($actorEasyMode = auth('patient')->user()->portal_easy_mode)
+@endauth
+@auth('caregiver')
+    @php($actorName = auth('caregiver')->user()->name)
+    @php($actorRole = 'Familiar / cuidador')
+    @php($actorEasyMode = auth('caregiver')->user()->portal_easy_mode)
+    @php($caregiverCase = \App\Http\Controllers\Portal\PortalHomeController::currentCase())
+    @php($canAccessCaregiverJourney = $caregiverCase && \App\Support\Posuci\CaseAccess::caregiverCanAccessJourney(auth('caregiver')->user(), $caregiverCase))
+@endauth
+<body class="game-mode {{ ($actorEasyMode ?? false) ? 'easy-mode' : '' }}">
     <nav class="navbar navbar-expand-lg posuci-navbar mb-4">
         <div class="container">
             <a class="navbar-brand" href="{{ route('portal.home') }}">POSUCI 360 Conecta</a>
@@ -55,6 +56,12 @@
                     </ul>
                     <div class="d-flex align-items-center flex-column flex-lg-row">
                         <span class="text-white me-lg-3 mb-2 mb-lg-0">{{ $actorName }} · {{ $actorRole }}</span>
+                        <form method="POST" action="{{ route('portal.easy-mode.toggle') }}" class="me-lg-2 mb-2 mb-lg-0">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-light">
+                                {{ $actorEasyMode ? '🔎 Modo fácil: activado' : '🔎 Modo fácil' }}
+                            </button>
+                        </form>
                         <form method="POST" action="{{ route('portal.logout') }}">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-light">Salir</button>
@@ -75,6 +82,12 @@
 
         @yield('content')
     </main>
+
+    @if (isset($actorName))
+        <button type="button" id="readAloudBtn" class="btn btn-game" style="position:fixed; bottom:1.25rem; right:1.25rem; z-index:1040; border-radius:999px; box-shadow:0 10px 24px -10px rgba(15,23,42,.5); display:none;">
+            🔊 Leer esta página
+        </button>
+    @endif
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
