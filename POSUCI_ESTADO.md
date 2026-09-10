@@ -1,6 +1,18 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-17 (+ resumen imprimible para la cita médica).
+Última actualización: 2026-09-18 (+ alerta al equipo cuando un caso deja de tener actividad en el portal).
+
+## Alerta al equipo por inactividad en el portal (2026-09-18)
+
+Hasta ahora, `PortalEngagementService::inactivityAlerts()` ya calculaba qué casos llevan más de 15 días sin actividad de portal, o tienen un cuidador autorizado que nunca ha ingresado — pero solo se veía si alguien del staff entraba a la pantalla "Trazabilidad del portal" a revisarlo. Ahora es proactivo: un comando programado (`agora:check-portal-inactivity`, todos los días a las 7:30 a.m. hora Colombia) reutiliza exactamente ese mismo cálculo ya validado y le avisa al equipo del caso (auditor asignado, o líderes del programa — vía `StaffNotifier`, el mismo mecanismo de siempre) por notificación en el panel y correo.
+
+Decisiones de diseño:
+- No se repite el aviso todos los días para el mismo caso — una vez notificado, espera al menos 7 días antes de volver a avisar (columna nueva `last_inactivity_alert_at` en `pics_cases`). Sin esto, un caso inactivo generaría un correo diario indefinidamente.
+- Reutiliza el cálculo ya existente y ya confiable de `PortalEngagementService::inactivityAlerts()` en vez de inventar un umbral nuevo — los mismos 15 días sin actividad y el mismo criterio de "cuidador nunca ingresó" que el staff ya ve hoy en el dashboard.
+- Casos `completed`/`cancelled` nunca se notifican (igual que ya hacía `inactivityAlerts()`).
+- La idea detrás de esta función: que "usar la app" tenga una consecuencia real de cuidado — si alguien deja de entrar, una persona del equipo se entera y puede llamar — no solo perderse en un dashboard que nadie revisa a diario.
+
+Verificado con 6 pruebas automatizadas nuevas (245 en total, todas en verde) y una ejecución real del comando contra la base de datos de desarrollo (con transacción y rollback, sin dejar datos de prueba): confirmó correctamente que el único caso existente (`completed`) se excluye, y una verificación aparte confirmó que el correo y la notificación en panel se renderizan sin errores.
 
 ## Resumen imprimible para la cita médica (2026-09-17)
 
