@@ -1,6 +1,14 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-13 (+ el paciente ya puede escribir en su diario).
+Última actualización: 2026-09-13 (+ rediseño del inicio del portal).
+
+## Rediseño del inicio del portal (2026-09-13)
+
+Auditoría de brechas fuera de la lista del prompt maestro: el inicio de `/portal` no se había tocado desde la Iteración 1 — solo mostraba 3 tarjetas y 2 accesos directos (diario, metas), sin ningún rastro de los 8 módulos agregados después (pasaporte, bienestar, ayuda, medicamentos, monitoreo, preparación de alta, ruta del cuidador, educación). Ahora `/portal` muestra: la **etapa clínica actual** (nueva tarjeta), **accesos directos a los 10 módulos** (la ruta del cuidador solo aparece si el cuidador tiene `can_access_journey`), y un resumen real de **pendientes** reutilizando datos que ya existen — sin tablas nuevas: contenido educativo sin leer, temas de preparación de alta sin revisar, solicitudes de ayuda esperando respuesta, y pasos de la ruta del cuidador sin completar (solo cuidador autorizado).
+
+De paso encontré y corregí un bug real de permisos expuesto al escribir las pruebas: el menú de navegación (`portal/layout.blade.php`) mostraba el enlace "Mi ruta como cuidador" a **cualquier** cuidador autenticado, sin verificar `can_access_journey` — un cuidador sin esa autorización veía el enlace en el menú aunque al entrar recibiera 403. Ahora el menú solo lo muestra si `CaseAccess::caregiverCanAccessJourney()` lo confirma, igual que ya hacía la página misma.
+
+Verificado con 4 pruebas automatizadas nuevas (212 en total, todas en verde): la etapa clínica y los accesos aparecen, el resumen de pendientes cuenta correctamente entre módulos, y el enlace de la ruta del cuidador aparece/desaparece según la autorización real.
 
 ## El paciente puede escribir en el diario (2026-09-13)
 
