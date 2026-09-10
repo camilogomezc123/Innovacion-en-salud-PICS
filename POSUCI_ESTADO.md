@@ -1,6 +1,14 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-13 (+ Etapa 3: educación personalizada — Etapa 3 completa).
+Última actualización: 2026-09-13 (+ el paciente ya puede escribir en su diario).
+
+## El paciente puede escribir en el diario (2026-09-13)
+
+Hasta ahora el diario era de una sola vía: el cuidador escribía, el paciente solo leía (así lo pedía explícitamente el prompt maestro para la Iteración 1, "participar posteriormente"). Ahora el paciente también puede escribir sus propias entradas desde `/portal/diario` — mismo formulario, pero sin los campos "mensaje para el paciente" y "¿el paciente puede leerla?" (no aplican cuando el propio paciente escribe: su entrada siempre le es visible a él mismo). El cuidador sigue viendo todas las entradas del caso, incluidas las del paciente, sin ningún cambio en su flujo.
+
+De paso corregí un bug que esto habría expuesto: la vista y la pestaña del caso en `/pics` mostraban el autor con `$entry->authorable->name`, pero `Patient` guarda el nombre en `full_name`, no en `name` — una entrada del paciente se habría visto con el autor en blanco. Se centralizó en `DiaryEntry::authorLabel()` para no repetir ese detalle en cada vista.
+
+Verificado con 1 prueba nueva (208 en total, todas en verde): el paciente escribe, la entrada queda con `visible_to_patient = true` automáticamente, se ve con su nombre correcto, y el cuidador también la ve.
 
 ## Etapa 3 — educación personalizada (2026-09-13)
 
@@ -113,8 +121,6 @@ Verificado con 16 pruebas nuevas, incluyendo el ciclo completo de la solicitud (
 
 Para etapas posteriores (según el prompt maestro más reciente): configuración institucional/academia, integraciones reales con proveedores de dispositivos (hoy el monitoreo en casa es un registro manual, no una API conectada) y resúmenes asistidos por IA. Tampoco hay fotos/audio en el diario (solo texto, como pide explícitamente el prompt). La agenda coordinada es una lista cronológica, no un calendario visual — no hay Node.js en este entorno para cargar una librería de calendario.
 
-El paciente **no puede escribir** en el diario todavía (solo leer) — así lo pide explícitamente el prompt maestro para esta iteración ("participar posteriormente").
-
 ## Restricción de entorno detectada
 
 Este equipo no tiene Node.js instalado (solo se copió `node_modules`, sin el runtime). El portal usa Bootstrap 5 y Livewire, ambos ya funcionan sin recompilar assets — pero si en el futuro se necesita Tailwind o JS nuevo por fuera de esas dos librerías, hará falta instalar Node.js y correr `npm run build`.
@@ -133,4 +139,4 @@ El usuario confirmó (2026-09-11): "Confirmar egreso" se queda como recomendaci�
 
 ## Decisión pendiente para la próxima sesión
 
-Con la Etapa 3 completa, falta decidir qué sigue del prompt maestro: **configuración institucional/academia** (panel para que la institución ajuste catálogos/plantillas/roles propios) o **resúmenes asistidos por IA**. También sigue abierto si el paciente debe poder escribir en el diario (hoy solo lee) y si alguna vez aparece una API real de un proveedor de dispositivos, conectarla para poblar `home_monitoring_readings` automáticamente en vez del registro manual.
+Con la Etapa 3 completa y el paciente ya escribiendo en su diario, falta decidir qué sigue del prompt maestro: **configuración institucional/academia** (panel para que la institución ajuste catálogos/plantillas/roles propios) o **resúmenes asistidos por IA**. También sigue abierto si alguna vez aparece una API real de un proveedor de dispositivos, conectarla para poblar `home_monitoring_readings` automáticamente en vez del registro manual.
