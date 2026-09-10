@@ -226,6 +226,129 @@ body.game-mode {
 .btn-game:hover { transform: translateY(-2px); color: #fff; }
 .btn-game:active { transform: translateY(0); }
 
+.btn-game-outline {
+    background: #fff;
+    border: 2px solid var(--game-purple);
+    color: var(--game-purple);
+    font-weight: 700;
+    border-radius: 999px;
+    padding: .5rem 1.2rem;
+    transition: transform .15s ease, background .15s ease;
+}
+
+.btn-game-outline:hover { background: #f5f3ff; color: var(--game-purple-dark); transform: translateY(-2px); }
+
+/* ---------- Racha (streak) ---------- */
+.streak-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    background: linear-gradient(135deg, #fff1e6, #ffe4d6);
+    border: 1px solid #fdba74;
+    color: #9a3412;
+    border-radius: 999px;
+    padding: .35rem .8rem;
+    font-weight: 800;
+    font-size: .9rem;
+}
+
+.streak-flame { font-size: 1.05rem; }
+
+/* ---------- Tarjetas estilo "publicación" (feed) ---------- */
+.feed-card {
+    border-radius: 1.4rem;
+    background: #fff;
+    border: 1px solid #eceef5;
+    box-shadow: 0 8px 20px -16px rgba(15, 23, 42, .3);
+    padding: 1.1rem 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.feed-header { display: flex; align-items: center; gap: .65rem; margin-bottom: .6rem; }
+
+.avatar-circle {
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: #fff;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--game-purple), var(--game-pink));
+}
+
+.story-ring {
+    padding: 3px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--game-orange), var(--game-pink), var(--game-purple));
+    display: inline-flex;
+}
+
+.story-ring.seen { background: #dfe3ec; }
+
+.story-ring .avatar-circle { border: 2px solid #fff; }
+
+.reaction-bar { display: flex; gap: .4rem; margin-top: .7rem; }
+
+.reaction-btn {
+    border: 1px solid #eceef5;
+    background: #f8f9fc;
+    border-radius: 999px;
+    padding: .3rem .7rem;
+    font-size: .95rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform .12s ease, background .12s ease;
+}
+
+.reaction-btn:hover { transform: scale(1.12); }
+.reaction-btn.active { background: #fee2e2; border-color: #fca5a5; }
+
+/* ---------- Checklist con "pop" al completar ---------- */
+.check-row {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    border-radius: 1.1rem;
+    padding: .85rem 1rem;
+    background: #fff;
+    border: 1px solid #eceef5;
+    margin-bottom: .7rem;
+    box-shadow: 0 6px 16px -14px rgba(15, 23, 42, .3);
+}
+
+.check-row.is-done { background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border-color: #bbf7d0; }
+
+.check-circle {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 2px solid #d7dbe6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 800;
+    color: #fff;
+}
+
+.check-row.is-done .check-circle {
+    background: var(--game-green);
+    border-color: var(--game-green);
+    animation: game-check-pop .4s ease;
+}
+
+/* ---------- Tarjeta de estadística (monitoreo) ---------- */
+.stat-tile {
+    border-radius: 1.25rem;
+    padding: 1rem 1.1rem;
+    color: #fff;
+    box-shadow: 0 10px 20px -14px rgba(15, 23, 42, .4);
+}
+
 /* ---------- Animaciones ---------- */
 @keyframes game-float {
     0%, 100% { transform: translateY(0) rotate(-2deg); }
@@ -244,8 +367,15 @@ body.game-mode {
 
 .game-pop { animation: game-pop-in .45s ease both; }
 
+@keyframes game-check-pop {
+    0% { transform: scale(.6); }
+    60% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .game-mascot, .mission-pending-dot { animation: none; }
     .game-pop { animation: none; }
     .xp-bar-fill { transition: none; }
+    .check-row.is-done .check-circle { animation: none; }
 }

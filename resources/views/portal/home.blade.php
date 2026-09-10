@@ -44,6 +44,9 @@
                     <div class="fs-4 fw-black" style="font-weight:900;">{{ $g['points'] }}</div>
                     <div class="text-muted small">puntos totales</div>
                 </div>
+                @if ($g['streakDays'] > 0)
+                    <span class="streak-chip"><span class="streak-flame">🔥</span> {{ $g['streakDays'] }} día{{ $g['streakDays'] === 1 ? '' : 's' }} seguido{{ $g['streakDays'] === 1 ? '' : 's' }}</span>
+                @endif
             </div>
 
             <div class="badge-shelf mt-3">

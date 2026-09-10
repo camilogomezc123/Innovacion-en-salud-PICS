@@ -85,6 +85,7 @@ class DiaryComponent extends Component
         $this->entry_date = now()->toDateString();
 
         session()->flash('diary_status', 'Entrada guardada.');
+        $this->dispatch('celebrate');
     }
 
     public function render()

@@ -97,6 +97,7 @@ class PassportComponent extends Component
         );
 
         session()->flash('passport_status', 'Pasaporte guardado. Tu equipo lo revisará.');
+        $this->dispatch('celebrate');
     }
 
     public function addItem(): void

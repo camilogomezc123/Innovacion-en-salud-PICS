@@ -28,4 +28,36 @@
             window.posuciCelebrate();
         });
     });
+
+    /* Reacción tipo "me gusta" sobre el propio contenido (diario) — solo decorativa y
+       privada de este navegador (localStorage), no es interacción social real: no hay
+       nadie más reaccionando, es una forma de darle cariño a lo que uno mismo escribió. */
+    function reactionKey(id) {
+        return 'posuci-reaction-' + id;
+    }
+
+    window.posuciToggleReaction = function (button, id) {
+        var active = button.classList.toggle('active');
+        try {
+            if (active) {
+                localStorage.setItem(reactionKey(id), '1');
+            } else {
+                localStorage.removeItem(reactionKey(id));
+            }
+        } catch (e) { /* almacenamiento no disponible: la reacción sigue funcionando solo en esta vista */ }
+    };
+
+    function restoreReactions() {
+        document.querySelectorAll('[data-reaction-id]').forEach(function (button) {
+            var id = button.getAttribute('data-reaction-id');
+            try {
+                if (localStorage.getItem(reactionKey(id)) === '1') {
+                    button.classList.add('active');
+                }
+            } catch (e) { /* almacenamiento no disponible */ }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', restoreReactions);
+    document.addEventListener('livewire:navigated', restoreReactions);
 })();

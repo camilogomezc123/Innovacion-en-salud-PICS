@@ -126,6 +126,7 @@ class WellbeingComponent extends Component
         );
 
         session()->flash('wellbeing_status', 'Gracias por diligenciarlo. Tu equipo lo revisará.');
+        $this->dispatch('celebrate');
     }
 
     public function render()

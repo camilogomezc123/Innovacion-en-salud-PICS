@@ -7,6 +7,8 @@ use App\Models\Caregiver;
 use App\Models\Patient;
 use App\Models\PicsCase;
 use App\Support\Posuci\CaseAccess;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -107,7 +109,7 @@ class PortalHomeController extends Controller
     }
 
     /**
-     * @return array{points: int, level: int, levelTitle: string, xpIntoLevel: int, xpForNextLevel: int, xpProgressPct: float, badges: array<int, array{icon: string, label: string, unlocked: bool}>}
+     * @return array{points: int, level: int, levelTitle: string, xpIntoLevel: int, xpForNextLevel: int, xpProgressPct: float, badges: array<int, array{icon: string, label: string, unlocked: bool}>, streakDays: int}
      */
     private function computeGamification(PicsCase $case, Patient|Caregiver $actor, bool $canAccessJourney): array
     {
@@ -127,6 +129,18 @@ class PortalHomeController extends Controller
             ->where('reviewed_by_type', $actorType)->where('reviewed_by_id', $actorId)->count() ?? 0;
         $journeyStepsCount = $case->caregiverJourneySteps->where('reported_by_type', $actorType)->where('reported_by_id', $actorId)->count();
         $supportRequestsCount = $case->supportRequests->where('created_by_type', $actorType)->where('created_by_id', $actorId)->count();
+
+        $activityDates = collect([
+            $case->diaryEntries->where('authorable_type', $actorType)->where('authorable_id', $actorId)->pluck('created_at'),
+            $case->recoveryGoals->flatMap->progressReports->where('reporter_type', $actorType)->where('reporter_id', $actorId)->pluck('reported_at'),
+            $case->followups->where('submitted_by_type', $actorType)->where('submitted_by_id', $actorId)->pluck('followed_up_at'),
+            $case->homeMonitoringReadings->where('recorded_by_type', $actorType)->where('recorded_by_id', $actorId)->pluck('measured_at'),
+            $case->educationAssignments->where('viewed_by_type', $actorType)->where('viewed_by_id', $actorId)->pluck('viewed_at'),
+            ($case->dischargeReadinessCheck?->items ?? collect())->where('reviewed_by_type', $actorType)->where('reviewed_by_id', $actorId)->pluck('reviewed_at'),
+            $case->caregiverJourneySteps->where('reported_by_type', $actorType)->where('reported_by_id', $actorId)->pluck('reported_at'),
+            $case->supportRequests->where('created_by_type', $actorType)->where('created_by_id', $actorId)->pluck('created_at'),
+            $passportReportedByActor ? collect([$case->recoveryPassport->reported_at]) : collect(),
+        ])->flatten(1);
 
         $points = $diaryCount * self::POINTS['diary_entry']
             + $goalReportsCount * self::POINTS['goal_progress_report']
@@ -162,7 +176,40 @@ class PortalHomeController extends Controller
             'xpForNextLevel' => self::POINTS_PER_LEVEL,
             'xpProgressPct' => round(($xpIntoLevel / self::POINTS_PER_LEVEL) * 100, 1),
             'badges' => $badges,
+            'streakDays' => $this->computeStreak($activityDates),
         ];
+    }
+
+    /**
+     * Días consecutivos (hasta hoy, o hasta ayer si hoy todavía no hay actividad) con
+     * al menos una actividad del actor. Igual que los puntos: puramente de interfaz,
+     * no se guarda en base de datos.
+     */
+    private function computeStreak(Collection $dates): int
+    {
+        $days = $dates->filter()->map(fn ($d) => Carbon::parse($d)->toDateString())->unique();
+
+        if ($days->isEmpty()) {
+            return 0;
+        }
+
+        $cursor = today();
+
+        if (! $days->contains($cursor->toDateString())) {
+            $cursor = $cursor->copy()->subDay();
+
+            if (! $days->contains($cursor->toDateString())) {
+                return 0;
+            }
+        }
+
+        $streak = 0;
+        while ($days->contains($cursor->toDateString())) {
+            $streak++;
+            $cursor = $cursor->copy()->subDay();
+        }
+
+        return $streak;
     }
 
     private function firstName(Patient|Caregiver|null $actor): string

@@ -46,6 +46,8 @@ class DischargeReadinessComponent extends Component
             'reviewed_by_id' => $actor->id,
             'reviewed_at' => now(),
         ]);
+
+        $this->dispatch('celebrate');
     }
 
     public function render()

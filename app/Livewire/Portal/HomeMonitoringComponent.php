@@ -77,6 +77,7 @@ class HomeMonitoringComponent extends Component
         $this->measured_at = now()->format('Y-m-d\TH:i');
 
         session()->flash('monitoring_status', 'Lectura registrada.');
+        $this->dispatch('celebrate');
     }
 
     public function render()
