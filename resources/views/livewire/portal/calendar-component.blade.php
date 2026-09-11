@@ -168,7 +168,8 @@
                     locale: 'es',
                     initialView: 'dayGridMonth',
                     height: 'auto',
-                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' },
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+                    footerToolbar: { center: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' },
                     buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Lista' },
                     events: function (fetchInfo, successCallback, failureCallback) {
                         fetch(@js(route('portal.calendar.events')) + '?start=' + fetchInfo.startStr + '&end=' + fetchInfo.endStr)

@@ -31,6 +31,24 @@
     @php($caregiverCase = \App\Http\Controllers\Portal\PortalHomeController::currentCase())
     @php($canAccessCaregiverJourney = $caregiverCase && \App\Support\Posuci\CaseAccess::caregiverCanAccessJourney(auth('caregiver')->user(), $caregiverCase))
 @endauth
+@php($navModules = collect([
+    ['icon' => '🏠', 'label' => 'Mi recuperación', 'route' => 'portal.home', 'color' => 'linear-gradient(135deg,#7c3aed,#ec4899)'],
+    ['icon' => '📅', 'label' => 'Mi calendario', 'route' => 'portal.calendar', 'color' => 'linear-gradient(135deg,#0ea5e9,#7c3aed)'],
+    ['icon' => '📖', 'label' => 'Antes y ahora', 'route' => 'portal.passport', 'color' => 'linear-gradient(135deg,#0ea5e9,#0e7490)'],
+    ['icon' => '✍️', 'label' => 'Mi diario', 'route' => 'portal.diary', 'color' => 'linear-gradient(135deg,#7c3aed,#5b21b6)'],
+    ['icon' => '🎯', 'label' => 'Mis metas', 'route' => 'portal.goals', 'color' => 'linear-gradient(135deg,#f97316,#ea580c)'],
+    ['icon' => '💙', 'label' => 'Cómo me siento', 'route' => 'portal.wellbeing', 'color' => 'linear-gradient(135deg,#ec4899,#db2777)'],
+    ['icon' => '🆘', 'label' => 'Necesito ayuda', 'route' => 'portal.support', 'color' => 'linear-gradient(135deg,#ef4444,#b91c1c)'],
+    ['icon' => '💊', 'label' => 'Medicamentos', 'route' => 'portal.medications', 'color' => 'linear-gradient(135deg,#0ea5e9,#2563eb)'],
+    ['icon' => '🩺', 'label' => 'Monitoreo en casa', 'route' => 'portal.home-monitoring', 'color' => 'linear-gradient(135deg,#22c55e,#15803d)'],
+    ['icon' => '📈', 'label' => 'Mi progreso', 'route' => 'portal.progress', 'color' => 'linear-gradient(135deg,#7c3aed,#0ea5e9)'],
+    ['icon' => '📚', 'label' => 'Educación', 'route' => 'portal.education', 'color' => 'linear-gradient(135deg,#6366f1,#4338ca)'],
+    ['icon' => '🎓', 'label' => 'Preparación para el alta', 'route' => 'portal.discharge-readiness', 'color' => 'linear-gradient(135deg,#facc15,#ca8a04)'],
+    ['icon' => '🖨️', 'label' => 'Resumen para tu cita', 'route' => 'portal.summary', 'color' => 'linear-gradient(135deg,#14b8a6,#0e7490)'],
+]))
+@if ($canAccessCaregiverJourney ?? false)
+    @php($navModules->push(['icon' => '🤝', 'label' => 'Mi ruta como cuidador', 'route' => 'portal.caregiver-journey', 'color' => 'linear-gradient(135deg,#14b8a6,#0f766e)']))
+@endif
 <body class="game-mode {{ ($actorEasyMode ?? false) ? 'easy-mode' : '' }}">
     <nav class="navbar navbar-expand-lg posuci-navbar mb-4">
         <div class="container">
@@ -41,44 +59,41 @@
                 </button>
                 <div class="collapse navbar-collapse" id="posuciNav">
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.home') ? 'active' : '' }}" href="{{ route('portal.home') }}">Mi recuperación</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.passport') ? 'active' : '' }}" href="{{ route('portal.passport') }}">Antes y ahora</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.diary') ? 'active' : '' }}" href="{{ route('portal.diary') }}">Mi diario</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.goals') ? 'active' : '' }}" href="{{ route('portal.goals') }}">Mis metas</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.wellbeing') ? 'active' : '' }}" href="{{ route('portal.wellbeing') }}">Cómo me siento</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.support') ? 'active' : '' }}" href="{{ route('portal.support') }}">Necesito ayuda</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.medications') ? 'active' : '' }}" href="{{ route('portal.medications') }}">Medicamentos</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.home-monitoring') ? 'active' : '' }}" href="{{ route('portal.home-monitoring') }}">Monitoreo en casa</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.education') ? 'active' : '' }}" href="{{ route('portal.education') }}">Educación</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.discharge-readiness') ? 'active' : '' }}" href="{{ route('portal.discharge-readiness') }}">Preparación para el alta</a></li>
-                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.calendar') ? 'active' : '' }}" href="{{ route('portal.calendar') }}">📅 Calendario</a></li>
-                        @if ($canAccessCaregiverJourney ?? false)
-                            <li class="nav-item"><a class="nav-link {{ request()->routeIs('portal.caregiver-journey') ? 'active' : '' }}" href="{{ route('portal.caregiver-journey') }}">Mi ruta como cuidador</a></li>
-                        @endif
+                        @foreach ($navModules as $module)
+                            <li class="nav-item"><a class="nav-link {{ request()->routeIs($module['route']) ? 'active' : '' }}" href="{{ route($module['route']) }}">{{ $module['icon'] }} {{ $module['label'] }}</a></li>
+                        @endforeach
                     </ul>
                     <div class="d-flex align-items-center flex-column flex-lg-row">
                         <span class="text-white me-lg-3 mb-2 mb-lg-0">{{ $actorName }} · {{ $actorRole }}</span>
                         @livewire('portal.notification-center-component')
-                        <form method="POST" action="{{ route('portal.easy-mode.toggle') }}" class="me-lg-2 mb-2 mb-lg-0">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-light">
-                                {{ $actorEasyMode ? '🔎 Modo fácil: activado' : '🔎 Modo fácil' }}
+                        <div class="dropdown me-lg-2 mb-2 mb-lg-0">
+                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                ⚙️ Ajustes
                             </button>
-                        </form>
-                        <button type="button" id="pushToggleBtn" class="btn btn-sm btn-light me-lg-2 mb-2 mb-lg-0" style="display:none;"
-                            data-key-url="{{ route('portal.push.public-key') }}"
-                            data-subscribe-url="{{ route('portal.push.subscribe') }}"
-                            data-unsubscribe-url="{{ route('portal.push.unsubscribe') }}"
-                            data-csrf="{{ csrf_token() }}">
-                            🔔 Activar notificaciones
-                        </button>
-                        <button type="button" id="installAppBtn" class="btn btn-sm btn-light me-lg-2 mb-2 mb-lg-0" style="display:none;">
-                            📲 Instalar app
-                        </button>
-                        <form method="POST" action="{{ route('portal.logout') }}">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-light">Salir</button>
-                        </form>
+                            <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 260px;">
+                                <form method="POST" action="{{ route('portal.easy-mode.toggle') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item rounded-3 mb-1">
+                                        {{ $actorEasyMode ? '🔎 Modo fácil: activado ✓' : '🔎 Activar modo fácil' }}
+                                    </button>
+                                </form>
+                                <button type="button" id="pushToggleBtn" class="dropdown-item rounded-3 mb-1" style="display:none;"
+                                    data-key-url="{{ route('portal.push.public-key') }}"
+                                    data-subscribe-url="{{ route('portal.push.subscribe') }}"
+                                    data-unsubscribe-url="{{ route('portal.push.unsubscribe') }}"
+                                    data-csrf="{{ csrf_token() }}">
+                                    🔔 Activar notificaciones
+                                </button>
+                                <button type="button" id="installAppBtn" class="dropdown-item rounded-3 mb-1" style="display:none;">
+                                    📲 Instalar app
+                                </button>
+                                <hr class="dropdown-divider my-1">
+                                <form method="POST" action="{{ route('portal.logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item rounded-3 text-danger">🚪 Salir</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -100,6 +115,28 @@
         <button type="button" id="readAloudBtn" class="btn btn-game" style="position:fixed; bottom:1.25rem; right:1.25rem; z-index:1040; border-radius:999px; box-shadow:0 10px 24px -10px rgba(15,23,42,.5); display:none;">
             🔊 Leer esta página
         </button>
+
+        <button type="button" class="btn btn-game-outline bg-white" data-bs-toggle="offcanvas" data-bs-target="#navModulesOffcanvas"
+            style="position:fixed; bottom:1.25rem; left:1.25rem; z-index:1040; border-radius:999px; box-shadow:0 10px 24px -10px rgba(15,23,42,.5);">
+            🗺️ Módulos
+        </button>
+
+        <div class="offcanvas offcanvas-bottom" tabindex="-1" id="navModulesOffcanvas" aria-labelledby="navModulesOffcanvasLabel" style="max-height: 82vh; border-radius: 1.5rem 1.5rem 0 0;">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="navModulesOffcanvasLabel">🗺️ Todos los módulos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="mission-grid">
+                    @foreach ($navModules as $module)
+                        <a href="{{ route($module['route']) }}" class="mission-card game-pop">
+                            <span class="mission-icon" style="background: {{ $module['color'] }};">{{ $module['icon'] }}</span>
+                            <div class="mission-title">{{ $module['label'] }}</div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
     @endif
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>

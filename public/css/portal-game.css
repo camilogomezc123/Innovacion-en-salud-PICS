@@ -462,6 +462,17 @@ body.voice-input-supported .voice-input-btn { display: inline-flex; }
     animation: game-pulse 1.2s ease-in-out infinite;
 }
 
+/* ---------- Celular (pantallas angostas) ---------- */
+@media (max-width: 480px) {
+    .game-hero { padding: 1.25rem 1rem; }
+    .game-mascot { font-size: 2.4rem; }
+    .xp-level-badge { width: 2.6rem; height: 2.6rem; font-size: 1.1rem; }
+    .mission-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .7rem; }
+    .mission-card { padding: .9rem .8rem; }
+    .fc .fc-toolbar-title { font-size: 1.05rem !important; }
+    .fc .fc-button { padding: .3rem .55rem !important; font-size: .85rem !important; }
+}
+
 /* ---------- Impresión (resumen para la cita médica) ---------- */
 @media print {
     .posuci-navbar, #readAloudBtn, .no-print { display: none !important; }
