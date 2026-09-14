@@ -21,11 +21,17 @@ class PortalAuthController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'login' => ['nullable', 'string'],
+            'email' => ['nullable', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        $patient = Patient::query()->where('email', $credentials['email'])->first();
+        $login = mb_strtolower(trim($credentials['login'] ?? $credentials['email'] ?? ''));
+        if ($login === '') {
+            return back()->withErrors(['login' => 'Escribe tu usuario o correo.']);
+        }
+        $patient = Patient::query()->whereRaw('LOWER(portal_username) = ?', [$login])
+            ->orWhereRaw('LOWER(email) = ?', [$login])->first();
 
         if ($patient && $patient->password && Hash::check($credentials['password'], $patient->password)) {
             $request->session()->regenerate();
@@ -34,7 +40,9 @@ class PortalAuthController extends Controller
             return redirect()->intended(route('portal.home'));
         }
 
-        $caregiver = Caregiver::query()->where('email', $credentials['email'])->where('is_active', true)->first();
+        $caregiver = Caregiver::query()->where('is_active', true)
+            ->where(fn ($query) => $query->whereRaw('LOWER(portal_username) = ?', [$login])
+                ->orWhereRaw('LOWER(email) = ?', [$login]))->first();
 
         if ($caregiver && Hash::check($credentials['password'], $caregiver->password)) {
             $request->session()->regenerate();
@@ -43,7 +51,7 @@ class PortalAuthController extends Controller
             return redirect()->intended(route('portal.home'));
         }
 
-        return back()->withErrors(['email' => 'El correo o la contraseña no son correctos.'])->onlyInput('email');
+        return back()->withErrors(['login' => 'El usuario, correo o contraseña no son correctos.'])->onlyInput('login');
     }
 
     public function logout(Request $request): RedirectResponse
