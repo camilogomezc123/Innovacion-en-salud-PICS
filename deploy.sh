@@ -47,8 +47,10 @@ php artisan migrate --force
 echo "==> cachés"
 php artisan optimize
 
-# Permisos
-chown -R www-data:www-data "$APP"
+# El código no debe ser modificable por PHP; solo las carpetas de ejecución.
+chown -R root:www-data "$APP"
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R ug+rwX storage bootstrap/cache
 
 # Recargar PHP-FPM para limpiar OPcache y servir el código nuevo
 echo "==> recargar PHP-FPM"
