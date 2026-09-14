@@ -3,11 +3,11 @@
 namespace Tests\Feature\Pics;
 
 use App\Enums\ProgramRole;
-use App\Livewire\Portal\CalendarComponent;
 use App\Livewire\Portal\DiaryComponent;
 use App\Models\Caregiver;
 use App\Models\CaregiverAuthorization;
 use App\Models\ClinicalProgram;
+use App\Models\DiaryEntry;
 use App\Models\Patient;
 use App\Models\PersonalReminder;
 use App\Models\PicsCase;
@@ -91,7 +91,7 @@ class MultipleCaregiversPerCaseTest extends TestCase
             ->call('save')
             ->assertHasNoErrors();
 
-        $entry = \App\Models\DiaryEntry::query()->firstOrFail();
+        $entry = DiaryEntry::query()->firstOrFail();
         $this->assertSame('Esposa', $entry->authorLabel());
     }
 
@@ -163,7 +163,7 @@ class MultipleCaregiversPerCaseTest extends TestCase
 
         ['caregiverA' => $caregiverA, 'caregiverB' => $caregiverB] = $this->makeCaseWithTwoCaregivers();
 
-        $this->artisan('agora:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
+        $this->artisan('pics:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
 
         Notification::assertSentTo($caregiverA, PatientNotActiveTodayNotification::class);
         Notification::assertSentTo($caregiverB, PatientNotActiveTodayNotification::class);

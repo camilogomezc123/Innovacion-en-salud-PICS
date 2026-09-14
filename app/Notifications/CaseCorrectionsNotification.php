@@ -42,8 +42,8 @@ class CaseCorrectionsNotification extends Notification implements ShouldQueue
         }
 
         return $mail
-            ->action('Abrir caso en ÁGORA', url("/acv/acv-cases/{$this->case->id}"))
-            ->line('Este mensaje fue generado automáticamente por ÁGORA.');
+            ->action('Abrir caso en PICS', url("/acv/acv-cases/{$this->case->id}"))
+            ->line('Este mensaje fue generado automáticamente por PICS.');
     }
 
     public function toArray(object $notifiable): array

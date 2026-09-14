@@ -1,4 +1,4 @@
-# ÁGORA
+# PICS
 
 ## Centro de Excelencia de Infarto
 
@@ -61,18 +61,18 @@ Configura en `.env` la conexión PostgreSQL:
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
-DB_DATABASE=agora
-DB_USERNAME=agora
+DB_DATABASE=pics
+DB_USERNAME=pics
 DB_PASSWORD=
 ```
 
 El administrador inicial se crea únicamente si se definen estas variables locales:
 
 ```dotenv
-AGORA_ADMIN_NAME=
-AGORA_ADMIN_USERNAME=
-AGORA_ADMIN_EMAIL=
-AGORA_ADMIN_PASSWORD=
+PICS_ADMIN_NAME=
+PICS_ADMIN_USERNAME=
+PICS_ADMIN_EMAIL=
+PICS_ADMIN_PASSWORD=
 ```
 
 ## Importar ACV
@@ -80,13 +80,13 @@ AGORA_ADMIN_PASSWORD=
 El archivo fuente no debe almacenarse en Git. Para importar:
 
 ```bash
-php artisan agora:import-acv bdACV.xlsx
+php artisan pics:import-acv bdACV.xlsx
 ```
 
 Para reconstruir pacientes y casos desde el archivo:
 
 ```bash
-php artisan agora:import-acv bdACV.xlsx --fresh
+php artisan pics:import-acv bdACV.xlsx --fresh
 ```
 
 La importación conserva todas las columnas originales dentro de `clinical_data`, normaliza los campos usados para consultas e indicadores y relaciona recurrencias por identificación.
@@ -125,7 +125,7 @@ El archivo **no se encontró** en el repositorio durante esta implementación. S
 
 ### Variables de entorno relevantes
 
-Ninguna variable nueva obligatoria. El módulo de Sepsis usa la misma conexión de base de datos, el mismo disco `local` (`storage/app/private`) para archivos privados (actas de comité en PDF, evidencias de cierre PHVA) y el mismo `MAIL_MAILER`/`QUEUE_CONNECTION` que el resto de ÁGORA.
+Ninguna variable nueva obligatoria. El módulo de Sepsis usa la misma conexión de base de datos, el mismo disco `local` (`storage/app/private`) para archivos privados (actas de comité en PDF, evidencias de cierre PHVA) y el mismo `MAIL_MAILER`/`QUEUE_CONNECTION` que el resto de PICS.
 
 ### Migraciones y datos iniciales
 

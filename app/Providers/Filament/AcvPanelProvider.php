@@ -6,7 +6,6 @@ use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Hub;
 use App\Support\ExcellenceCenters;
-use Filament\View\PanelsRenderHook;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -14,6 +13,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -36,7 +36,7 @@ class AcvPanelProvider extends PanelProvider
             ->login(Login::class)
             ->passwordReset()
             ->profile(EditProfile::class)
-            ->brandName('ÁGORA · ACV')
+            ->brandName('PICS · ACV')
             ->brandLogo(asset('img/LOGO1.png'))
             ->brandLogoHeight('2.75rem')
             ->favicon(asset('img/favicon.png'))

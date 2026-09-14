@@ -22,7 +22,7 @@ class CheckPortalInactivity extends Command
 {
     private const COOLDOWN_DAYS = 7;
 
-    protected $signature = 'agora:check-portal-inactivity';
+    protected $signature = 'pics:check-portal-inactivity';
 
     protected $description = 'Notifica al equipo clínico cuando un caso PICS lleva varios días sin actividad en el portal.';
 

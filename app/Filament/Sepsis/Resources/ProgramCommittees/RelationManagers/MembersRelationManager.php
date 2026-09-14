@@ -22,10 +22,10 @@ class MembersRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema->components([
-            Select::make('user_id')->label('Usuario de ÁGORA')->relationship('user', 'name')->searchable()->preload(),
+            Select::make('user_id')->label('Usuario de PICS')->relationship('user', 'name')->searchable()->preload(),
             TextInput::make('display_name')->label('Nombre para mostrar')->required(),
             TextInput::make('email')->label('Correo electrónico')->email()
-                ->helperText('Se usa para enviarle la convocatoria de las reuniones. Si el integrante tiene usuario de ÁGORA, se usa ese correo si este campo queda vacío.'),
+                ->helperText('Se usa para enviarle la convocatoria de las reuniones. Si el integrante tiene usuario de PICS, se usa ese correo si este campo queda vacío.'),
             TextInput::make('discipline')->label('Disciplina'),
             TextInput::make('committee_role')->label('Rol en el comité'),
             Toggle::make('is_active')->label('Activo')->default(true),

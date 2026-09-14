@@ -54,7 +54,7 @@ class IcuLiberationPanelProvider extends PanelProvider
 
         return $panel->id('icu-liberation')->path('icu-liberation')->viteTheme('resources/css/filament/admin/theme.css')
             ->login(Login::class)->passwordReset()->profile(EditProfile::class)
-            ->brandName('ÁGORA · ICU Liberation')->brandLogo(asset('img/LOGO1.png'))->brandLogoHeight('2.75rem')
+            ->brandName('PICS · ICU Liberation')->brandLogo(asset('img/LOGO1.png'))->brandLogoHeight('2.75rem')
             ->favicon(asset('img/favicon.png'))->font('Montserrat')->topNavigation()
             ->navigation(fn (NavigationBuilder $builder) => $builder
                 ->group(NavigationGroup::make()->items([...ExecutiveSummary::getNavigationItems(), ...IcuCensus::getNavigationItems(), ...ClinicalPathway::getNavigationItems()]))

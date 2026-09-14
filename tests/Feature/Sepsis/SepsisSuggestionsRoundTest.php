@@ -155,7 +155,7 @@ class SepsisSuggestionsRoundTest extends TestCase
             'role' => ProgramRole::Physician, 'is_active' => true,
         ]);
 
-        Artisan::call('agora:send-sepsis-monthly-digest');
+        Artisan::call('pics:send-sepsis-monthly-digest');
 
         Notification::assertSentTo($director, SepsisMonthlyDigestNotification::class);
         Notification::assertNotSentTo($physician, SepsisMonthlyDigestNotification::class);

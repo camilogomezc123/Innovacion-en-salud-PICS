@@ -1,10 +1,10 @@
 # Implementación — Programa Institucional de Excelencia en Sepsis y Recuperación Postsepsis
 
-Este documento describe lo construido dentro de ÁGORA para el programa de Sepsis. Se integró **sobre** la aplicación Laravel + Filament existente — no se creó una aplicación aparte, no se eliminó nada del centro ACV ni de lo ya construido del propio módulo de Sepsis.
+Este documento describe lo construido dentro de PICS para el programa de Sepsis. Se integró **sobre** la aplicación Laravel + Filament existente — no se creó una aplicación aparte, no se eliminó nada del centro ACV ni de lo ya construido del propio módulo de Sepsis.
 
 ## 1. Módulos construidos
 
-| Módulo pedido | Dónde vive en ÁGORA | Estado |
+| Módulo pedido | Dónde vive en PICS | Estado |
 |---|---|---|
 | Inicio / dashboard ejecutivo | Página **Vista general** (`ExecutiveSummary`) | Parcial — cubre indicadores en meta, casos del mes, cumplimiento, alertas (evidencias vencidas, hallazgos, acciones, eventos de seguridad), completitud del registro. Faltan las gráficas de distribución por servicio/foco/población especial (ver §5 Pendientes). |
 | Programa de Sepsis | **Programa → Información general** (`ClinicalProgramResource`) | Completo — nombre, propósito, misión, visión, población, alcance, inclusiones/exclusiones, patrocinador, líderes, versión, próxima revisión. |
@@ -18,7 +18,7 @@ Este documento describe lo construido dentro de ÁGORA para el programa de Sepsi
 | Talento humano | **Programa → Equipo y competencias** (`ProgramMembershipResource`) + **Programa → Competencias** (`CompetencyResource` catálogo) + `StaffCompetenciesRelationManager` | Completo — catálogo de competencias por rol/perfil y evaluación por persona. |
 | Documentos | **Programa → Guías y documentos** (`ProgramDocumentResource`, reutiliza `EvidenceDocument`) | Completo — 14 documentos principales precargados (metadatos, sin archivo real). |
 | Brechas y ajustes del protocolo | **Programa → Brechas y ajustes del protocolo** (`ProtocolGapResource`) | Completo — 10 puntos precargados tal como se entregaron, para revisión del comité. No se modificó ninguna recomendación clínica automáticamente. |
-| Configuración | Roles y permisos de ÁGORA (`UserRole`, `ProgramRole`, `ProgramPermission`) | Completo — 10 roles de programa (ver README). No hay una pantalla de "Configuración" separada; los catálogos se administran en cada módulo. |
+| Configuración | Roles y permisos de PICS (`UserRole`, `ProgramRole`, `ProgramPermission`) | Completo — 10 roles de programa (ver README). No hay una pantalla de "Configuración" separada; los catálogos se administran en cada módulo. |
 
 ## 2. Modelo de datos (solo lo nuevo de esta ejecución; ver `MAPA_FUNCIONAL_SEPSIS.md` para el listado completo acumulado)
 
@@ -31,7 +31,7 @@ Este documento describe lo construido dentro de ÁGORA para el programa de Sepsi
 - **Verbo en infinitivo obligatorio** en la acción PHVA (`CorrectiveAction::startsWithInfinitiveVerb()`), validado en el formulario.
 - **Evidencia obligatoria para cerrar** una acción (estado Efectiva/Cerrada exige archivo PDF cargado) y **verificación de efectividad obligatoria** para el mismo cierre.
 - **Indicador/meta/frecuencia obligatorios** cuando la acción está en la etapa "Verificar".
-- **Invitados automáticos** en reuniones del comité (se preseleccionan los integrantes activos) y **envío de convocatoria** por correo solo a quienes tienen correo resuelto (propio o del usuario ÁGORA vinculado).
+- **Invitados automáticos** en reuniones del comité (se preseleccionan los integrantes activos) y **envío de convocatoria** por correo solo a quienes tienen correo resuelto (propio o del usuario PICS vinculado).
 - **No duplicación de indicadores**: `IndicatorDefinition::liveResult()` lee `SepsisIndicatorService` para los 6 institucionales; nunca se recalculan ni se guardan valores duplicados. Verificado con pruebas que comparan el resultado antes/después de registrar costo o severidad.
 
 ## 4. Seguridad
@@ -62,6 +62,6 @@ Ninguno de estos pendientes rompe lo entregado; son extensiones sobre la misma a
 
 ## 6. Decisiones técnicas
 
-- Se reutilizó exhaustivamente lo ya construido (modelos, resources, policies, servicios) en vez de crear un segundo conjunto de entidades genéricas (`User`, `Role`, `Program`, etc.) como sugería el prompt original — ÁGORA ya tenía equivalentes funcionando.
+- Se reutilizó exhaustivamente lo ya construido (modelos, resources, policies, servicios) en vez de crear un segundo conjunto de entidades genéricas (`User`, `Role`, `Program`, etc.) como sugería el prompt original — PICS ya tenía equivalentes funcionando.
 - El catálogo de indicadores (`IndicatorDefinition`) es deliberadamente un registro documental, no un motor de cálculo: para los 6 indicadores institucionales delega en `SepsisIndicatorService` en tiempo de lectura.
 - Las actas y evidencias de cierre se implementaron con `FileUpload` de Filament sobre el disco `local`, siguiendo el mismo patrón ya usado en el resto de la aplicación (sin nuevas dependencias).

@@ -35,7 +35,7 @@ class PortalDailyPushTest extends TestCase
         // este test usa el WebPushSender real (sin mock) para probar ese camino.
         $this->makeSubscribedPatient();
 
-        $this->artisan('agora:send-daily-portal-push')
+        $this->artisan('pics:send-daily-portal-push')
             ->expectsOutputToContain('no están configuradas')
             ->assertExitCode(0);
     }
@@ -52,7 +52,7 @@ class PortalDailyPushTest extends TestCase
             ->andReturn(1);
         $this->app->instance(WebPushSender::class, $mock);
 
-        $this->artisan('agora:send-daily-portal-push')
+        $this->artisan('pics:send-daily-portal-push')
             ->expectsOutputToContain('Notificaciones push enviadas: 1.')
             ->assertExitCode(0);
     }
@@ -67,7 +67,7 @@ class PortalDailyPushTest extends TestCase
         $mock->shouldNotReceive('sendToActor');
         $this->app->instance(WebPushSender::class, $mock);
 
-        $this->artisan('agora:send-daily-portal-push')
+        $this->artisan('pics:send-daily-portal-push')
             ->expectsOutputToContain('Notificaciones push enviadas: 0.')
             ->assertExitCode(0);
     }
@@ -83,6 +83,6 @@ class PortalDailyPushTest extends TestCase
         $mock->shouldNotReceive('sendToActor');
         $this->app->instance(WebPushSender::class, $mock);
 
-        $this->artisan('agora:send-daily-portal-push')->assertExitCode(0);
+        $this->artisan('pics:send-daily-portal-push')->assertExitCode(0);
     }
 }

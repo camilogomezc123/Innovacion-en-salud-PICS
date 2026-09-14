@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class CloseExpiredFollowups extends Command
 {
-    protected $signature = 'agora:close-expired-followups';
+    protected $signature = 'pics:close-expired-followups';
 
     protected $description = 'Marca como no efectivo el seguimiento de casos con más de 120 días de egreso sin registro.';
 
@@ -32,12 +32,12 @@ class CloseExpiredFollowups extends Command
 
         foreach ($cases as $case) {
             CaseFollowup::create([
-                'acv_case_id'   => $case->id,
-                'user_id'       => null,
-                'contacted_at'  => null,
-                'is_effective'  => false,
+                'acv_case_id' => $case->id,
+                'user_id' => null,
+                'contacted_at' => null,
+                'is_effective' => false,
                 'rankin_90_days' => null,
-                'observations'  => 'Seguimiento cerrado automáticamente por el sistema (más de 120 días sin registro).',
+                'observations' => 'Seguimiento cerrado automáticamente por el sistema (más de 120 días sin registro).',
                 'is_auto_closed' => true,
             ]);
         }

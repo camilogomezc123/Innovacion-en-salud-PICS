@@ -26,7 +26,7 @@ class AuthenticationTest extends TestCase
     {
         $this->get('/admin/login')
             ->assertOk()
-            ->assertSee('Bienvenido a ÁGORA')
+            ->assertSee('Bienvenido a PICS')
             ->assertSee('Analítica y Gestión Operacional');
     }
 

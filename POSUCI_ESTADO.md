@@ -75,11 +75,11 @@ La pieza más grande de la meta "necesidad diaria": el portal ya avisa aunque el
 
 **Qué se agregó:**
 - Librería `minishlink/web-push` (Web Push estándar: VAPID + cifrado del payload) — nueva dependencia real de Composer.
-- `php artisan agora:generate-vapid-keys` genera el par de llaves del servidor (una sola vez por entorno); se guardan en `.env` (`VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`/`VAPID_SUBJECT`), nunca en el repositorio.
+- `php artisan pics:generate-vapid-keys` genera el par de llaves del servidor (una sola vez por entorno); se guardan en `.env` (`VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`/`VAPID_SUBJECT`), nunca en el repositorio.
 - `public/manifest.json` + `public/sw.js` (service worker) + ícono — el portal ya es instalable como app (PWA). El service worker no cachea nada (sin soporte offline): su único trabajo es mostrar la notificación push y abrir/enfocar el portal al tocarla.
 - Botón "🔔 Activar notificaciones" en la barra superior (`public/js/portal-push.js`) — pide permiso, se suscribe con la Push API nativa del navegador, y guarda la suscripción en `push_subscriptions` (tabla nueva, morph a Patient/Caregiver — una persona puede tener varias, una por dispositivo).
 - `App\Support\Posuci\WebPushSender` — envía a todas las suscripciones de un actor y **borra automáticamente** las que el navegador ya invalidó (permiso revocado, dispositivo desinstalado) cuando el servicio de push responde que expiraron.
-- `agora:send-daily-portal-push` (corre todos los días 8am hora Colombia): manda un recordatorio matutino a quien ya activó las notificaciones y tenga un caso activo (no completed/cancelled). Sin `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` configuradas, no hace nada — no rompe el resto del portal.
+- `pics:send-daily-portal-push` (corre todos los días 8am hora Colombia): manda un recordatorio matutino a quien ya activó las notificaciones y tenga un caso activo (no completed/cancelled). Sin `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` configuradas, no hace nada — no rompe el resto del portal.
 
 **Decisión de alcance:** el contenido del push es un recordatorio genérico ("Buenos días 👋 ¿Cómo amaneciste?"), no un mensaje distinto por cada medicamento/cita en tiempo real — eso requeriría revisar horarios cada pocos minutos para cada paciente, un salto de complejidad mucho mayor. Esta primera versión cubre lo esencial (alcanzar a la persona aunque no abra la app) de forma confiable; mandar avisos por evento específico queda como posible siguiente paso.
 
@@ -99,7 +99,7 @@ Verificado con 9 pruebas automatizadas nuevas (254 en total, todas en verde) y u
 
 ## Alerta al equipo por inactividad en el portal (2026-09-18)
 
-Hasta ahora, `PortalEngagementService::inactivityAlerts()` ya calculaba qué casos llevan más de 15 días sin actividad de portal, o tienen un cuidador autorizado que nunca ha ingresado — pero solo se veía si alguien del staff entraba a la pantalla "Trazabilidad del portal" a revisarlo. Ahora es proactivo: un comando programado (`agora:check-portal-inactivity`, todos los días a las 7:30 a.m. hora Colombia) reutiliza exactamente ese mismo cálculo ya validado y le avisa al equipo del caso (auditor asignado, o líderes del programa — vía `StaffNotifier`, el mismo mecanismo de siempre) por notificación en el panel y correo.
+Hasta ahora, `PortalEngagementService::inactivityAlerts()` ya calculaba qué casos llevan más de 15 días sin actividad de portal, o tienen un cuidador autorizado que nunca ha ingresado — pero solo se veía si alguien del staff entraba a la pantalla "Trazabilidad del portal" a revisarlo. Ahora es proactivo: un comando programado (`pics:check-portal-inactivity`, todos los días a las 7:30 a.m. hora Colombia) reutiliza exactamente ese mismo cálculo ya validado y le avisa al equipo del caso (auditor asignado, o líderes del programa — vía `StaffNotifier`, el mismo mecanismo de siempre) por notificación en el panel y correo.
 
 Decisiones de diseño:
 - No se repite el aviso todos los días para el mismo caso — una vez notificado, espera al menos 7 días antes de volver a avisar (columna nueva `last_inactivity_alert_at` en `pics_cases`). Sin esto, un caso inactivo generaría un correo diario indefinidamente.

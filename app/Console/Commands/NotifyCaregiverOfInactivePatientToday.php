@@ -10,13 +10,13 @@ use Illuminate\Console\Command;
 /**
  * Aviso del mismo día, interno de familia: si el paciente no ha entrado al portal
  * hoy, se le avisa al cuidador autorizado (no al staff — para eso ya existe
- * agora:check-portal-inactivity, que avisa al equipo clínico tras 15 días). Pensado
+ * pics:check-portal-inactivity, que avisa al equipo clínico tras 15 días). Pensado
  * para correr en la noche, dándole al paciente todo el día para entrar antes de
  * avisarle a la familia.
  */
 class NotifyCaregiverOfInactivePatientToday extends Command
 {
-    protected $signature = 'agora:notify-caregiver-of-inactive-patient-today';
+    protected $signature = 'pics:notify-caregiver-of-inactive-patient-today';
 
     protected $description = 'Avisa al cuidador autorizado si el paciente no ha entrado al portal en todo el día de hoy.';
 

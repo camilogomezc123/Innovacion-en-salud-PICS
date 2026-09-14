@@ -48,7 +48,7 @@ class PortalCaregiverNudgeTest extends TestCase
 
         ['caregiver' => $caregiver] = $this->makeAuthorization();
 
-        $this->artisan('agora:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
+        $this->artisan('pics:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
 
         Notification::assertSentTo($caregiver, PatientNotActiveTodayNotification::class);
     }
@@ -59,7 +59,7 @@ class PortalCaregiverNudgeTest extends TestCase
 
         ['caregiver' => $caregiver] = $this->makeAuthorization(['last_login_at' => now()]);
 
-        $this->artisan('agora:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
+        $this->artisan('pics:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
 
         Notification::assertNotSentTo($caregiver, PatientNotActiveTodayNotification::class);
     }
@@ -70,7 +70,7 @@ class PortalCaregiverNudgeTest extends TestCase
 
         ['caregiver' => $caregiver] = $this->makeAuthorization([], ['last_inactivity_nudge_at' => now()]);
 
-        $this->artisan('agora:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
+        $this->artisan('pics:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
 
         Notification::assertNotSentTo($caregiver, PatientNotActiveTodayNotification::class);
     }
@@ -81,7 +81,7 @@ class PortalCaregiverNudgeTest extends TestCase
 
         ['caregiver' => $caregiver] = $this->makeAuthorization([], ['last_inactivity_nudge_at' => now()->subDay()->startOfDay()]);
 
-        $this->artisan('agora:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
+        $this->artisan('pics:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
 
         Notification::assertSentTo($caregiver, PatientNotActiveTodayNotification::class);
     }
@@ -92,7 +92,7 @@ class PortalCaregiverNudgeTest extends TestCase
 
         ['caregiver' => $caregiver] = $this->makeAuthorization([], ['revoked_at' => now()]);
 
-        $this->artisan('agora:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
+        $this->artisan('pics:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
 
         Notification::assertNotSentTo($caregiver, PatientNotActiveTodayNotification::class);
     }
@@ -103,7 +103,7 @@ class PortalCaregiverNudgeTest extends TestCase
 
         ['caregiver' => $caregiver] = $this->makeAuthorization(['password' => null]);
 
-        $this->artisan('agora:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
+        $this->artisan('pics:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
 
         Notification::assertNotSentTo($caregiver, PatientNotActiveTodayNotification::class);
     }
@@ -115,7 +115,7 @@ class PortalCaregiverNudgeTest extends TestCase
         ['caregiver' => $caregiver, 'case' => $case] = $this->makeAuthorization();
         $case->update(['status' => CaseStatus::Completed]);
 
-        $this->artisan('agora:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
+        $this->artisan('pics:notify-caregiver-of-inactive-patient-today')->assertExitCode(0);
 
         Notification::assertNotSentTo($caregiver, PatientNotActiveTodayNotification::class);
     }

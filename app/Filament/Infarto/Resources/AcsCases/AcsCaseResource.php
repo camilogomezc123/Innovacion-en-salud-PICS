@@ -92,7 +92,7 @@ class AcsCaseResource extends Resource
                         Select::make('presentation_type')->label('Presentación')->options(['typical' => 'Típica', 'atypical' => 'Atípica']),
                         Select::make('killip_class')->label('Killip')->options(['I' => 'I', 'II' => 'II', 'III' => 'III', 'IV' => 'IV']),
                         TextInput::make('grace_score')->label('Puntaje GRACE documentado')->numeric()->minValue(0)->maxValue(400)
-                            ->helperText('Registrar el resultado medido por el equipo clínico; ÁGORA no sustituye la herramienta validada.'),
+                            ->helperText('Registrar el resultado medido por el equipo clínico; PICS no sustituye la herramienta validada.'),
                         Select::make('grace_risk_category')->label('Categoría GRACE documentada')->options([
                             'low' => 'Riesgo bajo',
                             'intermediate' => 'Riesgo intermedio',

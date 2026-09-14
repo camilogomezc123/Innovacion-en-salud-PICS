@@ -27,8 +27,8 @@ class SepsisCaseAssignedNotification extends Notification implements ShouldQueue
             ->subject("Caso Sepsis {$this->case->case_number} asignado")
             ->greeting("Hola, {$notifiable->name}")
             ->line("Se te asignó el caso {$this->case->case_number} para análisis.")
-            ->action('Abrir caso en ÁGORA', url("/sepsis/sepsis-cases/{$this->case->id}/edit"))
-            ->line('Este mensaje fue generado automáticamente por ÁGORA.');
+            ->action('Abrir caso en PICS', url("/sepsis/sepsis-cases/{$this->case->id}/edit"))
+            ->line('Este mensaje fue generado automáticamente por PICS.');
     }
 
     public function toArray(object $notifiable): array

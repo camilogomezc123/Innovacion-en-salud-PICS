@@ -49,7 +49,7 @@ class InfartoPanelProvider extends PanelProvider
             ->id('infarto')->path('infarto')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->login(Login::class)->passwordReset()->profile(EditProfile::class)
-            ->brandName('ÁGORA · Infarto')->brandLogo(asset('img/LOGO1.png'))->brandLogoHeight('2.75rem')
+            ->brandName('PICS · Infarto')->brandLogo(asset('img/LOGO1.png'))->brandLogoHeight('2.75rem')
             ->favicon(asset('img/favicon.png'))->font('Montserrat')->topNavigation()
             ->navigation(fn (NavigationBuilder $builder): NavigationBuilder => $builder
                 ->group(NavigationGroup::make()->items([

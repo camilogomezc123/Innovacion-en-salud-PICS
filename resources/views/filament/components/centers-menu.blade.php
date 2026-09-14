@@ -4,7 +4,7 @@
 
 <x-filament::dropdown placement="bottom-end" teleport>
     <x-slot name="trigger">
-        <button type="button" class="agora-centers-menu-trigger">
+        <button type="button" class="pics-centers-menu-trigger">
             <x-filament::icon icon="heroicon-o-squares-2x2" class="h-5 w-5" />
             <span>Centros</span>
             <x-filament::icon icon="heroicon-m-chevron-down" class="h-4 w-4" />

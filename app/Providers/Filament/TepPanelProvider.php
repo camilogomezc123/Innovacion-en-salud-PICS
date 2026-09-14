@@ -52,7 +52,7 @@ class TepPanelProvider extends PanelProvider
 
         return $panel->id('tep')->path('tep')->viteTheme('resources/css/filament/admin/theme.css')
             ->login(Login::class)->passwordReset()->profile(EditProfile::class)
-            ->brandName('ÁGORA · TEP')->brandLogo(asset('img/LOGO1.png'))->brandLogoHeight('2.75rem')
+            ->brandName('PICS · TEP')->brandLogo(asset('img/LOGO1.png'))->brandLogoHeight('2.75rem')
             ->favicon(asset('img/favicon.png'))->font('Montserrat')->topNavigation()
             ->navigation(fn (NavigationBuilder $builder) => $builder
                 ->group(NavigationGroup::make()->items([...ExecutiveSummary::getNavigationItems(), ...TepCaseResource::getNavigationItems(), ...ClinicalPathway::getNavigationItems()]))

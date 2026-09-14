@@ -2,16 +2,16 @@
 
 set -Eeuo pipefail
 
-APP_NAME="agora"
-DATABASE_NAME="agora"
-BACKUP_ROOT="/var/backups/agora"
-PASSPHRASE_FILE="/root/.config/agora-backup/passphrase"
-REMOTE_ROOT="agora-drive:Respaldos ÁGORA/Datos clínicos"
+APP_NAME="pics"
+DATABASE_NAME="pics"
+BACKUP_ROOT="/var/backups/pics"
+PASSPHRASE_FILE="/root/.config/pics-backup/passphrase"
+REMOTE_ROOT="pics-drive:Respaldos PICS/Datos clínicos"
 TIMESTAMP="$(date '+%Y-%m-%d_%H-%M-%S')"
 WORK_DIR="$(mktemp -d "${BACKUP_ROOT}/run.XXXXXX")"
 DUMP_NAME="${APP_NAME}_${TIMESTAMP}.dump"
 ENCRYPTED_NAME="${DUMP_NAME}.gpg"
-LOG_FILE="/var/log/agora_backup.log"
+LOG_FILE="/var/log/pics_backup.log"
 
 cleanup() {
     rm -rf "$WORK_DIR"
@@ -21,7 +21,7 @@ trap cleanup EXIT
 umask 077
 
 mkdir -p "$BACKUP_ROOT"
-exec 9>"/run/lock/agora-clinical-backup.lock"
+exec 9>"/run/lock/pics-clinical-backup.lock"
 
 if ! flock -n 9; then
     echo "$(date --iso-8601=seconds) Backup omitido: ya existe otra ejecución." >> "$LOG_FILE"

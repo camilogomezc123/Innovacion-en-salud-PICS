@@ -1,4 +1,4 @@
-# Operación segura de ÁGORA
+# Operación segura de PICS
 
 ## Ambientes
 
@@ -13,7 +13,7 @@ Nunca copie `database.sqlite`, `.env`, exportaciones, evidencias clínicas ni ar
 En producción use preferentemente el respaldo administrado del proveedor PostgreSQL, cifrado y con retención institucional. Como exportación lógica controlada:
 
 ```bash
-php artisan agora:export-pg storage/app/agora_pg_data.sql
+php artisan pics:export-pg storage/app/pics_pg_data.sql
 ```
 
 El archivo contiene información sensible: debe cifrarse, trasladarse a almacenamiento restringido y eliminarse del servidor después de verificarlo.

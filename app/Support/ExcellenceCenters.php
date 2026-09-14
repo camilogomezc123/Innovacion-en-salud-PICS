@@ -92,7 +92,7 @@ class ExcellenceCenters
         $center = collect(self::active())->firstWhere('name', $name);
         $url = $center ? ($center['url'])() : '#';
 
-        return '<a class="agora-center-home-link" href="'.e($url).'" title="Ir a la vista general">'
+        return '<a class="pics-center-home-link" href="'.e($url).'" title="Ir a la vista general">'
             .'Centro de Excelencia <span aria-hidden="true">·</span> '.e($name).'</a>';
     }
 }

@@ -62,7 +62,7 @@ use Illuminate\Support\Facades\DB;
 
 class ExportPostgresData extends Command
 {
-    protected $signature = 'agora:export-pg {out=storage/app/agora_pg_data.sql}';
+    protected $signature = 'pics:export-pg {out=storage/app/pics_pg_data.sql}';
 
     protected $description = 'Exporta los datos (data-only) en SQL compatible con PostgreSQL para cargar tras migrate.';
 
@@ -141,7 +141,7 @@ class ExportPostgresData extends Command
     public function handle(): int
     {
         $path = base_path($this->argument('out'));
-        $sql = "-- ÁGORA · datos para PostgreSQL (data-only). Cargar DESPUÉS de 'php artisan migrate'.\n";
+        $sql = "-- PICS · datos para PostgreSQL (data-only). Cargar DESPUÉS de 'php artisan migrate'.\n";
         $sql .= "BEGIN;\n\n";
 
         foreach (self::TABLES as $table => $modelClass) {

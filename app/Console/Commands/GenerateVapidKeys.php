@@ -12,7 +12,7 @@ use Minishlink\WebPush\VAPID;
  */
 class GenerateVapidKeys extends Command
 {
-    protected $signature = 'agora:generate-vapid-keys';
+    protected $signature = 'pics:generate-vapid-keys';
 
     protected $description = 'Genera un par de llaves VAPID nuevas para las notificaciones push del portal.';
 

@@ -47,7 +47,7 @@ class PortalInactivityAlertTest extends TestCase
         $auditor = User::factory()->create();
         $case->update(['assigned_auditor_id' => $auditor->id]);
 
-        $this->artisan('agora:check-portal-inactivity')->assertExitCode(0);
+        $this->artisan('pics:check-portal-inactivity')->assertExitCode(0);
 
         Notification::assertSentTo($auditor, PortalInactivityNotification::class);
         $this->assertNotNull($case->fresh()->last_inactivity_alert_at);
@@ -65,7 +65,7 @@ class PortalInactivityAlertTest extends TestCase
             'authorable_type' => Patient::class, 'authorable_id' => $case->patient_id,
         ]);
 
-        $this->artisan('agora:check-portal-inactivity')->assertExitCode(0);
+        $this->artisan('pics:check-portal-inactivity')->assertExitCode(0);
 
         Notification::assertNotSentTo($leader, PortalInactivityNotification::class);
         $this->assertNull($case->fresh()->last_inactivity_alert_at);
@@ -79,7 +79,7 @@ class PortalInactivityAlertTest extends TestCase
         $leader = $this->leaderFor($case);
         $case->update(['last_inactivity_alert_at' => now()->subDays(2)]);
 
-        $this->artisan('agora:check-portal-inactivity')->assertExitCode(0);
+        $this->artisan('pics:check-portal-inactivity')->assertExitCode(0);
 
         Notification::assertNotSentTo($leader, PortalInactivityNotification::class);
     }
@@ -92,7 +92,7 @@ class PortalInactivityAlertTest extends TestCase
         $leader = $this->leaderFor($case);
         $case->update(['last_inactivity_alert_at' => now()->subDays(8)]);
 
-        $this->artisan('agora:check-portal-inactivity')->assertExitCode(0);
+        $this->artisan('pics:check-portal-inactivity')->assertExitCode(0);
 
         Notification::assertSentTo($leader, PortalInactivityNotification::class);
     }
@@ -105,7 +105,7 @@ class PortalInactivityAlertTest extends TestCase
         $leader = $this->leaderFor($case);
         $case->update(['status' => CaseStatus::Completed]);
 
-        $this->artisan('agora:check-portal-inactivity')->assertExitCode(0);
+        $this->artisan('pics:check-portal-inactivity')->assertExitCode(0);
 
         Notification::assertNotSentTo($leader, PortalInactivityNotification::class);
     }
@@ -128,7 +128,7 @@ class PortalInactivityAlertTest extends TestCase
             'authorized_at' => now()->subDays(5),
         ]);
 
-        $this->artisan('agora:check-portal-inactivity')->assertExitCode(0);
+        $this->artisan('pics:check-portal-inactivity')->assertExitCode(0);
 
         Notification::assertSentTo($leader, PortalInactivityNotification::class, function ($notification) {
             return in_array('cuidador_sin_ingresar', $notification->reasons, true);

@@ -34,7 +34,7 @@ Sembrados en `IndicatorDefinition` con `is_core_indicator=false`, cubren el alca
 
 Para activar el cálculo automático de cualquiera de estos, se agrega el campo a `IcuLiberationIndicatorService::dashboard()` y se marca `is_core_indicator=true` con su `core_indicator_key` en la migración de referencia — nunca se le asigna una meta que la especificación no definiera explícitamente sin aprobación del Comité ICU Liberation.
 
-## 3. Reglas de cálculo compartidas con el resto de ÁGORA
+## 3. Reglas de cálculo compartidas con el resto de PICS
 
 - Solo se incluyen estancias con `is_valid=true` y `is_cancelled=false`.
 - El filtro por año usa `whereYear('admission_at', $year)` (mismo patrón que `TepIndicatorService`), no un campo `month` derivado.
