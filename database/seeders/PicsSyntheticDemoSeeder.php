@@ -46,6 +46,7 @@ class PicsSyntheticDemoSeeder extends Seeder
                 ['patient_id' => $patient->id, 'clinical_program_id' => $program->id],
                 [
                     'case_number' => 'PICS-DEMO-001',
+                    'case_sequence' => 1,
                     'status' => 'in_review',
                     'clinical_stage' => 'seguimiento',
                     'enrollment_at' => now()->subDays(12),

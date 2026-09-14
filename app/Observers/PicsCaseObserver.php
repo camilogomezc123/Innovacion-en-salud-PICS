@@ -19,7 +19,11 @@ class PicsCaseObserver
         $case->clinical_program_id ??= ProgramAccess::program('pics')?->id;
 
         if (! $case->case_sequence) {
-            $next = ((int) PicsCase::query()->lockForUpdate()->max('case_sequence')) + 1;
+            $next = ((int) PicsCase::query()
+                ->whereNotNull('case_sequence')
+                ->orderByDesc('case_sequence')
+                ->lockForUpdate()
+                ->value('case_sequence')) + 1;
             $case->case_sequence = $next;
             $case->case_number = 'PICS-'.$next;
         }
