@@ -28,6 +28,17 @@ class PicsSyntheticDemoSeeder extends Seeder
                 ['role' => ProgramRole::Leader, 'is_active' => true],
             );
 
+            // Retira la credencial provisional usada antes de definir paciente1/familiar1.
+            $legacyCaregiver = Caregiver::query()->where('email', 'familiar.demo@koqoi.test')->first();
+            if ($legacyCaregiver) {
+                GoalProgressReport::query()->where('reporter_type', Caregiver::class)
+                    ->where('reporter_id', $legacyCaregiver->id)->delete();
+                DiaryEntry::query()->where('authorable_type', Caregiver::class)
+                    ->where('authorable_id', $legacyCaregiver->id)->delete();
+                CaregiverAuthorization::query()->where('caregiver_id', $legacyCaregiver->id)->delete();
+                $legacyCaregiver->delete();
+            }
+
             $names = ['María Esperanza', 'Jorge Enrique', 'Lucía Fernanda', 'Pedro Antonio', 'Elena Patricia'];
             foreach ($names as $offset => $name) {
                 $number = $offset + 1;
