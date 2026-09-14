@@ -35,7 +35,7 @@ class SepsisMonthlyDigestNotification extends Notification implements ShouldQueu
             ->line("Eventos de seguridad abiertos: {$s['open_safety_events']}")
             ->line("Evidencias/competencias por vencer en 30 días: {$s['evidence_expiring_soon']} / {$s['competencies_expiring_soon']}")
             ->action('Abrir Vista general', url('/sepsis'))
-            ->line('Este mensaje fue generado automáticamente por PICS.');
+            ->line('Este mensaje fue generado automáticamente por ÁGORA.');
     }
 
     public function toArray(object $notifiable): array

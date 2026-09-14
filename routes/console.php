@@ -8,37 +8,37 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('pics:send-weekly-summary')
+Schedule::command('agora:send-weekly-summary')
     ->mondays()
     ->at('07:00')
     ->timezone('America/Bogota')
     ->withoutOverlapping();
 
-Schedule::command('pics:close-expired-followups')
+Schedule::command('agora:close-expired-followups')
     ->daily()
     ->at('02:00')
     ->timezone('America/Bogota')
     ->withoutOverlapping();
 
-Schedule::command('pics:check-portal-inactivity')
+Schedule::command('agora:check-portal-inactivity')
     ->daily()
     ->at('07:30')
     ->timezone('America/Bogota')
     ->withoutOverlapping();
 
-Schedule::command('pics:notify-caregiver-of-inactive-patient-today')
+Schedule::command('agora:notify-caregiver-of-inactive-patient-today')
     ->daily()
     ->at('20:00')
     ->timezone('America/Bogota')
     ->withoutOverlapping();
 
-Schedule::command('pics:send-daily-portal-push')
+Schedule::command('agora:send-daily-portal-push')
     ->daily()
     ->at('08:00')
     ->timezone('America/Bogota')
     ->withoutOverlapping();
 
-Schedule::command('pics:send-sepsis-monthly-digest')
+Schedule::command('agora:send-sepsis-monthly-digest')
     ->monthlyOn(1, '07:00')
     ->timezone('America/Bogota')
     ->withoutOverlapping();

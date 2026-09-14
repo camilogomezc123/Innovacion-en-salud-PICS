@@ -59,7 +59,7 @@ class SepsisPanelProvider extends PanelProvider
             ->login(Login::class)
             ->passwordReset()
             ->profile(EditProfile::class)
-            ->brandName('PICS · Sepsis')
+            ->brandName('ÁGORA · Sepsis')
             ->brandLogo(asset('img/LOGO1.png'))
             ->brandLogoHeight('2.75rem')
             ->favicon(asset('img/favicon.png'))

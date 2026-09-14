@@ -16,10 +16,10 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use Throwable;
 
-#[Signature('pics:import-acv
+#[Signature('agora:import-acv
     {file=bdACV.xlsx : Ruta del archivo Excel}
     {--fresh : Elimina pacientes y casos ACV antes de importar}')]
-#[Description('Importa la base histórica de casos ACV de PICS')]
+#[Description('Importa la base histórica de casos ACV de ÁGORA')]
 class ImportAcvCases extends Command
 {
     public function handle(): int
@@ -79,7 +79,6 @@ class ImportAcvCases extends Command
 
                     if ($caseNumber === '' && $identification === '') {
                         $bar->advance();
-
                         continue;
                     }
 

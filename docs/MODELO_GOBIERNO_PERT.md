@@ -7,4 +7,4 @@ PERT se integra al gobierno compartido del programa y no crea una estructura par
 - Reunión PERT por caso: registra solicitud, activación, participantes, decisión, hora y justificación.
 - Auditoría: identifica demoras, omisiones, barreras y necesidad de PHVA.
 - Reglas clínicas: permanecen en borrador hasta aprobación formal.
-- Seguridad: toda decisión corresponde al equipo clínico; PICS solo registra y analiza.
+- Seguridad: toda decisión corresponde al equipo clínico; ÁGORA solo registra y analiza.

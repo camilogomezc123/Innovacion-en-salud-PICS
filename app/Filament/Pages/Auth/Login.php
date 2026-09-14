@@ -41,7 +41,7 @@ class Login extends BaseLogin
 
     public function getHeading(): string|Htmlable|null
     {
-        return 'Bienvenido a PICS';
+        return 'Bienvenido a ÁGORA';
     }
 
     public function getSubheading(): string|Htmlable|null

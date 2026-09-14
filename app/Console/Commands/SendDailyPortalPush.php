@@ -19,7 +19,7 @@ use Illuminate\Console\Command;
  */
 class SendDailyPortalPush extends Command
 {
-    protected $signature = 'pics:send-daily-portal-push';
+    protected $signature = 'agora:send-daily-portal-push';
 
     protected $description = 'Manda una notificación push matutina a pacientes/cuidadores con notificaciones activadas.';
 

@@ -1,6 +1,6 @@
 # Guía de despliegue — POSUCI 360 Conecta
 
-Pasos concretos para llevar el portal de recuperación (paciente/familia) de este entorno de desarrollo local a un servidor real, con pacientes reales. No repite lo que ya está en `README.md` (arquitectura general de PICS/PICS) — se enfoca en lo que hace falta específicamente para que **funcionen de verdad** las piezas construidas para POSUCI 360 Conecta: notificaciones (correo, panel, push), el scheduler, y HTTPS.
+Pasos concretos para llevar el portal de recuperación (paciente/familia) de este entorno de desarrollo local a un servidor real, con pacientes reales. No repite lo que ya está en `README.md` (arquitectura general de ÁGORA/PICS) — se enfoca en lo que hace falta específicamente para que **funcionen de verdad** las piezas construidas para POSUCI 360 Conecta: notificaciones (correo, panel, push), el scheduler, y HTTPS.
 
 ## 1. Requisitos del servidor
 
@@ -56,10 +56,10 @@ VAPID_PUBLIC_KEY=
 VAPID_PRIVATE_KEY=
 VAPID_SUBJECT="mailto:soporte@tu-dominio-real.com"
 
-PICS_ADMIN_NAME="Administrador POSUCI"
-PICS_ADMIN_USERNAME=admin
-PICS_ADMIN_EMAIL=...
-PICS_ADMIN_PASSWORD=...
+AGORA_ADMIN_NAME="Administrador POSUCI"
+AGORA_ADMIN_USERNAME=admin
+AGORA_ADMIN_EMAIL=...
+AGORA_ADMIN_PASSWORD=...
 ```
 
 **`APP_DEBUG=false` es crítico**: con `true`, cualquier error de la aplicación le muestra a un visitante el stack trace completo (rutas del servidor, consultas SQL, variables de entorno parcialmente visibles). Nunca debe quedar en `true` en producción.
@@ -69,7 +69,7 @@ PICS_ADMIN_PASSWORD=...
 No reutilices las llaves de desarrollo. Genera un par nuevo en el servidor real:
 
 ```bash
-php artisan pics:generate-vapid-keys
+php artisan agora:generate-vapid-keys
 ```
 
 Copia el `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` que imprime a tu `.env`.
@@ -81,7 +81,7 @@ php artisan migrate --force
 php artisan db:seed --force
 ```
 
-`db:seed` (clase `DatabaseSeeder`) crea el usuario administrador **solo si** definiste las variables `PICS_ADMIN_*` en el paso anterior — no antes de eso. El administrador queda con `must_change_password = true`: la primera vez que entre, el sistema lo obliga a poner una contraseña propia.
+`db:seed` (clase `DatabaseSeeder`) crea el usuario administrador **solo si** definiste las variables `AGORA_ADMIN_*` en el paso anterior — no antes de eso. El administrador queda con `must_change_password = true`: la primera vez que entre, el sistema lo obliga a poner una contraseña propia.
 
 **Nunca** corras `GovernanceDemoSeeder`, `AcsDemoSeeder`, `PosuciDemoSeeder` ni ningún seeder que termine en `*Demo*` en producción — están excluidos de Git intencionalmente y contienen datos ficticios de prueba, no reales.
 
@@ -157,9 +157,9 @@ Tres procesos de POSUCI dependen del scheduler de Laravel (`routes/console.php`)
 
 | Comando | Hora (America/Bogota) | Qué hace |
 |---|---|---|
-| `pics:check-portal-inactivity` | 7:30 a.m. | Avisa al equipo clínico si un caso lleva 15+ días sin actividad de portal |
-| `pics:notify-caregiver-of-inactive-patient-today` | 8:00 p.m. | Avisa al cuidador si el paciente no entró al portal hoy |
-| `pics:send-daily-portal-push` | 8:00 a.m. | Manda el recordatorio matutino a quien activó las notificaciones push |
+| `agora:check-portal-inactivity` | 7:30 a.m. | Avisa al equipo clínico si un caso lleva 15+ días sin actividad de portal |
+| `agora:notify-caregiver-of-inactive-patient-today` | 8:00 p.m. | Avisa al cuidador si el paciente no entró al portal hoy |
+| `agora:send-daily-portal-push` | 8:00 a.m. | Manda el recordatorio matutino a quien activó las notificaciones push |
 
 Agrega una única línea a crontab (`crontab -e`):
 
@@ -202,7 +202,7 @@ Automatízalo con cron (fuera del horario pico) y guarda los respaldos en un lug
 - [ ] El queue worker está corriendo (`supervisorctl status`) y el cron del scheduler está activo.
 - [ ] Un correo real de prueba llega a una bandeja de entrada real (no solo al log) — invita a un usuario de prueba y confirma que el correo de invitación llega.
 - [ ] Las llaves VAPID son las de producción, generadas en el servidor real, no las de desarrollo.
-- [ ] Con un teléfono real: instalar el portal ("📲 Instalar app"), activar notificaciones ("🔔 Activar notificaciones") y confirmar que llega un push real (puedes forzarlo corriendo `php artisan pics:send-daily-portal-push` manualmente después de suscribirte).
+- [ ] Con un teléfono real: instalar el portal ("📲 Instalar app"), activar notificaciones ("🔔 Activar notificaciones") y confirmar que llega un push real (puedes forzarlo corriendo `php artisan agora:send-daily-portal-push` manualmente después de suscribirte).
 - [ ] Se hizo al menos una prueba de extremo a extremo con datos reales de prueba (crear un caso, invitar paciente y familiar, usar el portal, responder una solicitud) — igual a la que se corrió en desarrollo antes de escribir esta guía.
 - [ ] Hay un respaldo automático de la base de datos configurado y probado (restaurarlo una vez, en un ambiente aparte, para confirmar que el respaldo sí sirve).
 - [ ] El administrador inicial cambió su contraseña temporal (se lo pide el sistema automáticamente al primer ingreso).

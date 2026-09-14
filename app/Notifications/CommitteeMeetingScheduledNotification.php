@@ -36,6 +36,6 @@ class CommitteeMeetingScheduledNotification extends Notification implements Shou
             ->when(filled($this->meeting->agenda), fn (MailMessage $mail): MailMessage => $mail
                 ->line('Orden del día:')
                 ->line($this->meeting->agenda))
-            ->line('Este mensaje fue generado automáticamente por PICS.');
+            ->line('Este mensaje fue generado automáticamente por ÁGORA.');
     }
 }

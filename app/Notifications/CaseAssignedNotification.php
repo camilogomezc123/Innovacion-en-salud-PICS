@@ -29,8 +29,8 @@ class CaseAssignedNotification extends Notification implements ShouldQueue
             ->line("Se te asignó el caso {$this->case->case_number} para revisión.")
             ->line('Paciente: '.$this->case->patient->full_name)
             ->line('Ingreso: '.($this->case->admission_number ?: 'sin número registrado'))
-            ->action('Abrir caso en PICS', url("/acv/acv-cases/{$this->case->id}/edit"))
-            ->line('Este mensaje fue generado automáticamente por PICS.');
+            ->action('Abrir caso en ÁGORA', url("/acv/acv-cases/{$this->case->id}/edit"))
+            ->line('Este mensaje fue generado automáticamente por ÁGORA.');
     }
 
     public function toArray(object $notifiable): array

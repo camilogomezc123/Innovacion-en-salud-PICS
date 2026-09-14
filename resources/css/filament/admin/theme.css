@@ -7,12 +7,12 @@
 @source '../../../../resources/views/filament/**/*';
 
 :root {
-    --pics-navy: #17375e;
-    --pics-navy-deep: #0d2340;
-    --pics-silver: #b8bec7;
-    --pics-silver-soft: #dfe3e8;
-    --pics-steel: #5b7fb0;
-    --pics-surface: #f4f6f9;
+    --agora-navy: #17375e;
+    --agora-navy-deep: #0d2340;
+    --agora-silver: #b8bec7;
+    --agora-silver-soft: #dfe3e8;
+    --agora-steel: #5b7fb0;
+    --agora-surface: #f4f6f9;
 }
 
 html {
@@ -22,13 +22,13 @@ html {
 .fi-body {
     background:
         radial-gradient(circle at 100% 0%, rgb(91 127 176 / 8%), transparent 26rem),
-        var(--pics-surface);
+        var(--agora-surface);
 }
 
 /* ---- Navegación superior (reemplaza al sidebar) ---- */
 .fi-topbar {
-    background: linear-gradient(90deg, var(--pics-navy-deep), var(--pics-navy));
-    border-bottom: 3px solid var(--pics-silver);
+    background: linear-gradient(90deg, var(--agora-navy-deep), var(--agora-navy));
+    border-bottom: 3px solid var(--agora-silver);
 }
 
 .fi-topbar nav,
@@ -47,7 +47,7 @@ html {
     object-fit: contain;
 }
 
-.pics-center-home-link {
+.agora-center-home-link {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
@@ -64,7 +64,7 @@ html {
     transition: background-color 150ms ease, border-color 150ms ease;
 }
 
-.pics-center-home-link:hover {
+.agora-center-home-link:hover {
     border-color: rgb(255 255 255 / 40%);
     background: rgb(255 255 255 / 16%);
 }
@@ -72,7 +72,7 @@ html {
 .fi-topbar .fi-topbar-item.fi-active > a,
 .fi-topbar .fi-topbar-item.fi-active > button {
     background: rgb(255 255 255 / 12%);
-    box-shadow: inset 0 -3px 0 var(--pics-silver);
+    box-shadow: inset 0 -3px 0 var(--agora-silver);
     border-radius: 0.5rem 0.5rem 0 0;
 }
 
@@ -116,7 +116,7 @@ html {
     }
 }
 
-.pics-centers-menu-trigger {
+.agora-centers-menu-trigger {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
@@ -131,7 +131,7 @@ html {
     transition: background-color 150ms ease, border-color 150ms ease;
 }
 
-.pics-centers-menu-trigger:hover {
+.agora-centers-menu-trigger:hover {
     border-color: rgb(255 255 255 / 40%);
     background: rgb(255 255 255 / 18%);
 }
@@ -144,7 +144,7 @@ html {
 }
 
 .fi-simple-main {
-    border-top: 4px solid var(--pics-silver);
+    border-top: 4px solid var(--agora-silver);
     box-shadow: 0 24px 70px rgb(0 0 0 / 28%);
 }
 
@@ -163,6 +163,6 @@ html {
 }
 
 .fi-header-heading {
-    color: var(--pics-navy-deep);
+    color: var(--agora-navy-deep);
     letter-spacing: -0.02em;
 }

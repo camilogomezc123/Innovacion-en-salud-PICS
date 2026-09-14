@@ -7,7 +7,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('pics:recompute-months')]
+#[Signature('agora:recompute-months')]
 #[Description('Recalcula el mes de cada caso ACV a partir de su fecha de egreso')]
 class RecomputeCaseMonths extends Command
 {

@@ -11,7 +11,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('pics:send-weekly-summary')]
+#[Signature('agora:send-weekly-summary')]
 #[Description('Envía a cada auditor el resumen semanal de casos ACV')]
 class SendWeeklyAcvSummary extends Command
 {

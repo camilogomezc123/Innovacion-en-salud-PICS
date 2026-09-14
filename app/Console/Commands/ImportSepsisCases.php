@@ -14,7 +14,7 @@ use Throwable;
 
 class ImportSepsisCases extends Command
 {
-    protected $signature = 'pics:import-sepsis {file=bdSepsis.xlsx} {--dry-run : Valida el archivo sin guardar cambios}';
+    protected $signature = 'agora:import-sepsis {file=bdSepsis.xlsx} {--dry-run : Valida el archivo sin guardar cambios}';
 
     protected $description = 'Importa los casos del Centro de Excelencia de Sepsis desde el archivo Excel.';
 

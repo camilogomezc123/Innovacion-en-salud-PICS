@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 class SetupHistoricalCases extends Command
 {
-    protected $signature = 'pics:setup-historical';
+    protected $signature = 'agora:setup-historical';
 
     protected $description = 'Crea los usuarios auditores del histórico, asigna cada caso a su auditor y marca los casos importados como finalizados.';
 

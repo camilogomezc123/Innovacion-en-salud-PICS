@@ -93,7 +93,7 @@
         </section>
 
         <footer class="mt-8 border-t border-slate-200 pt-3 text-[10px] text-slate-400">
-            Generado automáticamente por PICS. Los 6 indicadores institucionales provienen de SepsisIndicatorService,
+            Generado automáticamente por ÁGORA. Los 6 indicadores institucionales provienen de SepsisIndicatorService,
             fuente única de cálculo — este informe solo los consulta y presenta.
         </footer>
     </div>

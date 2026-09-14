@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Despliegue de PICS en el VPS. Uso:  bash /root/deploy-pics.sh
+# Despliegue de ÁGORA/PICS en el VPS. Uso: bash /root/deploy-pics.sh
 # Solo ejecuta lo que realmente cambió en el pull.
 set -euo pipefail
 

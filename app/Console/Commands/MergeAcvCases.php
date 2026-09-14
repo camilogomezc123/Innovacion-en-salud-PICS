@@ -14,7 +14,7 @@ use Throwable;
 
 class MergeAcvCases extends Command
 {
-    protected $signature = 'pics:merge-acv {file=bdACV23-24.xlsx}';
+    protected $signature = 'agora:merge-acv {file=bdACV23-24.xlsx}';
 
     protected $description = 'Fusiona una base ACV maestra: rellena datos faltantes de casos existentes (sin pisar auditor/estado) y crea los casos nuevos por número de caso (S).';
 

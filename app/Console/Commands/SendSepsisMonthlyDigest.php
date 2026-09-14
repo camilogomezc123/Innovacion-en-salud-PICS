@@ -11,7 +11,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
-#[Signature('pics:send-sepsis-monthly-digest')]
+#[Signature('agora:send-sepsis-monthly-digest')]
 #[Description('Envía el resumen mensual del Programa de Sepsis a Dirección y al Coordinador del programa')]
 class SendSepsisMonthlyDigest extends Command
 {

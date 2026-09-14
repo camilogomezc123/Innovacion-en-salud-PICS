@@ -24,16 +24,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (filled(env('PICS_ADMIN_USERNAME')) && filled(env('PICS_ADMIN_PASSWORD'))) {
+        if (filled(env('AGORA_ADMIN_USERNAME')) && filled(env('AGORA_ADMIN_PASSWORD'))) {
             User::query()->updateOrCreate(
-                ['username' => mb_strtoupper(env('PICS_ADMIN_USERNAME'))],
+                ['username' => mb_strtoupper(env('AGORA_ADMIN_USERNAME'))],
                 [
-                    'name' => env('PICS_ADMIN_NAME', 'Administrador PICS'),
-                    'email' => env('PICS_ADMIN_EMAIL'),
+                    'name' => env('AGORA_ADMIN_NAME', 'Administrador ÁGORA'),
+                    'email' => env('AGORA_ADMIN_EMAIL'),
                     'role' => UserRole::Administrator,
                     'is_active' => true,
                     'must_change_password' => true,
-                    'password' => env('PICS_ADMIN_PASSWORD'),
+                    'password' => env('AGORA_ADMIN_PASSWORD'),
                 ],
             );
         }

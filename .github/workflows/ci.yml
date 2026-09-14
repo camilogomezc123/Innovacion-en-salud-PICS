@@ -44,13 +44,13 @@ jobs:
       postgres:
         image: postgres:17
         env:
-          POSTGRES_DB: pics_test
-          POSTGRES_USER: pics
-          POSTGRES_PASSWORD: pics
+          POSTGRES_DB: agora_test
+          POSTGRES_USER: agora
+          POSTGRES_PASSWORD: agora
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U pics -d pics_test"
+          --health-cmd "pg_isready -U agora -d agora_test"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -60,9 +60,9 @@ jobs:
       DB_CONNECTION: pgsql
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
-      DB_DATABASE: pics_test
-      DB_USERNAME: pics
-      DB_PASSWORD: pics
+      DB_DATABASE: agora_test
+      DB_USERNAME: agora
+      DB_PASSWORD: agora
       CACHE_STORE: array
       SESSION_DRIVER: array
       QUEUE_CONNECTION: sync
