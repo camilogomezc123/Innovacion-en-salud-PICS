@@ -17,9 +17,18 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_root_redirects_to_login(): void
+    public function test_root_redirects_to_admin_login_when_the_host_is_not_the_portal_domain(): void
     {
+        config(['app.portal_url' => 'http://portal-solo-existe-en-otro-dominio.test']);
+
         $this->get('/')->assertRedirect('/admin/login');
+    }
+
+    public function test_root_redirects_to_portal_login_when_the_host_is_the_portal_domain(): void
+    {
+        config(['app.portal_url' => 'http://localhost']);
+
+        $this->get('/')->assertRedirect(route('portal.login'));
     }
 
     public function test_login_page_renders_in_spanish(): void
