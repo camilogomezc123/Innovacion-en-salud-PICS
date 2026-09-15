@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# Despliegue de ÁGORA en el VPS. Uso:  bash /root/deploy-agora.sh
+# Despliegue de ÁGORA/PICS en el VPS. Uso: bash /root/deploy-pics.sh
 # Solo ejecuta lo que realmente cambió en el pull.
 set -euo pipefail
 
-APP=/var/www/agora.koqoi.com
+APP=/var/www/pics
 cd "$APP"
 
 echo "==> git pull"
 BEFORE=$(git rev-parse HEAD)
-git pull --ff-only
+BRANCH=$(git branch --show-current)
+git pull --ff-only origin "$BRANCH"
 AFTER=$(git rev-parse HEAD)
 CHANGED=$(git diff --name-only "$BEFORE" "$AFTER" || true)
 
@@ -46,14 +47,16 @@ php artisan migrate --force
 echo "==> cachés"
 php artisan optimize
 
-# Permisos
-chown -R www-data:www-data "$APP"
+# El código no debe ser modificable por PHP; solo las carpetas de ejecución.
+chown -R root:www-data "$APP"
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R ug+rwX storage bootstrap/cache
 
 # Recargar PHP-FPM para limpiar OPcache y servir el código nuevo
 echo "==> recargar PHP-FPM"
 systemctl reload php8.4-fpm
 
 # Autoactualiza este lanzador para la próxima vez
-cp -f "$APP/deploy.sh" /root/deploy-agora.sh 2>/dev/null || true
+cp -f "$APP/deploy.sh" /root/deploy-pics.sh 2>/dev/null || true
 
 echo "✓ Deploy OK -> $(git rev-parse --short HEAD)"

@@ -25,11 +25,11 @@ class PortalResetPasswordNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $url = route('portal.password.reset', [
+        $url = rtrim(config('app.portal_url'), '/').route('portal.password.reset', [
             'token' => $this->token,
             'guard' => $this->guard,
             'email' => $notifiable->email,
-        ]);
+        ], false);
 
         return (new MailMessage)
             ->subject('Restablece tu contraseña de POSUCI 360 Conecta')

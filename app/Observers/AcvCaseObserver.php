@@ -19,7 +19,11 @@ class AcvCaseObserver
     public function creating(AcvCase $case): void
     {
         if (! $case->case_sequence) {
-            $next = ((int) AcvCase::query()->lockForUpdate()->max('case_sequence')) + 1;
+            $next = ((int) AcvCase::query()
+                ->whereNotNull('case_sequence')
+                ->orderByDesc('case_sequence')
+                ->lockForUpdate()
+                ->value('case_sequence')) + 1;
             $case->case_sequence = $next;
             $case->case_number = 'S'.$next;
         }

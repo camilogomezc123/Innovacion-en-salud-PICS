@@ -35,7 +35,7 @@ class PortalAccountInvitation extends Notification
             ->line('Puedes consultar tu diario, tus metas, cómo te sientes y pedir ayuda desde ahí.')
             ->line('Usuario: '.$notifiable->email)
             ->line('Contraseña temporal: '.$this->temporaryPassword)
-            ->action('Ingresar al portal', url('/portal/login'))
+            ->action('Ingresar al portal', rtrim(config('app.portal_url'), '/').'/portal/login')
             ->line('Por seguridad, te pediremos cambiar esta contraseña la primera vez que ingreses.');
     }
 }

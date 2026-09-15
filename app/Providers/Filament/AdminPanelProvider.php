@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->login(Login::class)
             ->passwordReset()
             ->profile(EditProfile::class)
-            ->brandName('PICS')
+            ->brandName('ÁGORA')
             ->brandLogo(asset('img/LOGO1.png'))
             ->brandLogoHeight('2.75rem')
             ->favicon(asset('img/favicon.png'))
