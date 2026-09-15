@@ -1,6 +1,17 @@
 # POSUCI 360 Conecta — Estado del proyecto
 
-Última actualización: 2026-09-21 (verificación: varios cuidadores autorizados por caso).
+Última actualización: 2026-09-22 (barra superior más simple + menú de módulos accesible desde cualquier página + ajustes de celular).
+
+## Portal más fácil y visual: navegación (2026-09-22)
+
+La barra superior había ido creciendo con cada función nueva (modo fácil, notificaciones push, instalar app, campanita, cerrar sesión — 6 elementos sueltos) hasta verse recargada, sobre todo en celular.
+
+- **Menú "⚙️ Ajustes"**: modo fácil, activar notificaciones, instalar app y salir ahora viven juntos en un solo menú desplegable. La barra superior queda con solo lo esencial: el logo, el nombre del actor, la campanita de notificaciones y "Ajustes".
+- **Enlaces del menú con ícono**: cada módulo en el menú colapsable ahora tiene su emoji (💊 Medicamentos, 📅 Calendario, etc.), igual que ya tenían las tarjetas del Inicio — más fácil de escanear de un vistazo.
+- **Botón flotante "🗺️ Módulos" desde cualquier página**: antes, la cuadrícula grande de íconos ("Explora todo") solo existía en el Inicio. Ahora un botón flotante (esquina inferior izquierda, junto al de "Leer esta página") la abre desde cualquier pantalla del portal, sin tener que volver al Inicio primero — incluye dos módulos que antes solo estaban en el Inicio y no en la barra (Mi progreso, Resumen para tu cita).
+- **Ajustes de celular**: el calendario partía sus 7 botones (mes/semana/día/lista + navegación) en una sola fila que se desbordaba en pantallas angostas — ahora quedan en dos filas (navegación arriba, vistas abajo). Se agregaron ajustes de tamaño para pantallas de menos de 480px (mascota, tarjetas, botones del calendario) para que no se vean apretados.
+
+Verificado con 2 pruebas automatizadas nuevas (284 en total, todas en verde) y un recorrido manual real contra el servidor de desarrollo: el menú de Ajustes, el lanzador de módulos, y el calendario en dos filas se ven correctamente en `/portal` y en páginas distintas al Inicio.
 
 ## Varios cuidadores autorizados por caso — verificado (2026-09-21)
 
